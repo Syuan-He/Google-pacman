@@ -38,7 +38,6 @@ void CGameStateOver::OnShow()
 
 void CGameStateOver::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
-	exit(0);
 }
 
 
