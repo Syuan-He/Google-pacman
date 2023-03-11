@@ -66,6 +66,7 @@ namespace game_framework {
 		void OnShow();									// 顯示這個狀態的遊戲畫面
 	private:
 		CMovingBitmap logo;								// csie的logo
+		void draw_text();
 	};
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -117,12 +118,13 @@ namespace game_framework {
 		bool objCanMove(int dir, int x, int y); //是否可以向指定方向移動
 		void show_image_by_phase(); //顯示物件
 		void update_position(int dir, int* pos); //更新指定物件座標
+		void debugText();
 		
 		//pacman
 		CMovingBitmap pacman; //pacman物件
-		int pacman_dir_now = 0; //pacman的移動方向
-		int pacman_dir_waitfor = 0; //pacman期望的移動方向
-		int pacman_position[2] = { 1, 1 }; //pacman的初始座標
+		int pacman_dir_now = 2; //pacman的移動方向
+		int pacman_dir_waitfor = 2; //pacman期望的移動方向
+		int pacman_position[2] = { 35, 15 }; //pacman的初始座標
 		int pacman_total_step = 0; //pacman的移動總步數(最大16(2倍原始地圖下的一步長))
 		int pacman_velocity = 1; //pacman的移動速度
 		void move_pacman(); //移動pacman

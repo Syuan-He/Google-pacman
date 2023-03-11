@@ -45,7 +45,7 @@ void CGameStateRun::move_pacman() {
 			default:
 				break;
 		}
-		pacman_total_step++;
+		pacman_total_step += pacman_velocity;
 	}
 	//if pacman hit the wall 
 	else {

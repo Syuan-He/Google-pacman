@@ -6,6 +6,7 @@
 #include "../Library/gameutil.h"
 #include "../Library/gamecore.h"
 #include "mygame.h"
+#include <string>
 
 using namespace game_framework;
 
@@ -55,7 +56,7 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/pacman/pacman8.bmp",
 	});
 	//初始化pacman位置
-	pacman.SetTopLeft(11, 10);
+	pacman.SetTopLeft(554, 234);
 	//初始化pacman的第一張圖
 	pacman.SetFrameIndexOfBitmap(0);
 }
@@ -63,17 +64,21 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 void CGameStateRun::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
 	//監測方向鍵
-	if (nChar == VK_RIGHT) {
+	switch (nChar) {
+	case VK_RIGHT:
 		pacman_dir_waitfor = 0;
-	}
-	else if (nChar == VK_LEFT) {
+		break;
+	case VK_LEFT:
 		pacman_dir_waitfor = 2;
-	}
-	else if (nChar == VK_UP) {
+		break;
+	case VK_UP:
 		pacman_dir_waitfor = 1;
-	}
-	else if (nChar == VK_DOWN) {
+		break;
+	case VK_DOWN:
 		pacman_dir_waitfor = 3;
+		break;
+	default:
+		break;
 	}
 }
 
@@ -105,4 +110,21 @@ void CGameStateRun::OnRButtonUp(UINT nFlags, CPoint point)	// 處理滑鼠的動
 void CGameStateRun::OnShow()
 {
 	show_image_by_phase(); //顯示物件
+	debugText();
+}
+
+void CGameStateRun::debugText() {
+	CDC *pDC = CDDraw::GetBackCDC();
+	string strPacPos = "", strPacPoi = "";
+
+	strPacPos += to_string(pacman_position[0]) + ", " + to_string(pacman_position[1]);	//position in array
+	strPacPoi += to_string(pacman.GetLeft()) + ", " + to_string(pacman.GetTop());
+
+	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
+	CTextDraw::Print(pDC, 20, 270, strPacPos);
+
+	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
+	CTextDraw::Print(pDC, 20, 300, strPacPoi);
+
+	CDDraw::ReleaseBackCDC();
 }
