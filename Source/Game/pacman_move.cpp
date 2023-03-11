@@ -20,12 +20,20 @@ void CGameStateRun::move_pacman() {
 			//change the diraction to the new one
 			pacman_dir_now = pacman_dir_waitfor;
 			//set pacman's picture to the orther one that match with the diraction
-			pacman.SetFrameIndexOfBitmap(pacman_dir_now * 2 + 1);
 		}
 		//reset pacman's total step
 		pacman_total_step = 0;
 	}
-
+	//pacman's animetion when it move
+	if (pacman_total_step % 8 < 3) {
+		pacman.SetFrameIndexOfBitmap(pacman_dir_now * 2 + 1);
+	}
+	else if(pacman_total_step % 8 < 6){
+		pacman.SetFrameIndexOfBitmap(pacman_dir_now * 2 + 2);
+	}
+	else {
+		pacman.SetFrameIndexOfBitmap(0);
+	}
 	//if the diraction now is executable keep going
 	if (objCanMove(pacman_dir_now, pacman_position[0], pacman_position[1])) {
 		switch (pacman_dir_now)
@@ -45,14 +53,14 @@ void CGameStateRun::move_pacman() {
 			default:
 				break;
 		}
-		pacman_total_step++;
+		pacman_total_step += pacman_velocity;
 	}
-	//if pacman hit the wall 
+	//if pacman hit the wall (include portal)
 	else {
-		//reset pacman's total step
-		pacman_total_step = 0;
+		//check that if pacman hit a portal
+		if (portal_detect(&pacman, pacman_position, portal_position)) {}
 		//check that if the position that pacman prefer is executable 
-		if (objCanMove(pacman_dir_waitfor, pacman_position[0], pacman_position[1])) {
+		else if (objCanMove(pacman_dir_waitfor, pacman_position[0], pacman_position[1])) {
 			//change the diraction
 			pacman_dir_now = pacman_dir_waitfor;
 		}

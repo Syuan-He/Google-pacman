@@ -26,7 +26,9 @@ void CGameStateInit::OnInit()
 	//
 	// 開始載入資料
 	//
-	Sleep(1000);				// 放慢，以便看清楚進度，實際遊戲請刪除此Sleep
+	Sleep(200);				// 放慢，以便看清楚進度，實際遊戲請刪除此Sleep
+	ShowInitProgress(66, "Initialize...");
+	Sleep(200);
 	//
 	// 此OnInit動作會接到CGameStaterRun::OnInit()，所以進度還沒到100%
 	//
@@ -48,4 +50,19 @@ void CGameStateInit::OnLButtonDown(UINT nFlags, CPoint point)
 
 void CGameStateInit::OnShow()
 {
+	draw_text();
+}
+
+void CGameStateInit::draw_text() {
+	CDC *pDC = CDDraw::GetBackCDC();
+
+	/* Print title */
+	CTextDraw::ChangeFontLog(pDC, 36, "微軟正黑體", RGB(255, 255, 255));
+	CTextDraw::Print(pDC, 79, 228, "Game Framework Practice");
+
+	/* Print info */
+	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
+	CTextDraw::Print(pDC, 182, 431, "click the left Button to start");
+
+	CDDraw::ReleaseBackCDC();
 }

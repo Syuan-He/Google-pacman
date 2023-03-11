@@ -1,17 +1,18 @@
 ﻿cl : 命令列 warning D9035: 選項 'Gm' 已被取代，在未來的發行版本中將會移除
-  gamecore.cpp
-  audio.cpp
   pacman_move.cpp
+  mapdetect.cpp
+  正在產生程式碼...
+  正在編譯...
+  mygame_run.cpp
   正在產生程式碼...
   正在略過... (未偵測到相關變更)
+  gamecore.cpp
   show_object.cpp
-  mygame_run.cpp
   mygame_over.cpp
   mygame_initialize.cpp
-  mapdetect.cpp
   gameView.cpp
   game.cpp
-  MainFrm.cpp
 cl : 命令列 warning D9035: 選項 'Gm' 已被取代，在未來的發行版本中將會移除
+  正在略過... (未偵測到相關變更)
   gameutil.cpp
-  game.vcxproj -> D:\github\LeistungsstarkesGameFramework-main\.\Debug\game.exe
+  game.vcxproj -> D:\github\OOP-project\.\Debug\game.exe
