@@ -90,9 +90,11 @@ namespace game_framework {
 		void OnShow();									// 顯示這個狀態的遊戲畫面
 	private:
 		//地圖相關
-		//0為路, 1為牆, 2只有鬼能過
+		
 		int window_shift[2] = { 25, 100 }; //視窗位移
-		int map_len[2] = {17, 60}; //地圖大小
+		int origin_position_shift[2] = { -38, -6}; //圖像原點位移
+		int map_len[2] = {17, 62}; //地圖大小
+		//0為路, 1為牆, 2無分數的路, 3大力丸 
 		int** gameMap; //地圖(需載入)
 		string map_dir = "Resources/google_map.txt"; //地圖載入地址
 		void map_loader(string str); //地圖載入
@@ -101,25 +103,28 @@ namespace game_framework {
 		//int phase = 1; //之後作為難度改變依據
 		CMovingBitmap background; //背景物件
 		bool objCanMove(int dir, int x, int y); //是否可以向指定方向移動
-		int portal_position[2][2] = { { 0, 8 }, { 59, 8 } }; //傳送門位置和傳送位置
+		int portal_position[2][2] = { { 1, 8 }, { 60, 8 } }; //傳送門位置和傳送位置
 		void show_image_by_phase(); //顯示物件
 		void update_position(int dir, int* pos); //更新指定物件座標
 		void debugText();
 		bool portal_detect(CMovingBitmap* obj, int* pos, int portal_pos[2][2]); //偵測是否進入重送門並移動指定物件
 
 		//分數相關
-		vector<CMovingBitmap> coins; //所有coin
+		vector<CMovingBitmap> coins; //所有豆子
 		vector<CMovingBitmap> power_pellets;//所有power_pellets
-		int total_coin_nums = 0; ////所有coin個數
+		vector<CMovingBitmap> game_scores; //分數條
+		int score_digits = 5; //分數條的位數
+		int total_coin_nums = 0; //所有豆子個數
 		int score = 0; //總分
 		void get_point(CMovingBitmap* obj); //偵測是否吃到豆子
 		void get_power(CMovingBitmap* obj); //偵測是否吃到大力丸
+		void update_score(int sc); //更新分數條
 
 		//pacman
 		CMovingBitmap pacman; //pacman物件
 		int pacman_dir_now = 2; //pacman的移動方向
 		int pacman_dir_waitfor = 2; //pacman期望的移動方向
-		int pacman_position[2] = { 36, 15 }; //pacman的初始座標
+		int pacman_position[2] = { 37, 15 }; //pacman的初始座標
 		int pacman_total_step = 0; //pacman的移動總步數(最大16(2倍原始地圖下的一步長))
 		int pacman_velocity = 2; //pacman的移動速度
 		void move_pacman(); //移動pacman

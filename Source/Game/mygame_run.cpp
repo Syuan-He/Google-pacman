@@ -67,17 +67,37 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 			if (gameMap[i][j] == 0) {
 				CMovingBitmap t;
 				t.LoadBitmapA("Resources/words/coin.bmp");
-				t.SetTopLeft(16 * (j - 2) + 22 + window_shift[0], 16 * (i - 1) + 22 + window_shift[1]);
+				t.SetTopLeft(16 * j + origin_position_shift[0] + 12 + window_shift[0], 16 * i + origin_position_shift[1] + 12 + window_shift[1]);
 				coins.push_back(t);
 				total_coin_nums ++;
 			}
 			if (gameMap[i][j] == 3){
 				CMovingBitmap t;
 				t.LoadBitmapA("Resources/words/dot.bmp");
-				t.SetTopLeft(16 * (j - 2) + 20 + window_shift[0], 16 * (i - 1) + 20 + window_shift[1]);
+				t.SetTopLeft(16 * j + origin_position_shift[0] + 10 + window_shift[0], 16 * i + origin_position_shift[1] + 10 + window_shift[1]);
 				power_pellets.push_back(t);
 			}
 		}
+	}
+
+	//分數條初始化
+	for (int i = 0; i < score_digits; i++) {
+		CMovingBitmap t;
+		t.LoadBitmapByString({
+			"Resources/words/0.bmp",
+			"Resources/words/1.bmp",
+			"Resources/words/2.bmp",
+			"Resources/words/3.bmp",
+			"Resources/words/4.bmp",
+			"Resources/words/5.bmp",
+			"Resources/words/6.bmp",
+			"Resources/words/7.bmp",
+			"Resources/words/8.bmp",
+			"Resources/words/9.bmp",
+		});
+		t.SetFrameIndexOfBitmap(0);
+		t.SetTopLeft(i * 16 + window_shift[0], window_shift[1] - 30);
+		game_scores.push_back(t);
 	}
 }
 
