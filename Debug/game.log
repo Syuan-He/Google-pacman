@@ -1,13 +1,12 @@
 ﻿cl : 命令列 warning D9035: 選項 'Gm' 已被取代，在未來的發行版本中將會移除
-  pacman_move.cpp
-  mapdetect.cpp
-  正在產生程式碼...
-  正在編譯...
+  show_object.cpp
   mygame_run.cpp
+  mapdetect.cpp
+  map_load.cpp
   正在產生程式碼...
   正在略過... (未偵測到相關變更)
   gamecore.cpp
-  show_object.cpp
+  pacman_move.cpp
   mygame_over.cpp
   mygame_initialize.cpp
   gameView.cpp

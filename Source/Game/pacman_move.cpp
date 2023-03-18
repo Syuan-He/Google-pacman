@@ -25,10 +25,10 @@ void CGameStateRun::move_pacman() {
 		pacman_total_step = 0;
 	}
 	//pacman's animetion when it move
-	if (pacman_total_step % 8 < 3) {
+	if (pacman_total_step % 16 < 5) {
 		pacman.SetFrameIndexOfBitmap(pacman_dir_now * 2 + 1);
 	}
-	else if(pacman_total_step % 8 < 6){
+	else if(pacman_total_step % 16 < 10){
 		pacman.SetFrameIndexOfBitmap(pacman_dir_now * 2 + 2);
 	}
 	else {

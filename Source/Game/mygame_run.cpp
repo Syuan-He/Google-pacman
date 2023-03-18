@@ -33,13 +33,16 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 
 void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 {
+	//載入地圖map
+	map_loader(map_dir);
+	
 	//載入地圖圖檔
 	background.LoadBitmapByString({
 		"Resources/googleMap0.bmp",
 		"Resources/googleMap1.bmp"
 	});
 	//初始化地圖位置
-	background.SetTopLeft(0, 0);
+	background.SetTopLeft(0 + window_shift[0], 0 + window_shift[1]);
 
 	//載入pacman圖檔
 	pacman.LoadBitmapByString({ 
@@ -54,9 +57,28 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/pacman/pacman8.bmp",
 	});
 	//初始化pacman位置
-	pacman.SetTopLeft(554, 234);
+	pacman.SetTopLeft(554 + window_shift[0], 234 + window_shift[1]);
 	//初始化pacman的第一張圖
 	pacman.SetFrameIndexOfBitmap(0);
+
+	//載入coins, power pellets
+	for (int i = 0; i < map_len[0]; i++) {
+		for (int j = 0; j < map_len[1]; j++) {
+			if (gameMap[i][j] == 0) {
+				CMovingBitmap t;
+				t.LoadBitmapA("Resources/words/coin.bmp");
+				t.SetTopLeft(16 * (j - 2) + 22 + window_shift[0], 16 * (i - 1) + 22 + window_shift[1]);
+				coins.push_back(t);
+				total_coin_nums ++;
+			}
+			if (gameMap[i][j] == 3){
+				CMovingBitmap t;
+				t.LoadBitmapA("Resources/words/dot.bmp");
+				t.SetTopLeft(16 * (j - 2) + 20 + window_shift[0], 16 * (i - 1) + 20 + window_shift[1]);
+				power_pellets.push_back(t);
+			}
+		}
+	}
 }
 
 void CGameStateRun::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
@@ -109,6 +131,8 @@ void CGameStateRun::OnShow()
 {
 	show_image_by_phase(); //顯示物件
 	debugText();
+	get_point(&pacman); //偵測是否吃到豆子
+	get_power(&pacman);//偵測是否吃到大力丸
 }
 
 void CGameStateRun::debugText() {
@@ -119,10 +143,10 @@ void CGameStateRun::debugText() {
 	strPacPoi += to_string(pacman.GetLeft()) + ", " + to_string(pacman.GetTop());
 
 	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
-	CTextDraw::Print(pDC, 20, 270, strPacPos);
+	CTextDraw::Print(pDC, 20 + window_shift[0], 270 + window_shift[1], strPacPos);
 
 	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
-	CTextDraw::Print(pDC, 20, 300, strPacPoi);
+	CTextDraw::Print(pDC, 20 + window_shift[0], 300 + window_shift[1], strPacPoi);
 
 	CDDraw::ReleaseBackCDC();
 }
