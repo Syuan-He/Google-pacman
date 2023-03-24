@@ -7,7 +7,7 @@
 #include "../Library/gamecore.h"
 #include "mygame.h"
 #include <string>
-int int_dist;
+
 using namespace game_framework;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -29,20 +29,20 @@ void CGameStateRun::OnBeginState()
 void CGameStateRun::OnMove()							// 移動遊戲元素
 {
 	move_pacman(); //移動pacman
-	if (pacman_total_step == 0)
-		int_dist = astar(pacman_position[0], pacman_position[1], 57, 1);
-	pacman_dir_waitfor = int_dist;
 }
 
 void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 {
+	//載入地圖map
+	map_loader(map_dir);
+	
 	//載入地圖圖檔
 	background.LoadBitmapByString({
 		"Resources/googleMap0.bmp",
 		"Resources/googleMap1.bmp"
 	});
 	//初始化地圖位置
-	background.SetTopLeft(0, 0);
+	background.SetTopLeft(0 + window_shift[0], 0 + window_shift[1]);
 
 	//載入pacman圖檔
 	pacman.LoadBitmapByString({ 
@@ -57,9 +57,48 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/pacman/pacman8.bmp",
 	});
 	//初始化pacman位置
-	pacman.SetTopLeft(554, 234);
+	pacman.SetTopLeft(554 + window_shift[0], 234 + window_shift[1]);
 	//初始化pacman的第一張圖
 	pacman.SetFrameIndexOfBitmap(0);
+
+	//載入coins, power pellets
+	for (int i = 0; i < map_len[0]; i++) {
+		for (int j = 0; j < map_len[1]; j++) {
+			if (gameMap[i][j] == 0) {
+				CMovingBitmap t;
+				t.LoadBitmapA("Resources/words/coin.bmp");
+				t.SetTopLeft(16 * j + origin_position_shift[0] + 12 + window_shift[0], 16 * i + origin_position_shift[1] + 12 + window_shift[1]);
+				coins.push_back(t);
+				total_coin_nums ++;
+			}
+			if (gameMap[i][j] == 3){
+				CMovingBitmap t;
+				t.LoadBitmapA("Resources/words/dot.bmp");
+				t.SetTopLeft(16 * j + origin_position_shift[0] + 10 + window_shift[0], 16 * i + origin_position_shift[1] + 10 + window_shift[1]);
+				power_pellets.push_back(t);
+			}
+		}
+	}
+
+	//分數條初始化
+	for (int i = 0; i < score_digits; i++) {
+		CMovingBitmap t;
+		t.LoadBitmapByString({
+			"Resources/words/0.bmp",
+			"Resources/words/1.bmp",
+			"Resources/words/2.bmp",
+			"Resources/words/3.bmp",
+			"Resources/words/4.bmp",
+			"Resources/words/5.bmp",
+			"Resources/words/6.bmp",
+			"Resources/words/7.bmp",
+			"Resources/words/8.bmp",
+			"Resources/words/9.bmp",
+		});
+		t.SetFrameIndexOfBitmap(0);
+		t.SetTopLeft(i * 16 + window_shift[0], window_shift[1] - 30);
+		game_scores.push_back(t);
+	}
 }
 
 void CGameStateRun::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
@@ -112,24 +151,22 @@ void CGameStateRun::OnShow()
 {
 	show_image_by_phase(); //顯示物件
 	debugText();
+	get_point(&pacman); //偵測是否吃到豆子
+	get_power(&pacman);//偵測是否吃到大力丸
 }
 
 void CGameStateRun::debugText() {
 	CDC *pDC = CDDraw::GetBackCDC();
-	string strPacPos = "", strPacPoi = "", dist = "";
+	string strPacPos = "", strPacPoi = "";
 
 	strPacPos += to_string(pacman_position[0]) + ", " + to_string(pacman_position[1]);	//position in array
 	strPacPoi += to_string(pacman.GetLeft()) + ", " + to_string(pacman.GetTop());
-	dist += to_string(int_dist);
 
 	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
-	CTextDraw::Print(pDC, 20, 270, strPacPos);
+	CTextDraw::Print(pDC, 20 + window_shift[0], 270 + window_shift[1], strPacPos);
 
 	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
-	CTextDraw::Print(pDC, 20, 300, strPacPoi);
-	//*
-	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
-	CTextDraw::Print(pDC, 20, 330, dist);//*/
+	CTextDraw::Print(pDC, 20 + window_shift[0], 300 + window_shift[1], strPacPoi);
 
 	CDDraw::ReleaseBackCDC();
 }
