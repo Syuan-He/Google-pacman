@@ -37,6 +37,7 @@
  *      2. Replace the demonstration of animation as a new bouncing ball.
  *      3. Use ShowInitProgress(percent) to display loading progress.
 */
+
 namespace game_framework {
 	/////////////////////////////////////////////////////////////////////////////
 	// Constants
@@ -91,8 +92,8 @@ namespace game_framework {
 	private:
 		//地圖相關
 		
-		int window_shift[2] = { 25, 100 }; //視窗位移
-		int origin_position_shift[2] = { -38, -6}; //圖像原點位移
+		int window_shift[2] = { 25, 100 }; //地圖圖像原點位移
+		//int origin_position_shift[2] = { 35, 110}; //地圖可移動範圍原點位移
 		int map_len[2] = {17, 62}; //地圖大小
 		//0為路, 1為牆, 2無分數的路, 3大力丸 
 		int** gameMap; //地圖(需載入)
@@ -102,12 +103,15 @@ namespace game_framework {
 		//整體
 		//int phase = 1; //之後作為難度改變依據
 		CMovingBitmap background; //背景物件
-		bool objCanMove(int dir, int x, int y); //是否可以向指定方向移動
+		CMovingBitmap P1_icon; //player1 圖標
+		vector<CMovingBitmap> hearts_icon; //生命圖標
+		int heart_num = 3; //生命數
 		int portal_position[2][2] = { { 1, 8 }, { 60, 8 } }; //傳送門位置和傳送位置
 		void show_image_by_phase(); //顯示物件
 		void update_position(int dir, int* pos); //更新指定物件座標
 		void debugText();
 		bool portal_detect(CMovingBitmap* obj, int* pos, int portal_pos[2][2]); //偵測是否進入重送門並移動指定物件
+		bool objCanMove(int dir, int x, int y); //是否可以向指定方向移動
 
 		//分數相關
 		vector<CMovingBitmap> coins; //所有豆子

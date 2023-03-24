@@ -67,14 +67,14 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 			if (gameMap[i][j] == 0) {
 				CMovingBitmap t;
 				t.LoadBitmapA("Resources/words/coin.bmp");
-				t.SetTopLeft(16 * j + origin_position_shift[0] + 12 + window_shift[0], 16 * i + origin_position_shift[1] + 12 + window_shift[1]);
+				t.SetTopLeft(16 * (j - 2) + 6 + window_shift[0], 16 * i + 6 + window_shift[1]);
 				coins.push_back(t);
 				total_coin_nums ++;
 			}
 			if (gameMap[i][j] == 3){
 				CMovingBitmap t;
 				t.LoadBitmapA("Resources/words/dot.bmp");
-				t.SetTopLeft(16 * j + origin_position_shift[0] + 10 + window_shift[0], 16 * i + origin_position_shift[1] + 10 + window_shift[1]);
+				t.SetTopLeft(16 * (j - 2) + 4 + window_shift[0], 16 * i + 4 + window_shift[1]);
 				power_pellets.push_back(t);
 			}
 		}
@@ -98,6 +98,21 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		t.SetFrameIndexOfBitmap(0);
 		t.SetTopLeft(i * 16 + window_shift[0], window_shift[1] - 30);
 		game_scores.push_back(t);
+	}
+
+	//其餘場景物件
+	P1_icon.LoadBitmapByString({
+		"Resources/words/P1.bmp",
+		"Resources/words/NULL.bmp",
+	});
+	P1_icon.SetAnimation(300, false);
+	P1_icon.SetTopLeft(window_shift[0], window_shift[1] - 60);
+
+	for (int i = 0; i < heart_num; i++) {
+		CMovingBitmap t;
+		t.LoadBitmapA("Resources/pacman/pacman5.bmp");
+		t.SetTopLeft(i * 32 + window_shift[0], window_shift[1] + 2 * background.GetHeight() + 16);
+		hearts_icon.push_back(t);
 	}
 }
 
@@ -150,7 +165,7 @@ void CGameStateRun::OnRButtonUp(UINT nFlags, CPoint point)	// 處理滑鼠的動
 void CGameStateRun::OnShow()
 {
 	show_image_by_phase(); //顯示物件
-	debugText();
+	//debugText();
 	get_point(&pacman); //偵測是否吃到豆子
 	get_power(&pacman);//偵測是否吃到大力丸
 }
