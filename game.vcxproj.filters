@@ -63,6 +63,15 @@
     <ClCompile Include="Source\Game\mapdetect.cpp">
       <Filter>MyGame</Filter>
     </ClCompile>
+<<<<<<< Updated upstream
+=======
+    <ClCompile Include="Source\Game\map_load.cpp">
+      <Filter>MyGame</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Game\astar.cpp">
+      <Filter>MyGame</Filter>
+    </ClCompile>
+>>>>>>> Stashed changes
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Source\Library\audio.h">

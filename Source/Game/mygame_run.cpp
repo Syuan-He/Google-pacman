@@ -7,7 +7,7 @@
 #include "../Library/gamecore.h"
 #include "mygame.h"
 #include <string>
-
+int int_dist;
 using namespace game_framework;
 
 /////////////////////////////////////////////////////////////////////////////
@@ -29,6 +29,9 @@ void CGameStateRun::OnBeginState()
 void CGameStateRun::OnMove()							// 移動遊戲元素
 {
 	move_pacman(); //移動pacman
+	if (pacman_total_step == 0)
+		int_dist = astar(pacman_position[0], pacman_position[1], 57, 1);
+	pacman_dir_waitfor = int_dist;
 }
 
 void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
@@ -40,8 +43,6 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 	});
 	//初始化地圖位置
 	background.SetTopLeft(0, 0);
-	//設定地圖動畫
-	background.SetAnimation(3000, false);
 
 	//載入pacman圖檔
 	pacman.LoadBitmapByString({ 
@@ -115,16 +116,20 @@ void CGameStateRun::OnShow()
 
 void CGameStateRun::debugText() {
 	CDC *pDC = CDDraw::GetBackCDC();
-	string strPacPos = "", strPacPoi = "";
+	string strPacPos = "", strPacPoi = "", dist = "";
 
 	strPacPos += to_string(pacman_position[0]) + ", " + to_string(pacman_position[1]);	//position in array
 	strPacPoi += to_string(pacman.GetLeft()) + ", " + to_string(pacman.GetTop());
+	dist += to_string(int_dist);
 
 	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
 	CTextDraw::Print(pDC, 20, 270, strPacPos);
 
 	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
 	CTextDraw::Print(pDC, 20, 300, strPacPoi);
+	//*
+	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
+	CTextDraw::Print(pDC, 20, 330, dist);//*/
 
 	CDDraw::ReleaseBackCDC();
 }

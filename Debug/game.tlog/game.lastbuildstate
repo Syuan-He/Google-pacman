@@ -1,2 +1,6 @@
 #TargetFrameworkVersion=v4.0:PlatformToolSet=v141:EnableManagedIncrementalBuild=false:VCToolArchitecture=Native32Bit:WindowsTargetPlatformVersion=10.0.17763.0
+<<<<<<< Updated upstream
 Debug|Win32|D:\cpp\OOPL2023s-master\material\test\homework1\|
+=======
+Debug|Win32|D:\cpp\OOPL2023s-master\material\homework1\|
+>>>>>>> Stashed changes
