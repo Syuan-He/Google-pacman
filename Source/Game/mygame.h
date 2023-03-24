@@ -132,6 +132,10 @@ namespace game_framework {
 		int pacman_total_step = 0; //pacman的移動總步數(最大16(2倍原始地圖下的一步長))
 		int pacman_velocity = 2; //pacman的移動速度
 		void move_pacman(); //移動pacman
+
+		//ghost
+		bool isVaildNode(int x, int y, int xx, int yy);
+		int astar(int x0, int y0, int x1, int y1);
 	};
 
 	/////////////////////////////////////////////////////////////////////////////
