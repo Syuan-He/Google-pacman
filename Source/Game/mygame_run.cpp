@@ -65,13 +65,14 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 	for (int i = 0; i < map_len[0]; i++) {
 		for (int j = 0; j < map_len[1]; j++) {
 			if (gameMap[i][j] == 0) {
-				CMovingBitmap t;
-				t.LoadBitmapA("Resources/words/coin.bmp");
-				t.SetTopLeft(16 * (j - 2) + 6 + window_shift[0], 16 * i + 6 + window_shift[1]);
+				CMovingBitmap* t = new CMovingBitmap;
+				t -> LoadBitmapA("Resources/words/coin.bmp");
+				t -> SetTopLeft(16 * (j - 2) + 6 + window_shift[0], 16 * i + 6 + window_shift[1]);
 				coins.push_back(t);
+				coins_map[pair<int, int>(j, i)] = total_coin_nums;
 				total_coin_nums ++;
 			}
-			if (gameMap[i][j] == 3){
+			else if (gameMap[i][j] == 3){
 				CMovingBitmap t;
 				t.LoadBitmapA("Resources/words/dot.bmp");
 				t.SetTopLeft(16 * (j - 2) + 4 + window_shift[0], 16 * i + 4 + window_shift[1]);
@@ -166,7 +167,7 @@ void CGameStateRun::OnShow()
 {
 	show_image_by_phase(); //顯示物件
 	//debugText();
-	get_point(&pacman); //偵測是否吃到豆子
+	get_point(&pacman, pacman_position[0], pacman_position[1]); //偵測是否吃到豆子
 	get_power(&pacman);//偵測是否吃到大力丸
 }
 

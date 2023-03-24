@@ -6,6 +6,7 @@
 #include "../Library/gameutil.h"
 #include "../Library/gamecore.h"
 #include "mygame.h"
+#include <windows.h>
 
 using namespace game_framework;
 
@@ -90,15 +91,15 @@ bool CGameStateRun::portal_detect(CMovingBitmap* obj, int* pos, int portal_pos[2
 }
 
 //detect if pacman(obj) eat poit
-void CGameStateRun::get_point(CMovingBitmap* obj) {
-	for (auto it = coins.begin(); it != coins.end();) {		
-		if (obj->IsOverlap(*obj, *it)) {
-			it = coins.erase(it);
-			total_coin_nums--;	
+void CGameStateRun::get_point(CMovingBitmap* obj, int x, int y) {
+	auto t = coins_map.find(pair<int, int>(x, y));
+	if (t != coins_map.end()) {
+		auto p = coins[t -> second];
+		if (p != nullptr) {
+			delete p;
+			coins[t->second] = nullptr;
+			total_coin_nums --;
 			score += 10;
-		}
-		else {
-			it++;
 		}
 	}
 }

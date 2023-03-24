@@ -20,8 +20,10 @@ void CGameStateRun::show_image_by_phase() {
 	}
 	 
 	//show coins
-	for (CMovingBitmap t : coins) {
-		t.ShowBitmap();
+	for (CMovingBitmap* t : coins) {
+		if (t != nullptr) {
+			t -> ShowBitmap();
+		}
 	}
 	//show power pellet
 	for (CMovingBitmap t : power_pellets) {

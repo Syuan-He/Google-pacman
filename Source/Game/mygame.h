@@ -114,13 +114,14 @@ namespace game_framework {
 		bool objCanMove(int dir, int x, int y); //是否可以向指定方向移動
 
 		//分數相關
-		vector<CMovingBitmap> coins; //所有豆子
+		vector<CMovingBitmap*> coins;//所有豆子
+		map<pair<int, int>, int> coins_map;
 		vector<CMovingBitmap> power_pellets;//所有power_pellets
 		vector<CMovingBitmap> game_scores; //分數條
 		int score_digits = 5; //分數條的位數
 		int total_coin_nums = 0; //所有豆子個數
 		int score = 0; //總分
-		void get_point(CMovingBitmap* obj); //偵測是否吃到豆子
+		void get_point(CMovingBitmap* obj, int x, int y); //偵測是否吃到豆子
 		void get_power(CMovingBitmap* obj); //偵測是否吃到大力丸
 		void update_score(int sc); //更新分數條
 
