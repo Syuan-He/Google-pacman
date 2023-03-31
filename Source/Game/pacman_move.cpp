@@ -65,6 +65,4 @@ void CGameStateRun::move_pacman() {
 			pacman_dir_now = pacman_dir_waitfor;
 		}
 	}
-
-	
 }

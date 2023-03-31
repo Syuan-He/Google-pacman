@@ -6,6 +6,7 @@
 #include "../Library/gameutil.h"
 #include "../Library/gamecore.h"
 #include "mygame.h"
+#include <windows.h>
 
 using namespace game_framework;
 
@@ -77,28 +78,28 @@ bool CGameStateRun::portal_detect(CMovingBitmap* obj, int* pos, int portal_pos[2
 	if (pos[0] == portal_pos[0][0] && pos[1] == portal_pos[0][1]) {
 		pos[0] = portal_pos[1][0];
 		pos[1] = portal_pos[1][1];
-		obj -> SetTopLeft(16 * pos[0] + origin_position_shift[0] + window_shift[0], 16 * pos[1] + origin_position_shift[1] + window_shift[1]);
+		obj -> SetTopLeft(16 * (pos[0] - 2) - 6 + window_shift[0], 16 * pos[1] - 6 + window_shift[1]);
 		return true;
 	}
 	else if (pos[0] == portal_pos[1][0] && pos[1] == portal_pos[1][1]) {
 		pos[0] = portal_pos[0][0];
 		pos[1] = portal_pos[0][1];
-		obj -> SetTopLeft(16 * pos[0] + origin_position_shift[0] + window_shift[0], 16 * pos[01] + origin_position_shift[1] + window_shift[1]);
+		obj -> SetTopLeft(16 * (pos[0] - 2) - 6 + window_shift[0], 16 * pos[1] - 6 + window_shift[1]);
 		return true;
 	}
 	return false;
 }
 
 //detect if pacman(obj) eat poit
-void CGameStateRun::get_point(CMovingBitmap* obj) {
-	for (auto it = coins.begin(); it != coins.end();) {		
-		if (obj->IsOverlap(*obj, *it)) {
-			it = coins.erase(it);
-			total_coin_nums--;	
+void CGameStateRun::get_point(CMovingBitmap* obj, int x, int y) {
+	auto t = coins_map.find(pair<int, int>(x, y));
+	if (t != coins_map.end()) {
+		auto p = coins[t -> second];
+		if (p != nullptr) {
+			delete p;
+			coins[t->second] = nullptr;
+			total_coin_nums --;
 			score += 10;
-		}
-		else {
-			it++;
 		}
 	}
 }

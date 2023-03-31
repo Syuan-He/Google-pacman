@@ -37,12 +37,14 @@ int CGameStateRun::astar(int x0, int y0, int x1, int y1) {
 		return 4;
 	}
 
-	// variable
+	// array
 	bool close[sizeof(gameMap[0]) / sizeof(gameMap[0][0])][sizeof(gameMap) / sizeof(gameMap[0])] = {};
 	int valueF[sizeof(gameMap[0]) / sizeof(gameMap[0][0])][sizeof(gameMap) / sizeof(gameMap[0])] = {};
 	priority_queue<Node> open;
 	int pre[sizeof(gameMap[0]) / sizeof(gameMap[0][0])][sizeof(gameMap) / sizeof(gameMap[0])][3] = {};
 	const int nextPos[4][2] = { {1,0},{0,-1},{-1,0},{0,1} };
+
+	//variable
 	Node node(x0, y0);
 	node.g = 0;
 	node.h = manhattan(x0, y0, x1, y1);
@@ -57,6 +59,7 @@ int CGameStateRun::astar(int x0, int y0, int x1, int y1) {
 		close[node_current.x][node_current.y] = true;
 		if (node_current.x == x1 && node_current.y == y1)
 			break;
+
 		for (int i = 0; i < 4; i++) {
 			Node node_next(node_current.x + nextPos[i][0], node_current.y + nextPos[i][1]);
 			if (isVaildNode(node_next.x, node_next.y, node_current.x, node_current.y) && !close[node_next.x][node_next.y]) {
@@ -64,7 +67,6 @@ int CGameStateRun::astar(int x0, int y0, int x1, int y1) {
 				node_next.h = manhattan(node_next.x, node.y, x1, y1);
 				node_next.f = node_next.g + node_next.h;
 				if (node_next.f < valueF[node_next.x][node_next.y] || valueF[node_next.x][node_next.y] == 0) {
-
 					pre[node_next.x][node_next.y][0] = node_current.x;
 					pre[node_next.x][node_next.y][1] = node_current.y;
 					pre[node_current.x][node_current.y][2] = i;
@@ -74,10 +76,11 @@ int CGameStateRun::astar(int x0, int y0, int x1, int y1) {
 			}
 		}
 	}
-	int x = x1, y = y1, count = 0;
+	int x = x1, y = y1, count = 0, temp;
 	while (pre[x][y][0] != x0 || pre[x][y][1] != y0) {
-		x = pre[x][y][0];
+		temp = pre[x][y][0];
 		y = pre[x][y][1];
+		x = temp;
 		count++;
 		if (count >= 1000)
 			break;
@@ -86,6 +89,5 @@ int CGameStateRun::astar(int x0, int y0, int x1, int y1) {
 		if (nextPos[i][0] == x - x0 && nextPos[i][1] == y - y0)
 			return i;
 	}
-	
 	return -1;
 }

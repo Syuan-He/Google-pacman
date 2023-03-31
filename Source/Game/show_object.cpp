@@ -13,10 +13,17 @@ using namespace game_framework;
 void CGameStateRun::show_image_by_phase() {
 	background.ShowBitmap(2); //show background
 	pacman.ShowBitmap(2); //show pacman
+	P1_icon.ShowBitmap(2);
+
+	for (CMovingBitmap t : hearts_icon) {
+		t.ShowBitmap(2);
+	}
 	 
 	//show coins
-	for (CMovingBitmap t : coins) {
-		t.ShowBitmap();
+	for (CMovingBitmap* t : coins) {
+		if (t != nullptr) {
+			t -> ShowBitmap();
+		}
 	}
 	//show power pellet
 	for (CMovingBitmap t : power_pellets) {
