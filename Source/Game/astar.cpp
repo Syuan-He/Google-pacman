@@ -76,8 +76,9 @@ int CGameStateRun::astar(int x0, int y0, int x1, int y1) {
 	}
 	int x = x1, y = y1, count = 0;
 	while (pre[x][y][0] != x0 || pre[x][y][1] != y0) {
-		x = pre[x][y][0];
+		int temp = pre[x][y][0];
 		y = pre[x][y][1];
+		x = temp;
 		count++;
 		if (count >= 1000)
 			break;

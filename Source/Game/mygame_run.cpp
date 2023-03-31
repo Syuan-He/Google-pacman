@@ -7,6 +7,7 @@
 #include "../Library/gamecore.h"
 #include "mygame.h"
 #include <string>
+#include <time.h>
 
 using namespace game_framework;
 
@@ -28,7 +29,9 @@ void CGameStateRun::OnBeginState()
 
 void CGameStateRun::OnMove()							// 移動遊戲元素
 {
-	move_pacman(); //移動pacman
+	if (phase == 1) {
+		move_pacman(); //移動pacman
+	}
 }
 
 void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
@@ -102,12 +105,16 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 	}
 
 	//其餘場景物件
-	P1_icon.LoadBitmapByString({
-		"Resources/words/P1.bmp",
-		"Resources/words/NULL.bmp",
-	});
-	P1_icon.SetAnimation(300, false);
+	//Player1 圖標
+	P1_icon.LoadBitmapA("Resources/words/P1.bmp");
 	P1_icon.SetTopLeft(window_shift[0], window_shift[1] - 60);
+
+	//Ready 圖標
+	Ready_icon.LoadBitmapByString({
+		"Resources/words/ready.bmp",
+	});
+	Ready_icon.SetAnimation(300, false);
+	Ready_icon.SetTopLeft(496 + window_shift[0], 160 + window_shift[1]);
 
 	for (int i = 0; i < heart_num; i++) {
 		CMovingBitmap t;
@@ -115,7 +122,10 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		t.SetTopLeft(i * 32 + window_shift[0], window_shift[1] + 2 * background.GetHeight() + 16);
 		hearts_icon.push_back(t);
 	}
+
+	exc_time_begin = time(NULL);
 }
+	
 
 void CGameStateRun::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
@@ -166,7 +176,7 @@ void CGameStateRun::OnRButtonUp(UINT nFlags, CPoint point)	// 處理滑鼠的動
 void CGameStateRun::OnShow()
 {
 	show_image_by_phase(); //顯示物件
-	//debugText();
+	debugText();
 	get_point(&pacman, pacman_position[0], pacman_position[1]); //偵測是否吃到豆子
 	get_power(&pacman);//偵測是否吃到大力丸
 }

@@ -37,6 +37,7 @@
  *      2. Replace the demonstration of animation as a new bouncing ball.
  *      3. Use ShowInitProgress(percent) to display loading progress.
 */
+#include <time.h>
 
 namespace game_framework {
 	/////////////////////////////////////////////////////////////////////////////
@@ -101,9 +102,11 @@ namespace game_framework {
 		void map_loader(string str); //地圖載入
 		
 		//整體
-		//int phase = 1; //之後作為難度改變依據
+		time_t exc_time_begin;
+		int phase = 0; //階段
 		CMovingBitmap background; //背景物件
 		CMovingBitmap P1_icon; //player1 圖標
+		CMovingBitmap Ready_icon; //Ready 圖標
 		vector<CMovingBitmap> hearts_icon; //生命圖標
 		int heart_num = 3; //生命數
 		int portal_position[2][2] = { { 1, 8 }, { 60, 8 } }; //傳送門位置和傳送位置

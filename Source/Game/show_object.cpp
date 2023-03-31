@@ -14,23 +14,35 @@ void CGameStateRun::show_image_by_phase() {
 	background.ShowBitmap(2); //show background
 	pacman.ShowBitmap(2); //show pacman
 	P1_icon.ShowBitmap(2);
-
-	for (CMovingBitmap t : hearts_icon) {
-		t.ShowBitmap(2);
+	for (int i = 0; i < heart_num; i ++) {
+		hearts_icon[i].ShowBitmap(2);
 	}
-	 
-	//show coins
-	for (CMovingBitmap* t : coins) {
-		if (t != nullptr) {
-			t -> ShowBitmap();
+
+	if (phase == 0) {
+		time_t t = time(NULL);
+		Ready_icon.ShowBitmap(2);
+		if (t - exc_time_begin > 5) {
+			heart_num--;
+			phase = 1;
 		}
 	}
-	//show power pellet
-	for (CMovingBitmap t : power_pellets) {
-		t.ShowBitmap();
-	}
+	else if (phase == 1) {
+		//show coins
+		for (CMovingBitmap* t : coins) {
+			if (t != nullptr) {
+				t->ShowBitmap();
+			}
+		}
+		//show power pellet
+		for (CMovingBitmap t : power_pellets) {
+			t.ShowBitmap();
+		}
 
-	update_score(score);
+		update_score(score);
+	}
+	else if(phase == 2){
+
+	}
 }
 
 //update score
