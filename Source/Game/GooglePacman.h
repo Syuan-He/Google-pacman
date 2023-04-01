@@ -1,38 +1,157 @@
-#pragma once
-
+ï»¿#pragma once
 #include "../Library/gameutil.h"
 
 using namespace game_framework;
 
-class Pacman : public CMovingBitmap
-{
+//partial
+//å¤§å°ç‚ºäºŒçš„é™£åˆ—å®¹å™¨
+class TwoEleContainer {
 private:
-	//CMovingBitmap pacman; //pacmanª«¥ó
-	int dir_now = 2; //pacmanªº²¾°Ê¤è¦V
-	int dir_waitfor = 2; //pacman´Á±æªº²¾°Ê¤è¦V
-	int position[2] = { 37, 15 }; //pacmanªºªì©l®y¼Ğ
-	int total_step = 0; //pacmanªº²¾°ÊÁ`¨B¼Æ(³Ì¤j16(2­¿­ì©l¦a¹Ï¤Uªº¤@¨Bªø))
-	int velocity = 2; //pacmanªº²¾°Ê³t«×
-	int** gameMap = nullptr;
-	
+	int container[2];
 public:
-	Pacman();
-	~Pacman();
+	TwoEleContainer(int x = 0, int y = 0);
+	~TwoEleContainer() {};
 
-	void move(); //²¾°Êpacman
-	void update_position(int dir); //§ó·s«ü©wª«¥ó®y¼Ğ
-	bool CanMove(int dir); //¬O§_¥i¥H¦V«ü©w¤è¦V²¾°Ê
-	bool portal_detect(); //°»´ú¬O§_¶i¤J­«°eªù¨Ã²¾°Ê«ü©wª«¥ó
+	void set_value(int x, int y);
+	// operator[]
+	int& operator[](int index);
 };
 
-class Ghost : public CMovingBitmap
+//ç‚ºCMovingBitmapæ–°å¢åŠŸèƒ½
+class UIObject : public CMovingBitmap{
+private:
+public:
+	UIObject(int x = 25, int y = 100);
+	~UIObject() {};
+
+	//ä½ç§»
+	TwoEleContainer window_shift;
+};
+
+//å¤šå€‹CMovingBitmapçµ„
+class MultUIObj{
+private:
+	int obj_num;
+	vector<CMovingBitmap> objs;
+public:
+	MultUIObj(int num, int x = 25, int y = 100);
+	~MultUIObj() {};
+
+	//ä½ç§»
+	TwoEleContainer window_shift;
+	void add_obj(const CMovingBitmap& o);
+	int get_nums();
+
+	void set_nums(int increase);
+
+	//å›å‚³ç¬¬indexå€‹CMovingBitmap
+	CMovingBitmap& operator[](int index);
+};
+
+//åœ°åœ–
+class GameMap {
+private:
+	//å‚³é€é–€ä½ç½®
+	int portal_position[2][2] = { { 1, 8 }, { 60, 8 } };
+	//åœ°åœ–é™£åˆ—
+	vector<vector<int>> gameMap;
+public:
+	GameMap() {};
+	~GameMap() {};
+
+	//ä½ç§»
+	TwoEleContainer window_shift{ 25, 100 };
+	//åœ°åŒé•·åº¦
+	TwoEleContainer map_len;
+	void map_loader(string str);
+	int* portal_detect(int x, int y);
+
+	//å›å‚³åœ°åœ–é™£åˆ—å€¼
+	const vector<int>& operator[](int i) const;
+};
+
+//pacman
+class GamePacman: public CMovingBitmap{
+private:
+	//ç›®å‰ç§»å‹•æ–¹å‘
+	int dir_now = 2;
+	//æœŸæœ›ç§»å‹•æ–¹å‘
+	int dir_waitfor = 2;
+	//pacmanä½ç½®
+	int position[2] = { 37, 15 };
+	//ç§»å‹•æ­¥æ•¸(æœ€å¤§16)
+	int total_step = 0;
+	//pacmanç§»å‹•é€Ÿå‹•
+	int velocity = 2;
+
+	//åƒè€ƒåœ°åœ–
+	GameMap gameMap;
+public:
+	GamePacman() {};
+	~GamePacman() {};
+	
+	//è¡€æ¢
+	MultUIObj hearts_icon{ 3 , 25, 388};
+	//ä½ç§»
+	TwoEleContainer window_shift{ 19, 96 };
+	
+	void move();
+	void update_position(int dir);
+	bool CanMove(int dir);
+
+	void set_dir_waitfor(int dir);
+	void set_pacman_pos(int* pos);
+	void set_game_map(const GameMap& map_t);
+
+	void show_heart_icon(int size);
+
+	//å›å‚³pacmanä½ç½®
+	int& operator[](int index);
+};
+
+//é¬¼
+class GameGhost : public CMovingBitmap
 {
 private:
-	
+	GameMap gameMap;
 public:
-	Ghost();
-	~Ghost();
-
 	bool isVaildNode(int x, int y, int xx, int yy);
 	int astar(int x0, int y0, int x1, int y1);
+
+	void set_game_map(const GameMap& map_t);
+};
+
+//åˆ†æ•¸
+class GameScore
+{
+private:
+	//è±†å­
+	vector<CMovingBitmap*> coins;
+	//è±†å­ä½ç½®å°ç…§è¡¨
+	map<pair<int, int>, int> coins_map;
+	//å¤§åŠ›ä¸¸
+	vector<CMovingBitmap> power_pellets;
+	
+	//è±†å­ç¸½æ•¸
+	int total_coin_nums = 0;
+	//åˆ†æ•¸æ•¸å€¼
+	int score = 0;
+	//ä½ç§»
+	int window_shift[2] = { 31, 106 };
+public:
+	//åˆ†æ•¸æ¢
+	MultUIObj game_scores{ 5, 25, 70 }; 
+
+	void add_coin(CMovingBitmap* c);
+	void add_map_point(pair<int, int> p, int v);
+	void add_power_pellets(const CMovingBitmap& c);
+	void set_coin_nums(int increase);
+
+	int get_coin_nums();
+
+	void show_coins();
+	void show_power_pellets();
+	void show_score(int size);
+	void get_point(GamePacman obj); 
+	void get_power(GamePacman obj);
 };

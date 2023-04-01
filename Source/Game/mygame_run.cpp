@@ -6,7 +6,6 @@
 #include "../Library/gameutil.h"
 #include "../Library/gamecore.h"
 #include "mygame.h"
-#include <string>
 #include <time.h>
 
 using namespace game_framework;
@@ -29,26 +28,31 @@ void CGameStateRun::OnBeginState()
 
 void CGameStateRun::OnMove()							// 移動遊戲元素
 {
+	//階段2才能移動
 	if (phase == 1) {
-		move_pacman(); //移動pacman
+		Pacman.move();
 	}
 }
 
 void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 {
-	//載入地圖map
-	map_loader(map_dir);
-	
-	//載入地圖圖檔
-	background.LoadBitmapByString({
-		"Resources/googleMap0.bmp",
-		"Resources/googleMap1.bmp"
-	});
-	//初始化地圖位置
-	background.SetTopLeft(0 + window_shift[0], 0 + window_shift[1]);
+	//地圖陣列初始化
+	Map.map_loader("Resources/google_map.txt");
 
-	//載入pacman圖檔
-	pacman.LoadBitmapByString({ 
+	//加入參考地圖
+	Pacman.set_game_map(Map);
+	Ghost.set_game_map(Map);
+
+	//背景初始化
+	Background.LoadBitmapByString({
+		"Resources/googleMap0.bmp",
+		"Resources/googleMap1.bmp",
+	});
+	Background.SetTopLeft(Background.window_shift[0], Background.window_shift[1]);
+	Background.SetFrameIndexOfBitmap(0);
+
+	//pacman初始化
+	Pacman.LoadBitmapByString({
 		"Resources/pacman/pacman0.bmp",
 		"Resources/pacman/pacman1.bmp",
 		"Resources/pacman/pacman2.bmp",
@@ -59,33 +63,41 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/pacman/pacman7.bmp",
 		"Resources/pacman/pacman8.bmp",
 	});
-	//初始化pacman位置
-	pacman.SetTopLeft(554 + window_shift[0], 234 + window_shift[1]);
-	//初始化pacman的第一張圖
-	pacman.SetFrameIndexOfBitmap(0);
+	Pacman.SetTopLeft((Pacman[0] - 2) * 16 + Pacman.window_shift[0], Pacman[1] * 16 + Pacman.window_shift[1]);
+	Pacman.SetFrameIndexOfBitmap(0);
 
-	//載入coins, power pellets
-	for (int i = 0; i < map_len[0]; i++) {
-		for (int j = 0; j < map_len[1]; j++) {
-			if (gameMap[i][j] == 0) {
+	//豆子,大力丸初始化
+	for (int i = 0; i < Map.map_len[0]; i++) {
+		for (int j = 0; j < Map.map_len[1]; j++) {
+			//為0的道路加入豆子
+			if (Map[i][j] == 0) {
 				CMovingBitmap* t = new CMovingBitmap;
 				t -> LoadBitmapA("Resources/words/coin.bmp");
-				t -> SetTopLeft(16 * (j - 2) + 6 + window_shift[0], 16 * i + 6 + window_shift[1]);
-				coins.push_back(t);
-				coins_map[pair<int, int>(j, i)] = total_coin_nums;
-				total_coin_nums ++;
+				t -> SetTopLeft(16 * (j - 2) + 6 + Map.window_shift[0], 16 * i + 6 + Map.window_shift[1]);
+				Score.add_coin(t);
+				Score.add_map_point(pair<int, int>(j, i), Score.get_coin_nums());
+				Score.set_coin_nums(1);
 			}
-			else if (gameMap[i][j] == 3){
+			//為3的道路加入大力丸
+			else if (Map[i][j] == 3) {
 				CMovingBitmap t;
 				t.LoadBitmapA("Resources/words/dot.bmp");
-				t.SetTopLeft(16 * (j - 2) + 4 + window_shift[0], 16 * i + 4 + window_shift[1]);
-				power_pellets.push_back(t);
+				t.SetTopLeft(16 * (j - 2) + 4 + Map.window_shift[0], 16 * i + 4 + Map.window_shift[1]);
+				Score.add_power_pellets(t);
 			}
 		}
 	}
 
+	//P1初始化
+	P1_icon.LoadBitmapA("Resources/words/P1.bmp");
+	P1_icon.SetTopLeft(P1_icon.window_shift[0], P1_icon.window_shift[1]);
+
+	//Ready圖標初始化
+	Ready_icon.LoadBitmapA("Resources/words/ready.bmp");
+	Ready_icon.SetTopLeft(Ready_icon.window_shift[0], Ready_icon.window_shift[1]);
+
 	//分數條初始化
-	for (int i = 0; i < score_digits; i++) {
+	for (int i = 0; i < Score.game_scores.get_nums(); i++) {
 		CMovingBitmap t;
 		t.LoadBitmapByString({
 			"Resources/words/0.bmp",
@@ -98,50 +110,39 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 			"Resources/words/7.bmp",
 			"Resources/words/8.bmp",
 			"Resources/words/9.bmp",
-		});
+			});
 		t.SetFrameIndexOfBitmap(0);
-		t.SetTopLeft(i * 16 + window_shift[0], window_shift[1] - 30);
-		game_scores.push_back(t);
+		t.SetTopLeft(i * 16 + Score.game_scores.window_shift[0], Score.game_scores.window_shift[1]);
+		Score.game_scores.add_obj(t);
 	}
 
-	//其餘場景物件
-	//Player1 圖標
-	P1_icon.LoadBitmapA("Resources/words/P1.bmp");
-	P1_icon.SetTopLeft(window_shift[0], window_shift[1] - 60);
-
-	//Ready 圖標
-	Ready_icon.LoadBitmapByString({
-		"Resources/words/ready.bmp",
-	});
-	Ready_icon.SetAnimation(300, false);
-	Ready_icon.SetTopLeft(496 + window_shift[0], 160 + window_shift[1]);
-
-	for (int i = 0; i < heart_num; i++) {
+	//血條初始化
+	for (int i = 0; i < Pacman.hearts_icon.get_nums(); i++) {
 		CMovingBitmap t;
 		t.LoadBitmapA("Resources/pacman/pacman5.bmp");
-		t.SetTopLeft(i * 32 + window_shift[0], window_shift[1] + 2 * background.GetHeight() + 16);
-		hearts_icon.push_back(t);
+		t.SetTopLeft(i * 32 + Pacman.hearts_icon.window_shift[0], Pacman.hearts_icon.window_shift[1]);
+		Pacman.hearts_icon.add_obj(t);
 	}
 
+	//遊戲開始時間
 	exc_time_begin = time(NULL);
 }
-	
 
 void CGameStateRun::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
-	//監測方向鍵
+	//鍵盤方向鍵取得
 	switch (nChar) {
 	case VK_RIGHT:
-		pacman_dir_waitfor = 0;
+		Pacman.set_dir_waitfor(0);
 		break;
 	case VK_LEFT:
-		pacman_dir_waitfor = 2;
+		Pacman.set_dir_waitfor(2);
 		break;
 	case VK_UP:
-		pacman_dir_waitfor = 1;
+		Pacman.set_dir_waitfor(1);
 		break;
 	case VK_DOWN:
-		pacman_dir_waitfor = 3;
+		Pacman.set_dir_waitfor(3);
 		break;
 	default:
 		break;
@@ -175,24 +176,13 @@ void CGameStateRun::OnRButtonUp(UINT nFlags, CPoint point)	// 處理滑鼠的動
 
 void CGameStateRun::OnShow()
 {
-	show_image_by_phase(); //顯示物件
-	debugText();
-	get_point(&pacman, pacman_position[0], pacman_position[1]); //偵測是否吃到豆子
-	get_power(&pacman);//偵測是否吃到大力丸
-}
+	//顯示物件
+	show_obj_by_phase();
+	//偵測是否吃到豆子
+	Score.get_point(Pacman);
+	//偵測是否吃到大力丸
+	Score.get_power(Pacman);
 
-void CGameStateRun::debugText() {
-	CDC *pDC = CDDraw::GetBackCDC();
-	string strPacPos = "", strPacPoi = "";
-
-	strPacPos += to_string(pacman_position[0]) + ", " + to_string(pacman_position[1]);	//position in array
-	strPacPoi += to_string(pacman.GetLeft()) + ", " + to_string(pacman.GetTop());
-
-	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
-	CTextDraw::Print(pDC, 20 + window_shift[0], 270 + window_shift[1], strPacPos);
-
-	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
-	CTextDraw::Print(pDC, 20 + window_shift[0], 300 + window_shift[1], strPacPoi);
-
-	CDDraw::ReleaseBackCDC();
+	//debug
+	debugText(Pacman);
 }
