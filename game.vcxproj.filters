@@ -54,22 +54,25 @@
     <ClCompile Include="Source\Game\mygame_run.cpp">
       <Filter>MyGame</Filter>
     </ClCompile>
-    <ClCompile Include="Source\Game\pacman_move.cpp">
-      <Filter>MyGame</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Game\mapdetect.cpp">
-      <Filter>MyGame</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Game\astar.cpp">
-      <Filter>MyGame</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Game\show_object.cpp">
-      <Filter>MyGame</Filter>
-    </ClCompile>
-    <ClCompile Include="Source\Game\map_load.cpp">
-      <Filter>MyGame</Filter>
-    </ClCompile>
     <ClCompile Include="Source\Game\character.cpp">
+      <Filter>MyGame</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Game\class_game_map.cpp">
+      <Filter>MyGame</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Game\class_game_run.cpp">
+      <Filter>MyGame</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Game\class_ghost.cpp">
+      <Filter>MyGame</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Game\class_pacman.cpp">
+      <Filter>MyGame</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Game\class_partial.cpp">
+      <Filter>MyGame</Filter>
+    </ClCompile>
+    <ClCompile Include="Source\Game\class_score.cpp">
       <Filter>MyGame</Filter>
     </ClCompile>
   </ItemGroup>
@@ -108,6 +111,12 @@
       <Filter>MyGame</Filter>
     </ClInclude>
     <ClInclude Include="Source\Game\character.h">
+      <Filter>MyGame</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Game\class_score.h">
+      <Filter>MyGame</Filter>
+    </ClInclude>
+    <ClInclude Include="Source\Game\class_obj.h">
       <Filter>MyGame</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,30 +1,23 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "character.h"
 
 using namespace game_framework;
 
-void character::setPos(int x, int y){
+void Character::setPos(int x, int y){
 	position[0] = x;
 	position[1] = y;
+	this->SetTopLeft(16 * (x - 2) + window_shift[0], 16 * y + window_shift[1]);
 }
-//character::~character() {}
+//Character::~Character() {}
 
-int character::getX() {
-	return position[0];
-}
-
-int character::getY() {
-	return position[1];
-}
-
-void character::move(int** gameMap, int portal_pos[2][2], int win_shift[2]) {
+void Character::move() {
 	//if pacman had took a step(one step = 16px)
 	if (total_step == 16) {
 		//updte pacman's position on the map
 		update_position(dir_now);
 
 		//if the position that pacman prefer is executable 
-		if (CanMove(dir_waitfor, gameMap)) {
+		if (CanMove(dir_waitfor)) {
 			//change the diraction to the new one
 			dir_now = dir_waitfor;
 			//set pacman's picture to the orther one that match with the diraction
@@ -43,7 +36,7 @@ void character::move(int** gameMap, int portal_pos[2][2], int win_shift[2]) {
 		this->SetFrameIndexOfBitmap(0);
 	}
 	//if the diraction now is executable keep going
-	if (CanMove(dir_now, gameMap)) {
+	if (CanMove(dir_now)) {
 		switch (dir_now)
 		{
 		case 0:
@@ -66,16 +59,21 @@ void character::move(int** gameMap, int portal_pos[2][2], int win_shift[2]) {
 	//if pacman hit the wall (include portal)
 	else {
 		//check that if pacman hit a portal
-		if (portal_detect(portal_pos, win_shift)) {}
+		int* t = gameMap.portal_detect(position[0], position[1]);
+		if (t != nullptr) {
+			position[0] = t[0];
+			position[1] = t[1];
+			this->SetTopLeft(16 * (position[0] - 2) + window_shift[0], 16 * position[1] + window_shift[1]);
+		}
 		//check that if the position that pacman prefer is executable 
-		else if (CanMove(dir_waitfor, gameMap)) {
+		else if (CanMove(dir_waitfor)) {
 			//change the diraction
 			dir_now = dir_waitfor;
 		}
 	}
 }
 
-bool character::CanMove(int dir, int** gameMap) {
+bool Character::CanMove(int dir) {
 	switch (dir)
 	{
 	case 0:
@@ -106,7 +104,6 @@ bool character::CanMove(int dir, int** gameMap) {
 		else {
 			return true;
 		}
-		break;
 	default:
 		break;
 	}
@@ -116,7 +113,7 @@ bool character::CanMove(int dir, int** gameMap) {
 //if object change the direction , will it hit the wall
 //return: true(it won't), false(it will)
 //update object's position by the input direction 
-void character::update_position(int dir) {
+void Character::update_position(int dir) {
 	switch (dir)
 	{
 	case 0:
@@ -137,21 +134,17 @@ void character::update_position(int dir) {
 	}
 }
 
-//portal dectect and sending object to the other side
-//return: true(object hit the portal), false(object didn't hit the portal)
-bool character::portal_detect(int portal_pos[2][2], int window_shift[2]) {
-	if (this->position[0] == portal_pos[0][0] && this->position[1] == portal_pos[0][1]) {
-		this->position[0] = portal_pos[1][0];
-		this->position[1] = portal_pos[1][1];
-		SetTopLeft(16 * (this->position[0] - 2) - 6 + window_shift[0], 16 * this->position[1] - 6 + window_shift[1]);
-		return true;
-	}
-	else if (this->position[0] == portal_pos[1][0] && this->position[1] == portal_pos[1][1]) {
-		this->position[0] = portal_pos[0][0];
-		this->position[1] = portal_pos[0][1];
-		SetTopLeft(16 * (this->position[0] - 2) - 6 + window_shift[0], 16 * this->position[1] - 6 + window_shift[1]);
-		return true;
-	}
+//dir_waitfor設定
+void Character::set_dir_waitfor(int dir) {
+	dir_waitfor = dir;
+}
 
-	return false;
+//參考地圖設定(在設定完後才能使用gameMap)
+void Character::set_game_map(const GameMap& map_t) {
+	gameMap = map_t;
+}
+
+//回傳pacman位置
+int& Character::operator[](int index) {
+	return position[index];
 }

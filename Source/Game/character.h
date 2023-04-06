@@ -1,29 +1,62 @@
-#pragma once
+﻿#pragma once
 
 #include "../Library/gameutil.h"
+#include "class_obj.h"
 
 using namespace game_framework;
 
-class character : public game_framework::CMovingBitmap {
-private:
-	int dir_now = 2;							//pacman's dir
-	int position[2];							//pacman's pos
-	int total_step = 0;							//pacman's total step
-	int velocity = 2;							//pacman's velocity
-	//int** gameMap = nullptr;
+class Character : public game_framework::CMovingBitmap {
+protected:
 
-	bool portal_detect(int portal_pos[2][2], int window_shift[2]); //whether in the portal and transfer
-	bool CanMove(int dir, int** gameMap);		//whether the dir can move
-	void update_position(int dir);				//update obj pos
+	int dir_now = 2;				//目前移動方向
+	int dir_waitfor = 2;			//期望移動方向
+	int position[2] = { 37, 15 };	//pacman位置
+	int total_step = 0;				//移動步數(最大16)
+	int velocity = 2;				//pacman移動速動
 
+	//參考地圖
+	GameMap gameMap;
 public:
-	int dir_waitfor = 2;						//pacman's desire dir
-	
-	void setPos(int x=37, int y=15);
-	//~character();
+	Character() {};
+	~Character() {};
 
-	int getX();
-	int getY();
+	//位移
+	TwoEleContainer window_shift{ 19, 96 };
 
-	void move(int** map, int portal_pos[2][2], int win_shift[2]); //move pacman
+	void move();
+	void update_position(int dir);
+	bool CanMove(int dir);
+
+	void set_dir_waitfor(int dir);
+	void setPos(int x, int y);
+	void set_game_map(const GameMap& map_t);
+
+	//回傳pacman位置
+	int& operator[](int index);
+};
+
+//Pacman
+class GamePacman : public Character {
+public:
+	GamePacman() {};
+	~GamePacman() {};
+
+	//血條
+	MultUIObj hearts_icon{ 3 , 25, 388 };
+	//位移
+	TwoEleContainer window_shift{ 19, 96 };
+
+	void show_heart_icon(int size);
+
+	int getDirNow();
+};
+
+//鬼
+class GameGhost : public Character {
+public:
+	bool isVaildNode(int x, int y, int xx, int yy);
+	int astar(int x0, int y0, int x1, int y1);
+	void move(int x1, int y1);
+	int selectDir(int dir, int x1, int y1);
+	int getDirWait();
 };
