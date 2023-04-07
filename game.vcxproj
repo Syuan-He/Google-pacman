@@ -243,7 +243,7 @@
     <ClCompile Include="Source\Core\StdAfx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="Source\Game\class_game_init.cpp" />
+    <ClCompile Include="Source\Game\class_character.cpp" />
     <ClCompile Include="Source\Game\class_game_map.cpp" />
     <ClCompile Include="Source\Game\class_game_run.cpp" />
     <ClCompile Include="Source\Game\class_ghost.cpp" />
@@ -267,8 +267,10 @@
     <ClInclude Include="Source\Core\Resource.h" />
     <ClInclude Include="Source\Core\StdAfx.h" />
     <ClInclude Include="Source\Game\config.h" />
-    <ClInclude Include="Source\Game\GooglePacman.h" />
+    <ClInclude Include="Source\Game\character.h" />
     <ClInclude Include="Source\Game\mygame.h" />
+    <ClInclude Include="Source\Game\object.h" />
+    <ClInclude Include="Source\Game\score.h" />
     <ClInclude Include="Source\Library\audio.h" />
     <ClInclude Include="Source\Library\gamecore.h" />
     <ClInclude Include="Source\Library\gameutil.h" />

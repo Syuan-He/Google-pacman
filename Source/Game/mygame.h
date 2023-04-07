@@ -37,9 +37,9 @@
  *      2. Replace the demonstration of animation as a new bouncing ball.
  *      3. Use ShowInitProgress(percent) to display loading progress.
 */
-#include "class_obj.h"
+#include "object.h"
 #include "character.h"
-#include "class_score.h"
+#include "score.h"
 #include <time.h>
 
 namespace game_framework {
@@ -108,6 +108,7 @@ namespace game_framework {
 		time_t exc_time_begin;
 		int phase = 0;					//階段
 		void show_obj_by_phase();
+		void pacman_get_catch(int mode = 0);
 		void debugText();
 		float pythagorean(int x, int y, int x1, int y1);
 	};

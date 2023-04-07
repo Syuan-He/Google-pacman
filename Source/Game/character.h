@@ -1,7 +1,7 @@
 ﻿#pragma once
 
 #include "../Library/gameutil.h"
-#include "class_obj.h"
+#include "object.h"
 
 using namespace game_framework;
 

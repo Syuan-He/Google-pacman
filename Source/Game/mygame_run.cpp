@@ -81,7 +81,7 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/pacman/pacman6.bmp",
 		"Resources/pacman/pacman7.bmp",
 		"Resources/pacman/pacman8.bmp",
-	});
+	}, RGB(0, 0, 0));
 	Pacman.SetTopLeft((Pacman[0] - 2) * 16 + Pacman.window_shift[0], Pacman[1] * 16 + Pacman.window_shift[1]);
 	Pacman.SetFrameIndexOfBitmap(0);
 
@@ -117,7 +117,7 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/red/red5.bmp",
 		"Resources/red/red6.bmp",
 		"Resources/red/red7.bmp"
-		});
+		}, RGB(0, 0, 0));
 	Blinky.setPos(37, 4);
 	Blinky.SetFrameIndexOfBitmap(0);
 
@@ -131,7 +131,7 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/pink/pink5.bmp",
 		"Resources/pink/pink2.bmp",
 		"Resources/pink/pink3.bmp",
-		});
+		}, RGB(0, 0, 0));
 	Pinky.setPos(37, 4);
 	Pinky.SetFrameIndexOfBitmap(0);
 
@@ -145,7 +145,7 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/blue/blue5.bmp",
 		"Resources/blue/blue2.bmp",
 		"Resources/blue/blue3.bmp",
-		});
+		}, RGB(0, 0, 0));
 	Inky.setPos(37, 4);
 	Inky.SetFrameIndexOfBitmap(0);
 
@@ -159,7 +159,7 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/orange/orange5.bmp",
 		"Resources/orange/orange2.bmp",
 		"Resources/orange/orange3.bmp",
-		});
+		}, RGB(0, 0, 0));
 	Clyde.setPos(37, 4);
 	Clyde.SetFrameIndexOfBitmap(0);
 
@@ -257,6 +257,7 @@ void CGameStateRun::OnShow()
 	Score.get_point(Pacman);
 	//偵測是否吃到大力丸
 	Score.get_power(Pacman);
+	pacman_get_catch(1);
 
 	//debug
 	debugText();

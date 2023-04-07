@@ -44,15 +44,46 @@ void CGameStateRun::show_obj_by_phase() {
 		Score.show_power_pellets();
 		//顯示分數
 		Score.show_score(2);
+		//顯示鬼
+		Blinky.ShowBitmap(2);
+		Pinky.ShowBitmap(2);
+		Inky.ShowBitmap(2);
+		Clyde.ShowBitmap(2);
 	}
 	else if (phase == 2) {
-
+		Pacman.LoadBitmapByString({
+			"Resources/die/die0.bmp",
+			"Resources/die/die1.bmp",
+			"Resources/die/die2.bmp",
+			"Resources/die/die3.bmp",
+			"Resources/die/die4.bmp",
+			"Resources/die/die5.bmp",
+			"Resources/die/die6.bmp",
+			"Resources/die/die7.bmp",
+			"Resources/die/die8.bmp",
+			"Resources/die/die9.bmp",
+			"Resources/die/die10.bmp",
+		});
 	}
-	//顯示鬼
-	Blinky.ShowBitmap(2);
-	Pinky.ShowBitmap(2);
-	Inky.ShowBitmap(2);
-	Clyde.ShowBitmap(2);
+}
+
+void CGameStateRun::pacman_get_catch(int mode) {
+	vector<GameGhost> ghosts = { Blinky, Pinky, Inky, Clyde };
+	for (GameGhost obj : ghosts) {
+		bool get_catch = false;
+		if (mode == 0) {
+			get_catch = Pacman.IsOverlap(Pacman, obj);
+		}
+		else if (mode == 1) {
+			get_catch = (Pacman[0] == obj[0] && Pacman[1] == obj[1]);
+		}
+		if (get_catch) {
+			Pacman.hearts_icon.set_nums(-1);
+			if (Pacman.hearts_icon.get_nums() == 0) {
+				phase = 2;
+			}
+		}
+	}
 }
 
 //Debug顯示
