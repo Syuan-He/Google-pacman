@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "../Core/Resource.h"
 #include <mmsystem.h>
 #include <ddraw.h>
@@ -9,11 +9,9 @@
 #include <time.h>
 
 using namespace game_framework;
-
 /////////////////////////////////////////////////////////////////////////////
 // 這個class為遊戲的遊戲執行物件，主要的遊戲程式都在這裡
 /////////////////////////////////////////////////////////////////////////////
-
 CGameStateRun::CGameStateRun(CGame *g) : CGameState(g)
 {
 }
@@ -26,11 +24,29 @@ void CGameStateRun::OnBeginState()
 {
 }
 
+const int nextPos[4][2] = { {1,0},{0,-1},{-1,0},{0,1} };
 void CGameStateRun::OnMove()							// 移動遊戲元素
 {
 	//階段2才能移動
 	if (phase == 1) {
 		Pacman.move();
+		if (true) {
+			Blinky.move(Pacman[0], Pacman[1]);
+			Pinky.move(Pacman[0] + 4 * nextPos[Pacman.getDirNow()][0], Pacman[1] + 4 * nextPos[Pacman.getDirNow()][1]);
+			Inky.move(2 * Pacman[0] + 4 * nextPos[Pacman.getDirNow()][0] - Blinky[0], 2 * Pacman[1] + 4 * nextPos[Pacman.getDirNow()][1] - Blinky[1]);
+			if (pythagorean(Clyde[0], Clyde[1], Pacman[0], Pacman[1]) > 8.0) {
+				Clyde.move(Pacman[0], Pacman[1]);
+			}
+			else {
+				Clyde.move(3, 16);
+			}
+		}
+		else {
+			Blinky.move(58, 0);
+			Pinky.move(3, 0);
+			Inky.move(58, 16);
+			Clyde.move(3, 16);
+		}
 	}
 }
 
@@ -41,7 +57,10 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 
 	//加入參考地圖
 	Pacman.set_game_map(Map);
-	Ghost.set_game_map(Map);
+	Blinky.set_game_map(Map);
+	Pinky.set_game_map(Map);
+	Inky.set_game_map(Map);
+	Clyde.set_game_map(Map);
 
 	//背景初始化
 	Background.LoadBitmapByString({
@@ -87,6 +106,62 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 			}
 		}
 	}
+
+	//Blinky 初始化
+	Blinky.LoadBitmapByString({
+		"Resources/red/red0.bmp",
+		"Resources/red/red1.bmp",
+		"Resources/red/red2.bmp",
+		"Resources/red/red3.bmp",
+		"Resources/red/red4.bmp",
+		"Resources/red/red5.bmp",
+		"Resources/red/red6.bmp",
+		"Resources/red/red7.bmp"
+		});
+	Blinky.setPos(37, 4);
+	Blinky.SetFrameIndexOfBitmap(0);
+
+	//Pinky 初始化
+	Pinky.LoadBitmapByString({
+		"Resources/pink/pink6.bmp",
+		"Resources/pink/pink7.bmp",
+		"Resources/pink/pink0.bmp",
+		"Resources/pink/pink1.bmp",
+		"Resources/pink/pink4.bmp",
+		"Resources/pink/pink5.bmp",
+		"Resources/pink/pink2.bmp",
+		"Resources/pink/pink3.bmp",
+		});
+	Pinky.setPos(37, 4);
+	Pinky.SetFrameIndexOfBitmap(0);
+
+	//Inky 初始化
+	Inky.LoadBitmapByString({
+		"Resources/blue/blue6.bmp",
+		"Resources/blue/blue7.bmp",
+		"Resources/blue/blue0.bmp",
+		"Resources/blue/blue1.bmp",
+		"Resources/blue/blue4.bmp",
+		"Resources/blue/blue5.bmp",
+		"Resources/blue/blue2.bmp",
+		"Resources/blue/blue3.bmp",
+		});
+	Inky.setPos(37, 4);
+	Inky.SetFrameIndexOfBitmap(0);
+
+	//Clyde 初始化
+	Clyde.LoadBitmapByString({
+		"Resources/orange/orange6.bmp",
+		"Resources/orange/orange7.bmp",
+		"Resources/orange/orange0.bmp",
+		"Resources/orange/orange1.bmp",
+		"Resources/orange/orange4.bmp",
+		"Resources/orange/orange5.bmp",
+		"Resources/orange/orange2.bmp",
+		"Resources/orange/orange3.bmp",
+		});
+	Clyde.setPos(37, 4);
+	Clyde.SetFrameIndexOfBitmap(0);
 
 	//P1初始化
 	P1_icon.LoadBitmapA("Resources/words/P1.bmp");
@@ -184,5 +259,5 @@ void CGameStateRun::OnShow()
 	Score.get_power(Pacman);
 
 	//debug
-	debugText(Pacman);
+	debugText();
 }

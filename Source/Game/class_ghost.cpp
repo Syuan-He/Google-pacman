@@ -10,6 +10,7 @@
 
 using namespace game_framework;
 
+const int nextPos[4][2] = { {1,0},{0,-1},{-1,0},{0,1} };
 //節點
 typedef struct NODE {
 	int x, y,
@@ -20,10 +21,16 @@ typedef struct NODE {
 	}
 }Node;
 
-
+//曼哈頓距離
 int manhattan(int x, int y, int x1, int y1) {
 	return (abs(x - x1) + abs(y - y1)) * 10;
 }
+
+//畢氏定理距離
+//*
+float pythagorean(int x, int y, int x1, int y1) {
+	return sqrt((float)((x - x1)*(x - x1) + (y - y1)*(y - y1)));
+}//*/
 
 //節點是否可進入
 bool GameGhost::isVaildNode(int x, int y, int xx, int yy) {
@@ -45,13 +52,9 @@ int GameGhost::astar(int x0, int y0, int x1, int y1) {
 	// variable
 	int y_len = gameMap.map_len[0], x_len = gameMap.map_len[1];
 	vector<vector<bool>> close = vector<vector<bool>>(x_len, vector<bool>(y_len));
-	//bool close[sizeof(gameMap[0]) / sizeof(gameMap[0][0])][sizeof(gameMap) / sizeof(gameMap[0])] = {};
 	vector<vector<int>> valueF = vector<vector<int>>(x_len, vector<int>(y_len));
-	//int valueF[sizeof(gameMap[0]) / sizeof(gameMap[0][0])][sizeof(gameMap) / sizeof(gameMap[0])] = {};
 	priority_queue<Node> open;
 	vector<vector<vector<int>>> pre = vector<vector<vector<int>>>(x_len, vector< vector<int>>(y_len, vector<int>(3)));
-	//int pre[sizeof(gameMap[0]) / sizeof(gameMap[0][0])][sizeof(gameMap) / sizeof(gameMap[0])][3] = {};
-	const int nextPos[4][2] = { {1,0},{0,-1},{-1,0},{0,1} };
 	Node node(x0, y0);
 	node.g = 0;
 	node.h = manhattan(x0, y0, x1, y1);
@@ -100,6 +103,92 @@ int GameGhost::astar(int x0, int y0, int x1, int y1) {
 	return -1;
 }
 
-void  GameGhost::set_game_map(const GameMap& map_t) {
-	gameMap = map_t;
+void GameGhost::move(int x1, int y1) {
+
+	//if pacman had took a step(one step = 16px)
+	if (total_step == 16) {
+		//updte pacman's position on the map
+		update_position(dir_now);
+		dir_waitfor = selectDir(dir_now, x1, y1);
+
+		//if the position that pacman prefer is executable 
+		if (CanMove(dir_waitfor)) {
+			//change the diraction to the new one
+			dir_now = dir_waitfor;
+			//set pacman's picture to the orther one that match with the diraction
+		}
+		//reset pacman's total step
+		total_step = 0;
+	}
+	else if (!CanMove(dir_now) && (position[0] != x1 || position[1] != y1)) {
+		dir_now = (dir_now + 2) % 4;
+	}
+	/*
+	else if ((position[0] != x1 || position[1] != y1) && total_step == 0) {
+		//dir_waitfor = astar(position[0], position[1], x1, y1);
+		dir_waitfor = selectDir(dir_now, x1, y1);
+	}*/
+	//pacman's animetion when it move
+	if (total_step % 16 < 8) {
+		this->SetFrameIndexOfBitmap(dir_now * 2);
+	}
+	else {
+		this->SetFrameIndexOfBitmap(dir_now * 2 + 1);
+	}
+	
+	//if the diraction now is executable keep going
+	if (CanMove(dir_now)) {
+		switch (dir_now)
+		{
+		case 0:
+			this->SetTopLeft(this->GetLeft() + velocity, this->GetTop());
+			break;
+		case 1:
+			this->SetTopLeft(this->GetLeft(), this->GetTop() - velocity);
+			break;
+		case 2:
+			this->SetTopLeft(this->GetLeft() - velocity, this->GetTop());
+			break;
+		case 3:
+			this->SetTopLeft(this->GetLeft(), this->GetTop() + velocity);
+			break;
+		default:
+			break;
+		}
+		total_step += velocity;
+	}
+	//if pacman hit the wall (include portal)
+	else {
+		//check that if pacman hit a portal
+		int* t = gameMap.portal_detect(position[0], position[1]);
+		if (t != nullptr) {
+			position[0] = t[0];
+			position[1] = t[1];
+			this->SetTopLeft(16 * (position[0] - 2) + window_shift[0], 16 * position[1] + window_shift[1]);
+		}
+		//check that if the position that pacman prefer is executable 
+		else if (CanMove(dir_waitfor)) {
+			//change the diraction
+			dir_now = dir_waitfor;
+		}
+	}
+}
+
+int GameGhost::selectDir(int dir, int x1, int y1) {
+	float dist, nextDist;
+	int dirNext;
+	dist = pythagorean(position[0] + nextPos[(dir + 3) % 4][0], position[1] + nextPos[(dir + 3) % 4][1], x1, y1);
+	dirNext = (dir + 3) % 4;
+	for (int i = 4; i < 6; i++) {
+		nextDist = pythagorean(position[0] + nextPos[(dir + i) % 4][0], position[1] + nextPos[(dir + i) % 4][1], x1, y1);
+		if (CanMove((dir + i) % 4) && nextDist < dist) {
+			dirNext = (dir + i) % 4;
+			dist = nextDist;
+		}
+	}
+	return dirNext;
+}
+
+int GameGhost::getDirWait() {
+	return dir_waitfor;
 }

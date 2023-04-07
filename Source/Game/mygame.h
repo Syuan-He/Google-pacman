@@ -1,4 +1,4 @@
-/*
+﻿/*
  * mygame.h: 本檔案儲遊戲本身的class的interface
  * Copyright (C) 2002-2008 Woei-Kae Chen <wkc@csie.ntut.edu.tw>
  *
@@ -37,7 +37,9 @@
  *      2. Replace the demonstration of animation as a new bouncing ball.
  *      3. Use ShowInitProgress(percent) to display loading progress.
 */
-#include "GooglePacman.h"
+#include "class_obj.h"
+#include "character.h"
+#include "class_score.h"
 #include <time.h>
 
 namespace game_framework {
@@ -94,16 +96,20 @@ namespace game_framework {
 	private:
 		GameMap Map;
 		GamePacman Pacman;
-		GameGhost Ghost;
+		GameGhost Blinky;				// red one
+		GameGhost Pinky;				// pink one
+		GameGhost Inky;					// blue one
+		GameGhost Clyde;				// orange one
 		GameScore Score;
-		UIObject Background; //背景物件
-		UIObject P1_icon{25, 40}; //player1 圖標
-		UIObject Ready_icon{521, 260}; //Ready 圖標
+		UIObject Background;			//背景物件
+		UIObject P1_icon{25, 40};		//player1 圖標
+		UIObject Ready_icon{521, 260};	//Ready 圖標
 		
 		time_t exc_time_begin;
-		int phase = 0; //階段
+		int phase = 0;					//階段
 		void show_obj_by_phase();
-		void debugText(GamePacman P);
+		void debugText();
+		float pythagorean(int x, int y, int x1, int y1);
 	};
 
 	/////////////////////////////////////////////////////////////////////////////

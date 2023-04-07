@@ -48,17 +48,24 @@ void CGameStateRun::show_obj_by_phase() {
 	else if (phase == 2) {
 
 	}
+	//顯示鬼
+	Blinky.ShowBitmap(2);
+	Pinky.ShowBitmap(2);
+	Inky.ShowBitmap(2);
+	Clyde.ShowBitmap(2);
 }
 
 //Debug顯示
-void CGameStateRun::debugText(GamePacman P) {
+void CGameStateRun::debugText() {
 	CDC *pDC = CDDraw::GetBackCDC();
-	string strPacPos = "", strPacPoi = "";
+	string strPacPos = "", strPacPoi = "", strGhostDirWait = "";
 
 	//地圖陣列位置
-	strPacPos += to_string(P[0]) + ", " + to_string(P[1]);	//position in array
+	strPacPos += to_string(Pacman[0]) + ", " + to_string(Pacman[1]);	//position in array
 	//視窗位置
-	strPacPoi += to_string(P.GetLeft()) + ", " + to_string(P.GetTop());
+	strPacPoi += to_string(Pacman.GetLeft()) + ", " + to_string(Pacman.GetTop());
+
+	strGhostDirWait += to_string(Blinky.getDirWait());
 
 	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
 	CTextDraw::Print(pDC, 25, 270 + 100, strPacPos);
@@ -66,6 +73,14 @@ void CGameStateRun::debugText(GamePacman P) {
 	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
 	CTextDraw::Print(pDC, 25, 300 + 100, strPacPoi);
 
+	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
+	CTextDraw::Print(pDC, 25, 330 + 100, strGhostDirWait);
+
 	CDDraw::ReleaseBackCDC();
 }
 
+//畢氏定理距離
+//*
+float CGameStateRun::pythagorean(int x, int y, int x1, int y1) {
+	return sqrt((float)((x - x1)*(x - x1) + (y - y1)*(y - y1)));
+}//*/
