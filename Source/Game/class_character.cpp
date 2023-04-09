@@ -3,11 +3,6 @@
 
 using namespace game_framework;
 
-void Character::setPos(int x, int y){
-	position[0] = x;
-	position[1] = y;
-	this->SetTopLeft(16 * (x - 2) + window_shift[0], 16 * y + window_shift[1]);
-}
 //Character::~Character() {}
 
 void Character::move() {
@@ -139,9 +134,29 @@ void Character::set_dir_waitfor(int dir) {
 	dir_waitfor = dir;
 }
 
+void Character::setPos(int x, int y) {
+	position[0] = x;
+	position[1] = y;
+	this->SetTopLeft(16 * (x - 2) + window_shift[0], 16 * y + window_shift[1]);
+}
+
 //參考地圖設定(在設定完後才能使用gameMap)
 void Character::set_game_map(const GameMap& map_t) {
 	gameMap = map_t;
+}
+
+void Character::set_inital(int x, int y, int index) {
+	initial_pos[0] = x;
+	initial_pos[1] = y;
+	initial_frame_index = index;
+}
+
+void Character::initialize() {
+	this->setPos(initial_pos[0], initial_pos[1]);
+	this->SetFrameIndexOfBitmap(initial_frame_index);
+	total_step = 0;
+	dir_now = 2;				//目前移動方向
+	dir_waitfor = 2;
 }
 
 //回傳pacman位置

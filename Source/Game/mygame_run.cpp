@@ -47,6 +47,9 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 			Inky.move(58, 16);
 			Clyde.move(3, 16);
 		}
+		if (Score.get_coin_nums() == 0) {
+			phase = 4;
+		}
 	}
 }
 
@@ -81,10 +84,21 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/pacman/pacman6.bmp",
 		"Resources/pacman/pacman7.bmp",
 		"Resources/pacman/pacman8.bmp",
+		"Resources/die/die0.bmp",
+		"Resources/die/die1.bmp",
+		"Resources/die/die2.bmp",
+		"Resources/die/die3.bmp",
+		"Resources/die/die4.bmp",
+		"Resources/die/die5.bmp",
+		"Resources/die/die6.bmp",
+		"Resources/die/die7.bmp",
+		"Resources/die/die8.bmp",
+		"Resources/die/die9.bmp",
+		"Resources/die/die10.bmp",
+		"Resources/words/NULL.bmp",
 	}, RGB(0, 0, 0));
-	Pacman.SetTopLeft((Pacman[0] - 2) * 16 + Pacman.window_shift[0], Pacman[1] * 16 + Pacman.window_shift[1]);
-	Pacman.SetFrameIndexOfBitmap(0);
-
+	Pacman.set_inital(37, 15, 0);
+	Pacman.initialize();
 	//豆子,大力丸初始化
 	for (int i = 0; i < Map.map_len[0]; i++) {
 		for (int j = 0; j < Map.map_len[1]; j++) {
@@ -118,8 +132,8 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/red/red6.bmp",
 		"Resources/red/red7.bmp"
 		}, RGB(0, 0, 0));
-	Blinky.setPos(37, 4);
-	Blinky.SetFrameIndexOfBitmap(0);
+	Blinky.set_inital(37, 4, 0);
+	Blinky.initialize();
 
 	//Pinky 初始化
 	Pinky.LoadBitmapByString({
@@ -132,8 +146,8 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/pink/pink2.bmp",
 		"Resources/pink/pink3.bmp",
 		}, RGB(0, 0, 0));
-	Pinky.setPos(37, 4);
-	Pinky.SetFrameIndexOfBitmap(0);
+	Pinky.set_inital(37, 4, 0);
+	Pinky.initialize();
 
 	//Inky 初始化
 	Inky.LoadBitmapByString({
@@ -146,8 +160,8 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/blue/blue2.bmp",
 		"Resources/blue/blue3.bmp",
 		}, RGB(0, 0, 0));
-	Inky.setPos(37, 4);
-	Inky.SetFrameIndexOfBitmap(0);
+	Inky.set_inital(37, 4, 0);
+	Inky.initialize();
 
 	//Clyde 初始化
 	Clyde.LoadBitmapByString({
@@ -160,15 +174,19 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/orange/orange2.bmp",
 		"Resources/orange/orange3.bmp",
 		}, RGB(0, 0, 0));
-	Clyde.setPos(37, 4);
-	Clyde.SetFrameIndexOfBitmap(0);
+	Clyde.set_inital(37, 4, 0);
+	Clyde.initialize();
 
 	//P1初始化
 	P1_icon.LoadBitmapA("Resources/words/P1.bmp");
 	P1_icon.SetTopLeft(P1_icon.window_shift[0], P1_icon.window_shift[1]);
 
 	//Ready圖標初始化
-	Ready_icon.LoadBitmapA("Resources/words/ready.bmp");
+	Ready_icon.LoadBitmapByString({
+		"Resources/words/ready.bmp",
+		"Resources/words/game_over.bmp",
+		}, RGB(0, 0, 0));
+	Ready_icon.SetFrameIndexOfBitmap(0);
 	Ready_icon.SetTopLeft(Ready_icon.window_shift[0], Ready_icon.window_shift[1]);
 
 	//分數條初始化
@@ -257,7 +275,7 @@ void CGameStateRun::OnShow()
 	Score.get_point(Pacman);
 	//偵測是否吃到大力丸
 	Score.get_power(Pacman);
-	pacman_get_catch(1);
+	pacman_get_catch();
 
 	//debug
 	debugText();

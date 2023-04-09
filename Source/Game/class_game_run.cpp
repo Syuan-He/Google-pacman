@@ -15,8 +15,6 @@ using namespace game_framework;
 void CGameStateRun::show_obj_by_phase() {
 	//背景顯示
 	Background.ShowBitmap(2);
-	//pacman顯示
-	Pacman.ShowBitmap(2);
 	//豆子顯示
 	Score.show_coins();
 	//大力丸顯示
@@ -25,23 +23,21 @@ void CGameStateRun::show_obj_by_phase() {
 	Pacman.show_heart_icon(2);
 	//P1顯示
 	P1_icon.ShowBitmap(2);
-	//階段1
+	//階段0
 	if (phase == 0) {
-		time_t t = time(NULL);
+		//pacman顯示
+		Pacman.ShowBitmap(2);
 		//Ready圖標顯示
 		Ready_icon.ShowBitmap(2);
 		//5秒後進入階段2
-		if (t - exc_time_begin > 5) {
-			Pacman.hearts_icon.set_nums(-1);
+		if (time(NULL) - exc_time_begin > 4) {
 			phase = 1;
 		}
 	}
-	//階段2
+	//階段1(遊戲中)
 	else if (phase == 1) {
-		//show coins
-		Score.show_coins();
-		//show power pellet
-		Score.show_power_pellets();
+		//pacman顯示
+		Pacman.ShowBitmap(2);
 		//顯示分數
 		Score.show_score(2);
 		//顯示鬼
@@ -50,24 +46,62 @@ void CGameStateRun::show_obj_by_phase() {
 		Inky.ShowBitmap(2);
 		Clyde.ShowBitmap(2);
 	}
+	//階段2(碰到鬼)
 	else if (phase == 2) {
-		Pacman.LoadBitmapByString({
-			"Resources/die/die0.bmp",
-			"Resources/die/die1.bmp",
-			"Resources/die/die2.bmp",
-			"Resources/die/die3.bmp",
-			"Resources/die/die4.bmp",
-			"Resources/die/die5.bmp",
-			"Resources/die/die6.bmp",
-			"Resources/die/die7.bmp",
-			"Resources/die/die8.bmp",
-			"Resources/die/die9.bmp",
-			"Resources/die/die10.bmp",
-		});
+		//死亡動畫
+		if (Pacman.GetFrameIndexOfBitmap() == 8) {
+			Sleep(300);
+		}
+		Pacman.SetFrameIndexOfBitmap(Pacman.GetFrameIndexOfBitmap() + 1);
+		Pacman.ShowBitmap(2);
+		Sleep(130);
+
+		if (Pacman.GetFrameIndexOfBitmap() == 20) {
+			Sleep(500);
+			if (Pacman.hearts_icon.get_nums() < 0) {
+				phase = 3;
+			}
+			else {
+				exc_time_begin = time(NULL);
+				phase = 0;
+			}
+
+			//重新初始化
+			Pacman.initialize();
+			Blinky.initialize();
+			Pinky.initialize();
+			Inky.initialize();
+			Clyde.initialize();
+		}
+	}
+	//階段3(生命歸零)
+	else if (phase == 3) {
+		Ready_icon.SetFrameIndexOfBitmap(1);
+		Ready_icon.ShowBitmap(2);
+		//phase = 0; //之後替換為遊戲結束
+	}
+	//階段4(吃完豆子)
+	else if (phase == 4) {
+		if (Score.get_coin_nums() == 0) {
+			Pacman.SetFrameIndexOfBitmap(0);
+			Background.SetAnimation(300, false);
+			exc_time_begin = time(NULL);
+			Score.set_coin_nums(-1);
+		}
+
+		Pacman.ShowBitmap(2);
+
+		//遊戲結束
+		if (time(NULL) - exc_time_begin > 4) {
+			phase = 0; //之後替換為遊戲結束
+		}
 	}
 }
 
 void CGameStateRun::pacman_get_catch(int mode) {
+	if (phase != 1) {
+		return;
+	}
 	vector<GameGhost> ghosts = { Blinky, Pinky, Inky, Clyde };
 	for (GameGhost obj : ghosts) {
 		bool get_catch = false;
@@ -79,11 +113,15 @@ void CGameStateRun::pacman_get_catch(int mode) {
 		}
 		if (get_catch) {
 			Pacman.hearts_icon.set_nums(-1);
-			if (Pacman.hearts_icon.get_nums() == 0) {
-				phase = 2;
-			}
+			phase = 2;
+			Pacman.SetFrameIndexOfBitmap(8);
+			break;
 		}
 	}
+}
+
+void obj_initialization() {
+	
 }
 
 //Debug顯示
