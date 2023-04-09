@@ -14,8 +14,11 @@ using namespace game_framework;
 
 //加載地圖
 void GameMap::map_loader(string str) {
+	string map_matrix = str + "/google_map.txt";
+	string map_portal = str + "/portal_pos.txt";
+
 	ifstream inputFile;
-	inputFile.open(str, ifstream::in);
+	inputFile.open(map_matrix, ifstream::in);
 	string line;
 	int x = 0, y = 0;
 	while (getline(inputFile, line))
@@ -32,8 +35,31 @@ void GameMap::map_loader(string str) {
 		gameMap.push_back(Line);
 		y++;
 	}
+	inputFile.close();
+
 	//更新地圖大小
 	map_len.set_value(y, x);
+	y = 0;
+	
+	inputFile.open(map_portal, ifstream::in);
+	while (getline(inputFile, line))
+	{
+		istringstream token(line);
+		x = 0;
+		string num;
+		while (token >> num)
+		{
+			portal_position[y][x] = stoi(num);
+			x++;
+		}
+		y++;
+	}
+	inputFile.close();
+
+	Background.LoadBitmapByString({
+		str + "/image/googleMap0.bmp",
+		str + "/image/googleMap1.bmp",
+		});
 }
 
 //偵測傳送門

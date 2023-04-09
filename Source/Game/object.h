@@ -52,17 +52,17 @@ public:
 class GameMap {
 private:
 	//傳送門位置
-	int portal_position[2][2] = { { 1, 8 }, { 60, 8 } };
+	int portal_position[2][2];
 	//地圖陣列
 	vector<vector<int>> gameMap;
 public:
 	GameMap() {};
 	~GameMap() {};
 
-	//位移
-	TwoEleContainer window_shift{ 25, 100 };
 	//地同長度
 	TwoEleContainer map_len;
+	//背景
+	UIObject Background;
 	void map_loader(string str);
 	int* portal_detect(int x, int y);
 

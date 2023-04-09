@@ -14,7 +14,7 @@ using namespace game_framework;
 //根據階段顯示物件
 void CGameStateRun::show_obj_by_phase() {
 	//背景顯示
-	Background.ShowBitmap(2);
+	Map.Background.ShowBitmap(2);
 	//豆子顯示
 	Score.show_coins();
 	//大力丸顯示
@@ -84,7 +84,7 @@ void CGameStateRun::show_obj_by_phase() {
 	else if (phase == 4) {
 		if (Score.get_coin_nums() == 0) {
 			Pacman.SetFrameIndexOfBitmap(0);
-			Background.SetAnimation(300, false);
+			Map.Background.SetAnimation(300, false);
 			exc_time_begin = time(NULL);
 			Score.set_coin_nums(-1);
 		}

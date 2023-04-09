@@ -56,7 +56,7 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 {
 	//地圖陣列初始化
-	Map.map_loader("Resources/google_map.txt");
+	Map.map_loader("Resources/GameMap/GameMap_0");
 
 	//加入參考地圖
 	Pacman.set_game_map(Map);
@@ -66,12 +66,8 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 	Clyde.set_game_map(Map);
 
 	//背景初始化
-	Background.LoadBitmapByString({
-		"Resources/googleMap0.bmp",
-		"Resources/googleMap1.bmp",
-	});
-	Background.SetTopLeft(Background.window_shift[0], Background.window_shift[1]);
-	Background.SetFrameIndexOfBitmap(0);
+	Map.Background.SetTopLeft(Map.Background.window_shift[0], Map.Background.window_shift[1]);
+	Map.Background.SetFrameIndexOfBitmap(0);
 
 	//pacman初始化
 	Pacman.LoadBitmapByString({
@@ -106,7 +102,7 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 			if (Map[i][j] == 0) {
 				CMovingBitmap* t = new CMovingBitmap;
 				t -> LoadBitmapA("Resources/words/coin.bmp");
-				t -> SetTopLeft(16 * (j - 2) + 6 + Map.window_shift[0], 16 * i + 6 + Map.window_shift[1]);
+				t -> SetTopLeft(16 * (j - 2) + 6 + Map.Background.window_shift[0], 16 * i + 6 + Map.Background.window_shift[1]);
 				Score.add_coin(t);
 				Score.add_map_point(pair<int, int>(j, i), Score.get_coin_nums());
 				Score.set_coin_nums(1);
@@ -115,7 +111,7 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 			else if (Map[i][j] == 3) {
 				CMovingBitmap t;
 				t.LoadBitmapA("Resources/words/dot.bmp");
-				t.SetTopLeft(16 * (j - 2) + 4 + Map.window_shift[0], 16 * i + 4 + Map.window_shift[1]);
+				t.SetTopLeft(16 * (j - 2) + 4 + Map.Background.window_shift[0], 16 * i + 4 + Map.Background.window_shift[1]);
 				Score.add_power_pellets(t);
 			}
 		}
