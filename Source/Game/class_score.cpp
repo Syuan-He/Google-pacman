@@ -10,8 +10,13 @@
 using namespace game_framework;
 
 //加入豆子
-void GameScore::add_coin(CMovingBitmap c) {
+void GameScore::add_coin(CMovingBitmap* c) {
 	coins.push_back(c);
+}
+
+//更新豆子位置對照表
+void GameScore::add_map_point(pair<int, int> p, int v) {
+	coins_map[p] = v;
 }
 
 //加入大力丸
@@ -31,8 +36,10 @@ int GameScore::get_coin_nums() {
 
 //顯示豆子
 void GameScore::show_coins() {
-	for (CMovingBitmap t : coins) {
-		t.ShowBitmap();
+	for (CMovingBitmap* t : coins) {
+		if (t != nullptr) {
+			t-> ShowBitmap();
+		}
 	}
 }
 
@@ -69,21 +76,27 @@ void GameScore::show_score(int size) {
 
 //偵測是否吃到豆子
 void GameScore::get_point(GamePacman obj) {
-	for (auto it = coins.begin(); it != coins.end(); ++it){
-		if (obj.IsOverlap(obj, *it)) {
-			it = coins.erase(it);
+	auto t = coins_map.find(pair<int, int>(obj[0], obj[1]));
+	if (t != coins_map.end()) {
+		auto p = coins[t->second];
+		if (p != nullptr) {
+			delete p;
+			coins[t->second] = nullptr;
 			total_coin_nums--;
 			score += 10;
-			break;
 		}
 	}
 }
 
-void GameScore::get_power(GamePacman obj) {
-	for (auto it = power_pellets.begin(); it != power_pellets.end(); ++it) {
+bool GameScore::get_power(GamePacman obj) {
+	for (auto it = power_pellets.begin(); it != power_pellets.end();) {
 		if (obj.IsOverlap(obj, *it)) {
 			it = power_pellets.erase(it);
-			break;
+			return true;
+		}
+		else {
+			it++;
 		}
 	}
+	return false;
 }

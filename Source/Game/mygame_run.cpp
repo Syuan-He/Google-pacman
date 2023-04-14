@@ -25,29 +25,53 @@ void CGameStateRun::OnBeginState()
 {
 }
 
-const int nextPos[4][2] = { {1,0},{0,-1},{-1,0},{0,1} };
+time_t choasTimeChange;
 void CGameStateRun::OnMove()							// 移動遊戲元素
 {
 	//階段2才能移動
 	if (phase == 1) {
 		Pacman.move();
-		if (true) {
-			Blinky.move(Pacman[0], Pacman[1]);
-			Pinky.move(Pacman[0] + 4 * nextPos[Pacman.getDirNow()][0], Pacman[1] + 4 * nextPos[Pacman.getDirNow()][1]);
-			Inky.move(2 * Pacman[0] + 4 * nextPos[Pacman.getDirNow()][0] - Blinky[0], 2 * Pacman[1] + 4 * nextPos[Pacman.getDirNow()][1] - Blinky[1]);
-			if (pythagorean(Clyde[0], Clyde[1], Pacman[0], Pacman[1]) > 8.0) {
-				Clyde.move(Pacman[0], Pacman[1]);
+
+		//模式改變前的方向改變
+		if (modeLock && modeCount < 7 && (isScatterTime() || isChaseTime() || isChoasTime())) {
+			ghostTurnBack();
+			modeCount++;
+			modeLock = false;
+			if (modeCount == 4) {
+				scatterTime = 5;
 			}
-			else {
-				Clyde.move(3, 16);
-			}
+		}
+		else if (!modeLock && !(isScatterTime() || isChaseTime() || isChoasTime())) {
+			modeLock = true;
+		}
+		else if (!isChoasTime()) {
+			Blinky.isChoas = false;
+			Pinky.isChoas = false;
+			Inky.isChoas = false;
+			Clyde.isChoas = false;
+			Blinky.choasFlash = false;
+			Pinky.choasFlash = false;
+			Inky.choasFlash = false;
+			Clyde.choasFlash = false;
+		}
+		else if ((time(NULL) - choasTime) > choasTimeLong - 3) {
+			Blinky.choasFlash = true;
+			Pinky.choasFlash = true;
+			Inky.choasFlash = true;
+			Clyde.choasFlash = true;
+		}
+		else if (choasTimeChange != time(NULL)) {
+			choasTimeChange = time(NULL);
+			modePlayTime++;
+		}
+
+		if (modeCount >= 7 || isChaseTime()) {
+			ghostChase();
 		}
 		else {
-			Blinky.move(58, 0);
-			Pinky.move(3, 0);
-			Inky.move(58, 16);
-			Clyde.move(3, 16);
+			ghostScatter();
 		}
+
 		if (Score.get_coin_nums() == 0) {
 			phase = 4;
 		}
@@ -126,7 +150,11 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/red/red4.bmp",
 		"Resources/red/red5.bmp",
 		"Resources/red/red6.bmp",
-		"Resources/red/red7.bmp"
+		"Resources/red/red7.bmp",
+		"Resources/choas/choas0.bmp",
+		"Resources/choas/choas1.bmp",
+		"Resources/choas/choas2.bmp",
+		"Resources/choas/choas3.bmp"
 		}, RGB(0, 0, 0));
 	Blinky.set_inital(37, 4, 0);
 	Blinky.initialize();
@@ -141,6 +169,10 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/pink/pink5.bmp",
 		"Resources/pink/pink2.bmp",
 		"Resources/pink/pink3.bmp",
+		"Resources/choas/choas0.bmp",
+		"Resources/choas/choas1.bmp",
+		"Resources/choas/choas2.bmp",
+		"Resources/choas/choas3.bmp"
 		}, RGB(0, 0, 0));
 	Pinky.set_inital(37, 4, 0);
 	Pinky.initialize();
@@ -155,6 +187,10 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/blue/blue5.bmp",
 		"Resources/blue/blue2.bmp",
 		"Resources/blue/blue3.bmp",
+		"Resources/choas/choas0.bmp",
+		"Resources/choas/choas1.bmp",
+		"Resources/choas/choas2.bmp",
+		"Resources/choas/choas3.bmp"
 		}, RGB(0, 0, 0));
 	Inky.set_inital(37, 4, 0);
 	Inky.initialize();
@@ -169,6 +205,10 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/orange/orange5.bmp",
 		"Resources/orange/orange2.bmp",
 		"Resources/orange/orange3.bmp",
+		"Resources/choas/choas0.bmp",
+		"Resources/choas/choas1.bmp",
+		"Resources/choas/choas2.bmp",
+		"Resources/choas/choas3.bmp"
 		}, RGB(0, 0, 0));
 	Clyde.set_inital(37, 4, 0);
 	Clyde.initialize();
@@ -269,9 +309,17 @@ void CGameStateRun::OnShow()
 	show_obj_by_phase();
 	//偵測是否吃到豆子
 	Score.get_point(Pacman);
-	//偵測是否吃到大力丸
-	Score.get_power(Pacman);
-	pacman_get_catch();
+	//偵測是否吃到大力丸、鬼進入混亂模式
+	if (Score.get_power(Pacman)) {
+		Blinky.isChoas = true;
+		Pinky.isChoas = true;
+		Inky.isChoas = true;
+		Clyde.isChoas = true;
+		ghostTurnBack();
+		choasTime = time(NULL);
+		choasTimeChange = choasTime;
+	}
+	//pacman_get_catch();
 
 	//debug
 	debugText();

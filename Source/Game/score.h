@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "../Library/gameutil.h"
 
@@ -26,5 +26,5 @@ public:
 	void show_power_pellets();
 	void show_score(int size);
 	void get_point(GamePacman obj);
-	void get_power(GamePacman obj);
+	bool get_power(GamePacman obj);
 };
