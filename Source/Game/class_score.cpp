@@ -74,17 +74,16 @@ void GameScore::get_point(GamePacman obj) {
 			it = coins.erase(it);
 			total_coin_nums--;
 			score += 10;
+			break;
 		}
 	}
 }
 
 void GameScore::get_power(GamePacman obj) {
-	for (auto it = power_pellets.begin(); it != power_pellets.end();) {
+	for (auto it = power_pellets.begin(); it != power_pellets.end(); ++it) {
 		if (obj.IsOverlap(obj, *it)) {
 			it = power_pellets.erase(it);
-		}
-		else {
-			it++;
+			break;
 		}
 	}
 }
