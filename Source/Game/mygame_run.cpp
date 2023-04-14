@@ -319,7 +319,7 @@ void CGameStateRun::OnShow()
 		choasTime = time(NULL);
 		choasTimeChange = choasTime;
 	}
-	//pacman_get_catch();
+	pacman_get_catch();
 
 	//debug
 	debugText();

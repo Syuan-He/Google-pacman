@@ -25,7 +25,6 @@ public:
 	//位移
 	TwoEleContainer window_shift{ 19, 96 };
 
-	void move();
 	void update_position(int dir);
 	bool CanMove(int dir);
 
@@ -45,6 +44,7 @@ public:
 	//GamePacman() {};
 	//~GamePacman() {};
 
+	void move();
 	//血條
 	MultUIObj hearts_icon{ 2 , 25, 388 };
 	//位移

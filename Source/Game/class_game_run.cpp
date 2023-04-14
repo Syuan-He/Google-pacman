@@ -114,7 +114,7 @@ void CGameStateRun::pacman_get_catch(int mode) {
 		else if (mode == 1) {
 			get_catch = (Pacman[0] == obj[0] && Pacman[1] == obj[1]);
 		}
-		if (get_catch) {
+		if (get_catch && !obj.isChoas) {
 			Pacman.hearts_icon.set_nums(-1);
 			phase = 2;
 			Pacman.SetFrameIndexOfBitmap(8);
