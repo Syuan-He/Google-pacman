@@ -6,8 +6,7 @@ using namespace game_framework;
 //分數
 class GameScore {
 private:
-	vector<CMovingBitmap*> coins;			//豆子
-	map<pair<int, int>, int> coins_map;		//豆子位置對照表
+	vector<CMovingBitmap> coins;			//豆子
 	vector<CMovingBitmap> power_pellets;	//大力丸
 
 	int total_coin_nums = 0;				//豆子總數
@@ -17,8 +16,7 @@ public:
 	//分數條
 	MultUIObj game_scores{ 5, 25, 70 };
 
-	void add_coin(CMovingBitmap* c);
-	void add_map_point(pair<int, int> p, int v);
+	void add_coin(CMovingBitmap c);
 	void add_power_pellets(const CMovingBitmap& c);
 	void set_coin_nums(int increase);
 
