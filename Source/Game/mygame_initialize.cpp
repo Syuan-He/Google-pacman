@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "../Core/Resource.h"
 #include <mmsystem.h>
 #include <ddraw.h>
@@ -50,19 +50,13 @@ void CGameStateInit::OnLButtonDown(UINT nFlags, CPoint point)
 
 void CGameStateInit::OnShow()
 {
-	draw_text();
-}
-
-void CGameStateInit::draw_text() {
-	CDC *pDC = CDDraw::GetBackCDC();
-
-	/* Print title */
-	CTextDraw::ChangeFontLog(pDC, 36, "微軟正黑體", RGB(255, 255, 255));
-	CTextDraw::Print(pDC, 79, 228, "Game Framework Practice");
-
-	/* Print info */
-	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
-	CTextDraw::Print(pDC, 182, 431, "click the left Button to start");
-
-	CDDraw::ReleaseBackCDC();
+	Background.LoadBitmapA("Resources/initialize/initialize_background.bmp");
+	Background.ShowBitmap();
+	play_icon.LoadBitmapA("Resources/initialize/initialize_play.bmp", RGB(255, 255, 255));
+	play_icon.SetTopLeft(play_icon.window_shift[0], play_icon.window_shift[1]);
+	play_icon.ShowBitmap();
+	back_icon.LoadBitmapA("Resources/initialize/initialize_back.bmp", RGB(255, 255, 255));
+	back_icon.SetTopLeft(back_icon.window_shift[0], back_icon.window_shift[1]);
+	back_icon.ShowBitmap();
+	//draw_text();
 }

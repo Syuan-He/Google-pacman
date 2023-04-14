@@ -19,8 +19,8 @@ protected:
 	//參考地圖
 	GameMap gameMap;
 public:
-	Character() {};
-	~Character() {};
+	//Character() {};
+	//~Character() {};
 
 	//位移
 	TwoEleContainer window_shift{ 19, 96 };
@@ -42,8 +42,8 @@ public:
 //Pacman
 class GamePacman : public Character {
 public:
-	GamePacman() {};
-	~GamePacman() {};
+	//GamePacman() {};
+	//~GamePacman() {};
 
 	//血條
 	MultUIObj hearts_icon{ 2 , 25, 388 };

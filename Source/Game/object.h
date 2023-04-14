@@ -10,7 +10,7 @@ private:
 	int container[2];
 public:
 	TwoEleContainer(int x = 0, int y = 0);
-	~TwoEleContainer() {};
+	//~TwoEleContainer() {};
 
 	void set_value(int x, int y);
 	// operator[]
@@ -22,7 +22,7 @@ class UIObject : public CMovingBitmap {
 private:
 public:
 	UIObject(int x = 25, int y = 100);
-	~UIObject() {};
+	//~UIObject() {};
 
 	//位移
 	TwoEleContainer window_shift;
@@ -35,7 +35,7 @@ private:
 	vector<CMovingBitmap> objs;
 public:
 	MultUIObj(int num, int x = 25, int y = 100);
-	~MultUIObj() {};
+	//~MultUIObj() {};
 
 	//位移
 	TwoEleContainer window_shift;
@@ -57,7 +57,7 @@ private:
 	vector<vector<int>> gameMap;
 public:
 	GameMap() {};
-	~GameMap() {};
+	//~GameMap() {};
 
 	//地同長度
 	TwoEleContainer map_len;

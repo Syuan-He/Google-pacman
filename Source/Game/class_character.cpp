@@ -3,7 +3,7 @@
 
 using namespace game_framework;
 
-//Character::~Character() {}
+//Character::~Character() {};
 
 void Character::move() {
 	//if pacman had took a step(one step = 16px)
@@ -163,3 +163,4 @@ void Character::initialize() {
 int& Character::operator[](int index) {
 	return position[index];
 }
+

@@ -69,6 +69,9 @@ namespace game_framework {
 		void OnShow();									// 顯示這個狀態的遊戲畫面
 	private:
 		CMovingBitmap logo;								// csie的logo
+		UIObject Background;
+		UIObject play_icon{ 182, 431 };
+		UIObject back_icon{ 182, 431 };
 		void draw_text();
 	};
 
@@ -101,7 +104,6 @@ namespace game_framework {
 		GameGhost Inky;					// blue one
 		GameGhost Clyde;				// orange one
 		GameScore Score;
-		//UIObject Background;			//背景物件
 		UIObject P1_icon{25, 40};		//player1 圖標
 		UIObject Ready_icon{521, 260};	//Ready 圖標
 
