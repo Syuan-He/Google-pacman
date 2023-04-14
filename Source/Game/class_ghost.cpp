@@ -7,6 +7,8 @@
 #include "../Library/gamecore.h"
 #include "mygame.h"
 #include <queue>
+#include <cstdlib>
+#include <time.h>
 
 using namespace game_framework;
 
@@ -27,10 +29,9 @@ int manhattan(int x, int y, int x1, int y1) {
 }
 
 //畢氏定理距離
-//*
 float pythagorean(int x, int y, int x1, int y1) {
 	return sqrt((float)((x - x1)*(x - x1) + (y - y1)*(y - y1)));
-}//*/
+}
 
 //節點是否可進入
 bool GameGhost::isVaildNode(int x, int y, int xx, int yy) {
@@ -109,7 +110,17 @@ void GameGhost::move(int x1, int y1) {
 	if (total_step == 16) {
 		//updte pacman's position on the map
 		update_position(dir_now);
-		dir_waitfor = selectDir(dir_now, x1, y1);
+		if (setDirLock) {
+			setDirLock = false;
+		}
+		else if (isChoas) {
+			if (CanMove((dir_now + 1) % 4) || CanMove((dir_now + 3) % 4)) {
+				dir_waitfor = rand() % 4;
+			}
+		}
+		else {
+			dir_waitfor = selectDir(dir_now, x1, y1);
+		}
 
 		//if the position that pacman prefer is executable 
 		if (CanMove(dir_waitfor)) {
@@ -120,20 +131,32 @@ void GameGhost::move(int x1, int y1) {
 		//reset pacman's total step
 		total_step = 0;
 	}
-	else if (!CanMove(dir_now) && (position[0] != x1 || position[1] != y1)) {
-		dir_now = (dir_now + 2) % 4;
-	}
-	/*
-	else if ((position[0] != x1 || position[1] != y1) && total_step == 0) {
+	else if (!CanMove(dir_now) && total_step == 0 && (position[0] != x1 || position[1] != y1)) {
+		turnBack();
 		//dir_waitfor = astar(position[0], position[1], x1, y1);
-		dir_waitfor = selectDir(dir_now, x1, y1);
-	}*/
+	}
 	//pacman's animetion when it move
-	if (total_step % 16 < 8) {
-		this->SetFrameIndexOfBitmap(dir_now * 2);
+	if (isChoas) {
+		if (choasFlash && total_step % 16 < 4) {
+			this->SetFrameIndexOfBitmap(11);
+		}
+		else if (total_step % 16 < 8) {
+			this->SetFrameIndexOfBitmap(8);
+		}
+		else if (choasFlash && total_step % 16 < 12) {
+			this->SetFrameIndexOfBitmap(10);
+		}
+		else {
+			this->SetFrameIndexOfBitmap(9);
+		}
 	}
 	else {
-		this->SetFrameIndexOfBitmap(dir_now * 2 + 1);
+		if (total_step % 16 < 8) {
+			this->SetFrameIndexOfBitmap(dir_now * 2);
+		}
+		else {
+			this->SetFrameIndexOfBitmap(dir_now * 2 + 1);
+		}
 	}
 	
 	//if the diraction now is executable keep going
@@ -174,12 +197,24 @@ void GameGhost::move(int x1, int y1) {
 	}
 }
 
+void GameGhost::turnBack() {
+	dir_waitfor = (dir_now + 2) % 4;
+	setDirLock = true;
+}
+
 int GameGhost::selectDir(int dir, int x1, int y1) {
-	float dist, nextDist;
+	float dist = 0, nextDist;
 	int dirNext;
 	dist = pythagorean(position[0] + nextPos[(dir + 3) % 4][0], position[1] + nextPos[(dir + 3) % 4][1], x1, y1);
 	dirNext = (dir + 3) % 4;
 	for (int i = 4; i < 6; i++) {
+		nextDist = pythagorean(position[0] + nextPos[(dir + i) % 4][0], position[1] + nextPos[(dir + i) % 4][1], x1, y1);
+		if (nextDist > dist) {
+			dirNext = (dir + i) % 4;
+			dist = nextDist;
+		}
+	}
+	for (int i = 3; i < 6; i++) {
 		nextDist = pythagorean(position[0] + nextPos[(dir + i) % 4][0], position[1] + nextPos[(dir + i) % 4][1], x1, y1);
 		if (CanMove((dir + i) % 4) && nextDist < dist) {
 			dirNext = (dir + i) % 4;
@@ -191,4 +226,37 @@ int GameGhost::selectDir(int dir, int x1, int y1) {
 
 int GameGhost::getDirWait() {
 	return dir_waitfor;
+}
+
+bool CGameStateRun::isScatterTime() {
+	return (time(NULL) - modePlayTime) % (scatterTime + chaseTime) == 0;
+}
+bool CGameStateRun::isChaseTime() {
+	return (time(NULL) - modePlayTime) % (scatterTime + chaseTime) >= scatterTime;
+}
+bool CGameStateRun::isChoasTime() {
+	return (time(NULL) - choasTime) < choasTimeLong;
+}
+void CGameStateRun::ghostChase() {
+	Blinky.move(Pacman[0], Pacman[1]);
+	Pinky.move(Pacman[0] + 4 * nextPos[Pacman.getDirNow()][0], Pacman[1] + 4 * nextPos[Pacman.getDirNow()][1]);
+	Inky.move(2 * Pacman[0] + 4 * nextPos[Pacman.getDirNow()][0] - Blinky[0], 2 * Pacman[1] + 4 * nextPos[Pacman.getDirNow()][1] - Blinky[1]);
+	if (pythagorean(Clyde[0], Clyde[1], Pacman[0], Pacman[1]) > 8.0) {
+		Clyde.move(Pacman[0], Pacman[1]);
+	}
+	else {
+		Clyde.move(3, 16);
+	}
+}
+void CGameStateRun::ghostScatter() {
+	Blinky.move(58, 0);
+	Pinky.move(3, 0);
+	Inky.move(58, 16);
+	Clyde.move(3, 16);
+}
+void CGameStateRun::ghostTurnBack() {
+	Blinky.turnBack();
+	Pinky.turnBack();
+	Inky.turnBack();
+	Clyde.turnBack();
 }

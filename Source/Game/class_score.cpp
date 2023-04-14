@@ -88,13 +88,15 @@ void GameScore::get_point(GamePacman obj) {
 	}
 }
 
-void GameScore::get_power(GamePacman obj) {
+bool GameScore::get_power(GamePacman obj) {
 	for (auto it = power_pellets.begin(); it != power_pellets.end();) {
 		if (obj.IsOverlap(obj, *it)) {
 			it = power_pellets.erase(it);
+			return true;
 		}
 		else {
 			it++;
 		}
 	}
+	return false;
 }

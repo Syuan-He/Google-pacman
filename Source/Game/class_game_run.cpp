@@ -32,19 +32,22 @@ void CGameStateRun::show_obj_by_phase() {
 		//5秒後進入階段2
 		if (time(NULL) - exc_time_begin > 4) {
 			phase = 1;
+			modePlayTime = time(NULL);
+			modeCount = 0;
+			modeLock = false;
 		}
 	}
 	//階段1(遊戲中)
 	else if (phase == 1) {
-		//pacman顯示
-		Pacman.ShowBitmap(2);
-		//顯示分數
-		Score.show_score(2);
 		//顯示鬼
 		Blinky.ShowBitmap(2);
 		Pinky.ShowBitmap(2);
 		Inky.ShowBitmap(2);
 		Clyde.ShowBitmap(2);
+		//pacman顯示
+		Pacman.ShowBitmap(2);
+		//顯示分數
+		Score.show_score(2);
 	}
 	//階段2(碰到鬼)
 	else if (phase == 2) {
@@ -127,29 +130,23 @@ void obj_initialization() {
 //Debug顯示
 void CGameStateRun::debugText() {
 	CDC *pDC = CDDraw::GetBackCDC();
-	string strPacPos = "", strPacPoi = "", strGhostDirWait = "";
+	string strPacPos = "", strPacPoi = "", strGameTime = "";
 
 	//地圖陣列位置
 	strPacPos += to_string(Pacman[0]) + ", " + to_string(Pacman[1]);	//position in array
 	//視窗位置
-	strPacPoi += to_string(Pacman.GetLeft()) + ", " + to_string(Pacman.GetTop());
+	strPacPoi += to_string(modeCount);
 
-	strGhostDirWait += to_string(Blinky.getDirWait());
-
-	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
-	CTextDraw::Print(pDC, 25, 270 + 100, strPacPos);
+	strGameTime += to_string((time(NULL) - modePlayTime)%27);
 
 	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
-	CTextDraw::Print(pDC, 25, 300 + 100, strPacPoi);
+	CTextDraw::Print(pDC, 25, 430, strPacPos);
 
 	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
-	CTextDraw::Print(pDC, 25, 330 + 100, strGhostDirWait);
+	CTextDraw::Print(pDC, 25, 460, strPacPoi);
+
+	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
+	CTextDraw::Print(pDC, 25, 490, strGameTime);
 
 	CDDraw::ReleaseBackCDC();
 }
-
-//畢氏定理距離
-//*
-float CGameStateRun::pythagorean(int x, int y, int x1, int y1) {
-	return sqrt((float)((x - x1)*(x - x1) + (y - y1)*(y - y1)));
-}//*/

@@ -106,11 +106,27 @@ namespace game_framework {
 		UIObject Ready_icon{521, 260};	//Ready 圖標
 
 		time_t exc_time_begin;
+
+		//void ghostMoveControl();
+		time_t modePlayTime;
+		int scatterTime = 7;
+		int chaseTime = 20;
+		int modeCount;
+		bool modeLock;
+		bool isScatterTime();
+		bool isChaseTime();
+		bool isChoasTime();
+		void ghostChase();
+		void ghostScatter();
+		void ghostTurnBack();
+
+		time_t choasTime;
+		int choasTimeLong = 10;
+
 		int phase = 0;					//階段
 		void show_obj_by_phase();
 		void pacman_get_catch(int mode = 0);
 		void debugText();
-		float pythagorean(int x, int y, int x1, int y1);
 	};
 
 	/////////////////////////////////////////////////////////////////////////////
