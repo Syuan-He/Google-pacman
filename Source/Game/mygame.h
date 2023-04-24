@@ -70,8 +70,12 @@ namespace game_framework {
 	private:
 		CMovingBitmap logo;								// csie的logo
 		UIObject Background;
-		UIObject play_icon{ 182, 431 };
-		UIObject back_icon{ 182, 431 };
+		GameMenu Menu_main{ 438, 370, 563, 384, 60};
+		UIObject Setting_background;
+		GameMenu Menu_setting;
+
+		int menu_now = 0;
+
 		void draw_text();
 	};
 

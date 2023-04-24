@@ -23,6 +23,8 @@ CGameStateRun::~CGameStateRun()
 
 void CGameStateRun::OnBeginState()
 {
+	//遊戲開始時間
+	exc_time_begin = time(NULL);
 }
 
 time_t choasTimeChange;
@@ -252,9 +254,6 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		t -> SetTopLeft(i * 32 + Pacman.hearts_icon.window_shift[0], Pacman.hearts_icon.window_shift[1]);
 		Pacman.hearts_icon.add_obj(*t);
 	}
-
-	//遊戲開始時間
-	exc_time_begin = time(NULL);
 }
 
 void CGameStateRun::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
