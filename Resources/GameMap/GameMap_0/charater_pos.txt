@@ -1,0 +1,6 @@
+Pacman 37 15
+Blinky 37 4
+Pinky 37 4
+Inky 37 4
+Clyde 37 4
+Ready 521 260

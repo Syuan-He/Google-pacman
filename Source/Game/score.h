@@ -21,10 +21,12 @@ public:
 	void set_coin_nums(int increase);
 
 	int get_coin_nums();
-
+	
 	void show_coins();
 	void show_power_pellets();
 	void show_score(int size);
 	void get_point(GamePacman obj);
 	bool get_power(GamePacman obj);
+
+	void initialize(GameMap Map);
 };

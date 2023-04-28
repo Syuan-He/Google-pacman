@@ -40,6 +40,7 @@ public:
 	int get_nums();
 
 	void set_nums(int increase);
+	void set_num_abs(int value);
 
 	//回傳第index個CMovingBitmap
 	CMovingBitmap& operator[](int index);

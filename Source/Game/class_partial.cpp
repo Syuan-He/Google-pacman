@@ -52,6 +52,10 @@ void MultUIObj::set_nums(int increase) {
 	obj_num += increase;
 }
 
+void MultUIObj::set_num_abs(int value) {
+	obj_num = value;
+}
+
 //回傳第index個CMovingBitmap
 CMovingBitmap& MultUIObj::operator[](int index) {
 	return objs[index];

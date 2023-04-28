@@ -109,7 +109,7 @@ namespace game_framework {
 		GameGhost Clyde;				// orange one
 		GameScore Score;
 		UIObject P1_icon{25, 40};		//player1 圖標
-		UIObject Ready_icon{521, 260};	//Ready 圖標
+		UIObject Ready_icon;	//Ready 圖標
 
 		time_t exc_time_begin;
 
@@ -130,8 +130,10 @@ namespace game_framework {
 		int choasTimeLong = 10;
 
 		int phase = 0;					//階段
+		int level = 0;
 		void show_obj_by_phase();
 		void pacman_get_catch(int mode = 0);
+		void change_level(int level);
 		void debugText();
 	};
 
