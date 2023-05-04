@@ -10,7 +10,6 @@ private:
 	int container[2];
 public:
 	TwoEleContainer(int x = 0, int y = 0);
-	~TwoEleContainer() {};
 
 	void set_value(int x, int y);
 	// operator[]
@@ -22,7 +21,6 @@ class UIObject : public CMovingBitmap {
 private:
 public:
 	UIObject(int x = 25, int y = 100);
-	~UIObject() {};
 
 	//位移
 	TwoEleContainer window_shift;
@@ -35,7 +33,6 @@ private:
 	vector<CMovingBitmap> objs;
 public:
 	MultUIObj(int num, int x = 25, int y = 100);
-	~MultUIObj() {};
 
 	//位移
 	TwoEleContainer window_shift;
@@ -56,9 +53,6 @@ private:
 	//地圖陣列
 	vector<vector<int>> gameMap;
 public:
-	GameMap() {};
-	~GameMap() {};
-
 	//地同長度
 	TwoEleContainer map_len;
 	//背景
@@ -68,4 +62,22 @@ public:
 
 	//回傳地圖陣列值
 	const vector<int>& operator[](int i) const;
+};
+
+class GameMenu {
+private:
+	int line_space = 60;
+	int target_pos = 0;
+public:
+	GameMenu(int menu_wd_x = 0, int menu_wd_y = 0, int target_wd_x = 0, int target_wd_y = 0, int l_space = 0);
+	
+	MultUIObj menu{ 0 };
+	UIObject target;
+
+	bool set_target_pos(int increase, int mode = 1);
+	void load_menu(vector<string> source);
+
+	int get_target_pos();
+
+	void show_menu();
 };

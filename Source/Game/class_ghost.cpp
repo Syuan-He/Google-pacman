@@ -110,13 +110,25 @@ void GameGhost::move(int x1, int y1) {
 	if (total_step == 16) {
 		//updte pacman's position on the map
 		update_position(dir_now);
+
+		if (waitVelocity != velocity) {
+			velocity = waitVelocity;
+		}
+
 		if (setDirLock) {
 			setDirLock = false;
 		}
-		else if (isChoas) {
+		else if (isChoas == 1) {
 			if (CanMove((dir_now + 1) % 4) || CanMove((dir_now + 3) % 4)) {
 				dir_waitfor = rand() % 4;
 			}
+		}
+		else if (isChoas == 2) {
+			if (position[0] == initial_pos[0] && position[1] == initial_pos[1]) {
+				isChoas = 0;
+				waitVelocity = 2;
+			}
+			dir_waitfor = selectDir(dir_now, initial_pos[0], initial_pos[1]);
 		}
 		else {
 			dir_waitfor = selectDir(dir_now, x1, y1);
@@ -136,7 +148,7 @@ void GameGhost::move(int x1, int y1) {
 		//dir_waitfor = astar(position[0], position[1], x1, y1);
 	}
 	//pacman's animetion when it move
-	if (isChoas) {
+	if (isChoas == 1) {
 		if (choasFlash && total_step % 16 < 4) {
 			this->SetFrameIndexOfBitmap(11);
 		}
@@ -223,9 +235,8 @@ int GameGhost::selectDir(int dir, int x1, int y1) {
 	}
 	return dirNext;
 }
-
-int GameGhost::getDirWait() {
-	return dir_waitfor;
+void GameGhost::setVelocity(int v) {
+	waitVelocity = v;
 }
 
 bool CGameStateRun::isScatterTime() {
@@ -237,6 +248,7 @@ bool CGameStateRun::isChaseTime() {
 bool CGameStateRun::isChoasTime() {
 	return (time(NULL) - choasTime) < choasTimeLong;
 }
+
 void CGameStateRun::ghostChase() {
 	Blinky.move(Pacman[0], Pacman[1]);
 	Pinky.move(Pacman[0] + 4 * nextPos[Pacman.getDirNow()][0], Pacman[1] + 4 * nextPos[Pacman.getDirNow()][1]);

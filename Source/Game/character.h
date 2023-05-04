@@ -19,13 +19,12 @@ protected:
 	//參考地圖
 	GameMap gameMap;
 public:
-	Character() {};
-	~Character() {};
+	//Character() {};
+	//~Character() {};
 
 	//位移
 	TwoEleContainer window_shift{ 19, 96 };
 
-	void move();
 	void update_position(int dir);
 	bool CanMove(int dir);
 
@@ -42,9 +41,10 @@ public:
 //Pacman
 class GamePacman : public Character {
 public:
-	GamePacman() {};
-	~GamePacman() {};
+	//GamePacman() {};
+	//~GamePacman() {};
 
+	void move();
 	//血條
 	MultUIObj hearts_icon{ 2 , 25, 388 };
 	//位移
@@ -59,15 +59,16 @@ public:
 class GameGhost : public Character {
 private:
 	bool setDirLock;				//防止turnBack()無法生效
+	int waitVelocity;
 public:
-	bool isChoas = false;
+	int isChoas = 0;
 	bool choasFlash = false;
 
 	void move(int x1, int y1);
 
 	int selectDir(int dir, int x1, int y1);
 	void turnBack();
-	int getDirWait();		//取得dir_waitfor的值，之後應該用不到，可能會刪除
+	void setVelocity(int v);
 
 	bool isVaildNode(int x, int y, int xx, int yy);
 	int astar(int x0, int y0, int x1, int y1);

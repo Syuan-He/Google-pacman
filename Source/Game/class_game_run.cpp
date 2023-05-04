@@ -106,19 +106,59 @@ void CGameStateRun::pacman_get_catch(int mode) {
 		return;
 	}
 	vector<GameGhost> ghosts = { Blinky, Pinky, Inky, Clyde };
+	bool get_catch = false;
+	int count = 0;
 	for (GameGhost obj : ghosts) {
-		bool get_catch = false;
+		get_catch = false;
+		count++;
 		if (mode == 0) {
 			get_catch = Pacman.IsOverlap(Pacman, obj);
 		}
 		else if (mode == 1) {
 			get_catch = (Pacman[0] == obj[0] && Pacman[1] == obj[1]);
 		}
-		if (get_catch) {
+
+		if (get_catch && !obj.isChoas) {
 			Pacman.hearts_icon.set_nums(-1);
 			phase = 2;
 			Pacman.SetFrameIndexOfBitmap(8);
 			break;
+		}
+		else if (get_catch) {
+			switch (count) {
+			case 1:
+				if (Blinky.isChoas == 1) {
+					Blinky.isChoas = 2;
+					Blinky.choasFlash = false;
+					Blinky.setVelocity(4);
+					Score.get_ghost(Pacman, Blinky, ghostCatchTime);
+				}
+				break;
+			case 2:
+				if (Pinky.isChoas == 1) {
+					Pinky.isChoas = 2;
+					Pinky.choasFlash = false;
+					Pinky.setVelocity(4);
+					Score.get_ghost(Pacman, Pinky, ghostCatchTime);
+				}
+				break;
+			case 3:
+				if (Inky.isChoas == 1) {
+					Inky.isChoas = 2;
+					Inky.choasFlash = false;
+					Inky.setVelocity(4);
+					Score.get_ghost(Pacman, Inky, ghostCatchTime);
+				}
+				break;
+			case 4:
+				if (Clyde.isChoas == 1) {
+					Clyde.isChoas = 2;
+					Clyde.choasFlash = false;
+					Clyde.setVelocity(4);
+					Score.get_ghost(Pacman, Clyde, ghostCatchTime);
+				}
+				break;
+			}
 		}
 	}
 }
@@ -130,14 +170,16 @@ void obj_initialization() {
 //Debug顯示
 void CGameStateRun::debugText() {
 	CDC *pDC = CDDraw::GetBackCDC();
-	string strPacPos = "", strPacPoi = "", strGameTime = "";
+	string strPacPos = "", strPacPoi = "", strCatchTime = "", strInkyChoas = "";
 
 	//地圖陣列位置
 	strPacPos += to_string(Pacman[0]) + ", " + to_string(Pacman[1]);	//position in array
 	//視窗位置
 	strPacPoi += to_string(modeCount);
 
-	strGameTime += to_string((time(NULL) - modePlayTime)%27);
+	strCatchTime += to_string(Score.get_power(Pacman));
+
+	strInkyChoas += to_string(Inky.isChoas);
 
 	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
 	CTextDraw::Print(pDC, 25, 430, strPacPos);
@@ -146,7 +188,10 @@ void CGameStateRun::debugText() {
 	CTextDraw::Print(pDC, 25, 460, strPacPoi);
 
 	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
-	CTextDraw::Print(pDC, 25, 490, strGameTime);
+	CTextDraw::Print(pDC, 25, 490, strCatchTime);
+
+	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
+	CTextDraw::Print(pDC, 25, 520, strInkyChoas);
 
 	CDDraw::ReleaseBackCDC();
 }

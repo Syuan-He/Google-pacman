@@ -69,6 +69,13 @@ namespace game_framework {
 		void OnShow();									// 顯示這個狀態的遊戲畫面
 	private:
 		CMovingBitmap logo;								// csie的logo
+		UIObject Background;
+		GameMenu Menu_main{ 438, 370, 563, 384, 60 };
+		UIObject Setting_background;
+		GameMenu Menu_setting;
+
+		int menu_now = 0;
+
 		void draw_text();
 	};
 
@@ -101,7 +108,6 @@ namespace game_framework {
 		GameGhost Inky;					// blue one
 		GameGhost Clyde;				// orange one
 		GameScore Score;
-		//UIObject Background;			//背景物件
 		UIObject P1_icon{25, 40};		//player1 圖標
 		UIObject Ready_icon{521, 260};	//Ready 圖標
 
@@ -111,6 +117,7 @@ namespace game_framework {
 		time_t modePlayTime;
 		int scatterTime = 7;
 		int chaseTime = 20;
+		int ghostCatchTime = 0;
 		int modeCount;
 		bool modeLock;
 		bool isScatterTime();

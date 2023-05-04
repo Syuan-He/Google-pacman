@@ -7,6 +7,7 @@
 #include "../Library/gamecore.h"
 #include "mygame.h"
 #include <time.h>
+#include <memory>
 
 using namespace game_framework;
 /////////////////////////////////////////////////////////////////////////////
@@ -52,6 +53,10 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 			Pinky.choasFlash = false;
 			Inky.choasFlash = false;
 			Clyde.choasFlash = false;
+			Blinky.setVelocity(2);
+			Pinky.setVelocity(2);
+			Inky.setVelocity(2);
+			Clyde.setVelocity(2);
 		}
 		else if ((time(NULL) - choasTime) > choasTimeLong - 3) {
 			Blinky.choasFlash = true;
@@ -124,11 +129,10 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		for (int j = 0; j < Map.map_len[1]; j++) {
 			//為0的道路加入豆子
 			if (Map[i][j] == 0) {
-				CMovingBitmap* t = new CMovingBitmap;
+				unique_ptr<CMovingBitmap> t(new CMovingBitmap);
 				t -> LoadBitmapA("Resources/words/coin.bmp");
 				t -> SetTopLeft(16 * (j - 2) + 6 + Map.Background.window_shift[0], 16 * i + 6 + Map.Background.window_shift[1]);
-				Score.add_coin(t);
-				Score.add_map_point(pair<int, int>(j, i), Score.get_coin_nums());
+				Score.add_coin(*t);
 				Score.set_coin_nums(1);
 			}
 			//為3的道路加入大力丸
@@ -315,11 +319,19 @@ void CGameStateRun::OnShow()
 		Pinky.isChoas = true;
 		Inky.isChoas = true;
 		Clyde.isChoas = true;
+		Blinky.choasFlash = false;
+		Pinky.choasFlash = false;
+		Inky.choasFlash = false;
+		Clyde.choasFlash = false;
+		Blinky.setVelocity(1);
+		Pinky.setVelocity(1);
+		Inky.setVelocity(1);
+		Clyde.setVelocity(1);
 		ghostTurnBack();
 		choasTime = time(NULL);
 		choasTimeChange = choasTime;
 	}
-	//pacman_get_catch();
+	pacman_get_catch();
 
 	//debug
 	debugText();
