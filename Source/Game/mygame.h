@@ -107,6 +107,7 @@ namespace game_framework {
 		GameGhost Pinky;				// pink one
 		GameGhost Inky;					// blue one
 		GameGhost Clyde;				// orange one
+		vector<GameGhost> ghosts = { Blinky, Pinky, Inky, Clyde };
 		GameScore Score;
 		UIObject P1_icon{25, 40};		//player1 圖標
 		UIObject Ready_icon;	//Ready 圖標

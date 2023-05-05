@@ -250,25 +250,24 @@ bool CGameStateRun::isChoasTime() {
 }
 
 void CGameStateRun::ghostChase() {
-	Blinky.move(Pacman[0], Pacman[1]);
-	Pinky.move(Pacman[0] + 4 * nextPos[Pacman.getDirNow()][0], Pacman[1] + 4 * nextPos[Pacman.getDirNow()][1]);
-	Inky.move(2 * Pacman[0] + 4 * nextPos[Pacman.getDirNow()][0] - Blinky[0], 2 * Pacman[1] + 4 * nextPos[Pacman.getDirNow()][1] - Blinky[1]);
-	if (pythagorean(Clyde[0], Clyde[1], Pacman[0], Pacman[1]) > 8.0) {
-		Clyde.move(Pacman[0], Pacman[1]);
+	ghosts[0].move(Pacman[0], Pacman[1]);
+	ghosts[1].move(Pacman[0] + 4 * nextPos[Pacman.getDirNow()][0], Pacman[1] + 4 * nextPos[Pacman.getDirNow()][1]);
+	ghosts[2].move(2 * Pacman[0] + 4 * nextPos[Pacman.getDirNow()][0] - ghosts[0][0], 2 * ghosts[0][1] + 4 * nextPos[Pacman.getDirNow()][1] - ghosts[0][1]);
+	if (pythagorean(ghosts[3][0], ghosts[3][1], Pacman[0], Pacman[1]) > 8.0) {
+		ghosts[3].move(Pacman[0], Pacman[1]);
 	}
 	else {
-		Clyde.move(3, 16);
+		ghosts[3].move(3, 16);
 	}
 }
 void CGameStateRun::ghostScatter() {
-	Blinky.move(58, 0);
-	Pinky.move(3, 0);
-	Inky.move(58, 16);
-	Clyde.move(3, 16);
+	ghosts[0].move(58, 0);
+	ghosts[1].move(3, 0);
+	ghosts[2].move(58, 16);
+	ghosts[3].move(3, 16);
 }
 void CGameStateRun::ghostTurnBack() {
-	Blinky.turnBack();
-	Pinky.turnBack();
-	Inky.turnBack();
-	Clyde.turnBack();
+	for (GameGhost &obj : ghosts) {
+		obj.turnBack();
+	}
 }

@@ -41,10 +41,9 @@ void CGameStateRun::show_obj_by_phase() {
 	//階段1(遊戲中)
 	else if (phase == 1) {
 		//顯示鬼
-		Blinky.ShowBitmap(2);
-		Pinky.ShowBitmap(2);
-		Inky.ShowBitmap(2);
-		Clyde.ShowBitmap(2);
+		for (GameGhost &obj : ghosts) {
+			obj.ShowBitmap(2);
+		}
 		//pacman顯示
 		Pacman.ShowBitmap(2);
 		//顯示分數
@@ -72,10 +71,9 @@ void CGameStateRun::show_obj_by_phase() {
 
 			//重新初始化
 			Pacman.initialize();
-			Blinky.initialize();
-			Pinky.initialize();
-			Inky.initialize();
-			Clyde.initialize();
+			for (GameGhost &obj : ghosts) {
+				obj.initialize();
+			}
 		}
 	}
 	//階段3(生命歸零)
@@ -101,10 +99,9 @@ void CGameStateRun::show_obj_by_phase() {
 			change_level(level);
 			Score.initialize(Map);
 			Pacman.initialize();
-			Blinky.initialize();
-			Pinky.initialize();
-			Inky.initialize();
-			Clyde.initialize();
+			for (GameGhost &obj : ghosts) {
+				obj.initialize();
+			}
 			Ready_icon.SetTopLeft(Ready_icon.window_shift[0], Ready_icon.window_shift[1]);
 			Pacman.hearts_icon.set_num_abs(2);
 			exc_time_begin = time(NULL);
@@ -117,12 +114,10 @@ void CGameStateRun::pacman_get_catch(int mode) {
 	if (phase != 1) {
 		return;
 	}
-	vector<GameGhost> ghosts = { Blinky, Pinky, Inky, Clyde };
+
 	bool get_catch = false;
-	int count = 0;
-	for (GameGhost obj : ghosts) {
+	for (GameGhost &obj : ghosts) {
 		get_catch = false;
-		count++;
 		if (mode == 0) {
 			get_catch = Pacman.IsOverlap(Pacman, obj);
 		}
@@ -136,41 +131,11 @@ void CGameStateRun::pacman_get_catch(int mode) {
 			Pacman.SetFrameIndexOfBitmap(8);
 			break;
 		}
-		else if (get_catch) {
-			switch (count) {
-			case 1:
-				if (Blinky.isChoas == 1) {
-					Blinky.isChoas = 2;
-					Blinky.choasFlash = false;
-					Blinky.setVelocity(4);
-					Score.get_ghost(Pacman, Blinky, ghostCatchTime);
-				}
-				break;
-			case 2:
-				if (Pinky.isChoas == 1) {
-					Pinky.isChoas = 2;
-					Pinky.choasFlash = false;
-					Pinky.setVelocity(4);
-					Score.get_ghost(Pacman, Pinky, ghostCatchTime);
-				}
-				break;
-			case 3:
-				if (Inky.isChoas == 1) {
-					Inky.isChoas = 2;
-					Inky.choasFlash = false;
-					Inky.setVelocity(4);
-					Score.get_ghost(Pacman, Inky, ghostCatchTime);
-				}
-				break;
-			case 4:
-				if (Clyde.isChoas == 1) {
-					Clyde.isChoas = 2;
-					Clyde.choasFlash = false;
-					Clyde.setVelocity(4);
-					Score.get_ghost(Pacman, Clyde, ghostCatchTime);
-				}
-				break;
-			}
+		else if (get_catch && obj.isChoas == 1) {
+					obj.isChoas = 2;
+					obj.choasFlash = false;
+					obj.setVelocity(4);
+					Score.get_ghost(Pacman, obj, ghostCatchTime);	
 		}
 	}
 }
@@ -186,10 +151,9 @@ void CGameStateRun::change_level(int level) {
 
 	//加入參考地圖
 	Pacman.set_game_map(Map);
-	Blinky.set_game_map(Map);
-	Pinky.set_game_map(Map);
-	Inky.set_game_map(Map);
-	Clyde.set_game_map(Map);
+	for (GameGhost &obj : ghosts) {
+		obj.set_game_map(Map);
+	}
 
 	ifstream infile(str + "/charater_pos.txt");  // 打開文件
 	map<string, pair<int, int>> map_t;  // 定義一個 map
@@ -204,10 +168,10 @@ void CGameStateRun::change_level(int level) {
 	// 遍歷 map，輸出所有的 key 和 value
 
 	Pacman.set_inital(map_t["Pacman"].first, map_t["Pacman"].second, 0);
-	Blinky.set_inital(map_t["Blinky"].first, map_t["Blinky"].second, 0);
-	Pinky.set_inital(map_t["Pinky"].first, map_t["Pinky"].second, 0);
-	Inky.set_inital(map_t["Inky"].first, map_t["Inky"].second, 0);
-	Clyde.set_inital(map_t["Clyde"].first, map_t["Clyde"].second, 0);
+	ghosts[0].set_inital(map_t["Blinky"].first, map_t["Blinky"].second, 0);
+	ghosts[1].set_inital(map_t["Pinky"].first, map_t["Pinky"].second, 0);
+	ghosts[2].set_inital(map_t["Inky"].first, map_t["Inky"].second, 0);
+	ghosts[3].set_inital(map_t["Clyde"].first, map_t["Clyde"].second, 0);
 
 	Ready_icon.window_shift.set_value(map_t["Ready"].first, map_t["Ready"].second);
 }
