@@ -6,6 +6,7 @@
 #include "../Library/gameutil.h"
 #include "../Library/gamecore.h"
 #include "mygame.h"
+#include <fstream>
 #include <time.h>
 #include <string>
 
@@ -81,7 +82,7 @@ void CGameStateRun::show_obj_by_phase() {
 	else if (phase == 3) {
 		Ready_icon.SetFrameIndexOfBitmap(1);
 		Ready_icon.ShowBitmap(2);
-		//phase = 0; //之後替換為遊戲結束
+		GotoGameState(GAME_STATE_OVER);
 	}
 	//階段4(吃完豆子)
 	else if (phase == 4) {
@@ -96,7 +97,18 @@ void CGameStateRun::show_obj_by_phase() {
 
 		//遊戲結束
 		if (time(NULL) - exc_time_begin > 4) {
-			phase = 0; //之後替換為遊戲結束
+			level += 1;
+			change_level(level);
+			Score.initialize(Map);
+			Pacman.initialize();
+			Blinky.initialize();
+			Pinky.initialize();
+			Inky.initialize();
+			Clyde.initialize();
+			Ready_icon.SetTopLeft(Ready_icon.window_shift[0], Ready_icon.window_shift[1]);
+			Pacman.hearts_icon.set_num_abs(2);
+			exc_time_begin = time(NULL);
+			phase = 0;
 		}
 	}
 }
@@ -163,8 +175,41 @@ void CGameStateRun::pacman_get_catch(int mode) {
 	}
 }
 
-void obj_initialization() {
-	
+void CGameStateRun::change_level(int level) {
+	//地圖陣列初始化
+	string str = "Resources/GameMap/GameMap_" + to_string(level);
+	GameMap NewMap;
+	NewMap.map_loader(str);
+	Map = NewMap;
+	Map.Background.SetTopLeft(Map.Background.window_shift[0], Map.Background.window_shift[1]);
+	Map.Background.SetFrameIndexOfBitmap(0);
+
+	//加入參考地圖
+	Pacman.set_game_map(Map);
+	Blinky.set_game_map(Map);
+	Pinky.set_game_map(Map);
+	Inky.set_game_map(Map);
+	Clyde.set_game_map(Map);
+
+	ifstream infile(str + "/charater_pos.txt");  // 打開文件
+	map<string, pair<int, int>> map_t;  // 定義一個 map
+
+	std::string key;
+	int value_0, value_1;
+	while (infile >> key >> value_0 >> value_1) {  // 逐行讀取文件中的值
+		map_t[key] = pair<int, int>(value_0, value_1);  // 將值存入 map 中
+	}
+
+	infile.close();
+	// 遍歷 map，輸出所有的 key 和 value
+
+	Pacman.set_inital(map_t["Pacman"].first, map_t["Pacman"].second, 0);
+	Blinky.set_inital(map_t["Blinky"].first, map_t["Blinky"].second, 0);
+	Pinky.set_inital(map_t["Pinky"].first, map_t["Pinky"].second, 0);
+	Inky.set_inital(map_t["Inky"].first, map_t["Inky"].second, 0);
+	Clyde.set_inital(map_t["Clyde"].first, map_t["Clyde"].second, 0);
+
+	Ready_icon.window_shift.set_value(map_t["Ready"].first, map_t["Ready"].second);
 }
 
 //Debug顯示

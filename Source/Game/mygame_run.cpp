@@ -23,6 +23,8 @@ CGameStateRun::~CGameStateRun()
 
 void CGameStateRun::OnBeginState()
 {
+	//遊戲開始時間
+	exc_time_begin = time(NULL);
 }
 
 time_t choasTimeChange;
@@ -84,20 +86,12 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 
 void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 {
-	//地圖陣列初始化
-	Map.map_loader("Resources/GameMap/GameMap_0");
-
-	//加入參考地圖
-	Pacman.set_game_map(Map);
-	Blinky.set_game_map(Map);
-	Pinky.set_game_map(Map);
-	Inky.set_game_map(Map);
-	Clyde.set_game_map(Map);
+	change_level(level);
 
 	//背景初始化
 	Map.Background.SetTopLeft(Map.Background.window_shift[0], Map.Background.window_shift[1]);
 	Map.Background.SetFrameIndexOfBitmap(0);
-
+	
 	//pacman初始化
 	Pacman.LoadBitmapByString({
 		"Resources/pacman/pacman0.bmp",
@@ -121,29 +115,10 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/die/die9.bmp",
 		"Resources/die/die10.bmp",
 		"Resources/words/NULL.bmp",
-	}, RGB(0, 0, 0));
-	Pacman.set_inital(37, 15, 0);
+		}, RGB(0, 0, 0));
 	Pacman.initialize();
-	//豆子,大力丸初始化
-	for (int i = 0; i < Map.map_len[0]; i++) {
-		for (int j = 0; j < Map.map_len[1]; j++) {
-			//為0的道路加入豆子
-			if (Map[i][j] == 0) {
-				unique_ptr<CMovingBitmap> t(new CMovingBitmap);
-				t -> LoadBitmapA("Resources/words/coin.bmp");
-				t -> SetTopLeft(16 * (j - 2) + 6 + Map.Background.window_shift[0], 16 * i + 6 + Map.Background.window_shift[1]);
-				Score.add_coin(*t);
-				Score.set_coin_nums(1);
-			}
-			//為3的道路加入大力丸
-			else if (Map[i][j] == 3) {
-				CMovingBitmap t;
-				t.LoadBitmapA("Resources/words/dot.bmp");
-				t.SetTopLeft(16 * (j - 2) + 4 + Map.Background.window_shift[0], 16 * i + 4 + Map.Background.window_shift[1]);
-				Score.add_power_pellets(t);
-			}
-		}
-	}
+
+	Score.initialize(Map);
 
 	//Blinky 初始化
 	Blinky.LoadBitmapByString({
@@ -160,7 +135,6 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/choas/choas2.bmp",
 		"Resources/choas/choas3.bmp"
 		}, RGB(0, 0, 0));
-	Blinky.set_inital(37, 4, 0);
 	Blinky.initialize();
 
 	//Pinky 初始化
@@ -178,7 +152,6 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/choas/choas2.bmp",
 		"Resources/choas/choas3.bmp"
 		}, RGB(0, 0, 0));
-	Pinky.set_inital(37, 4, 0);
 	Pinky.initialize();
 
 	//Inky 初始化
@@ -196,7 +169,6 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/choas/choas2.bmp",
 		"Resources/choas/choas3.bmp"
 		}, RGB(0, 0, 0));
-	Inky.set_inital(37, 4, 0);
 	Inky.initialize();
 
 	//Clyde 初始化
@@ -214,7 +186,6 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/choas/choas2.bmp",
 		"Resources/choas/choas3.bmp"
 		}, RGB(0, 0, 0));
-	Clyde.set_inital(37, 4, 0);
 	Clyde.initialize();
 
 	//P1初始化
@@ -231,8 +202,8 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 
 	//分數條初始化
 	for (int i = 0; i < Score.game_scores.get_nums(); i++) {
-		CMovingBitmap t;
-		t.LoadBitmapByString({
+		unique_ptr<CMovingBitmap> t(new CMovingBitmap);
+		t -> LoadBitmapByString({
 			"Resources/words/0.bmp",
 			"Resources/words/1.bmp",
 			"Resources/words/2.bmp",
@@ -244,21 +215,18 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 			"Resources/words/8.bmp",
 			"Resources/words/9.bmp",
 			});
-		t.SetFrameIndexOfBitmap(0);
-		t.SetTopLeft(i * 16 + Score.game_scores.window_shift[0], Score.game_scores.window_shift[1]);
-		Score.game_scores.add_obj(t);
+		t -> SetFrameIndexOfBitmap(0);
+		t -> SetTopLeft(i * 16 + Score.game_scores.window_shift[0], Score.game_scores.window_shift[1]);
+		Score.game_scores.add_obj(*t);
 	}
 
 	//血條初始化
 	for (int i = 0; i < Pacman.hearts_icon.get_nums(); i++) {
-		CMovingBitmap t;
-		t.LoadBitmapA("Resources/pacman/pacman5.bmp");
-		t.SetTopLeft(i * 32 + Pacman.hearts_icon.window_shift[0], Pacman.hearts_icon.window_shift[1]);
-		Pacman.hearts_icon.add_obj(t);
+		unique_ptr<CMovingBitmap> t(new CMovingBitmap);
+		t -> LoadBitmapA("Resources/pacman/pacman5.bmp");
+		t -> SetTopLeft(i * 32 + Pacman.hearts_icon.window_shift[0], Pacman.hearts_icon.window_shift[1]);
+		Pacman.hearts_icon.add_obj(*t);
 	}
-
-	//遊戲開始時間
-	exc_time_begin = time(NULL);
 }
 
 void CGameStateRun::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
@@ -284,7 +252,7 @@ void CGameStateRun::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 
 void CGameStateRun::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
-	
+
 }
 
 void CGameStateRun::OnLButtonDown(UINT nFlags, CPoint point)  // 處理滑鼠的動作

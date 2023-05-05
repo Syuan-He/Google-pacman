@@ -29,4 +29,5 @@ public:
 	bool get_power(GamePacman obj);
 	void get_ghost(GamePacman obj, GameGhost ghost, int catchTime);
 
+	void initialize(GameMap Map);
 };

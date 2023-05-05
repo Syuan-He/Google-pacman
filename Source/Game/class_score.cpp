@@ -6,6 +6,7 @@
 #include "../Library/gameutil.h"
 #include "../Library/gamecore.h"
 #include "mygame.h"
+#include <memory>
 
 using namespace game_framework;
 
@@ -99,5 +100,28 @@ void GameScore::get_ghost(GamePacman obj, GameGhost ghost, int catchTime) {
 			plusPoint *= 2;
 		}
 		score += plusPoint;
+	}
+}
+
+void GameScore::initialize(GameMap Map) {
+	//豆子,大力丸初始化
+	for (int i = 0; i < Map.map_len[0]; i++) {
+		for (int j = 0; j < Map.map_len[1]; j++) {
+			//為0的道路加入豆子
+			if (Map[i][j] == 0) {
+				unique_ptr<CMovingBitmap> t(new CMovingBitmap);
+				t->LoadBitmapA("Resources/words/coin.bmp");
+				t->SetTopLeft(16 * (j - 2) + 6 + Map.Background.window_shift[0], 16 * i + 6 + Map.Background.window_shift[1]);
+				add_coin(*t);
+				set_coin_nums(1);
+			}
+			//為3的道路加入大力丸
+			else if (Map[i][j] == 3) {
+				unique_ptr<CMovingBitmap> t(new CMovingBitmap);
+				t->LoadBitmapA("Resources/words/dot.bmp");
+				t->SetTopLeft(16 * (j - 2) + 4 + Map.Background.window_shift[0], 16 * i + 4 + Map.Background.window_shift[1]);
+				add_power_pellets(*t);
+			}
+		}
 	}
 }

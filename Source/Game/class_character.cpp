@@ -99,3 +99,4 @@ void Character::initialize() {
 int& Character::operator[](int index) {
 	return position[index];
 }
+

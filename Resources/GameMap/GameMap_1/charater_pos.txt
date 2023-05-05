@@ -1,0 +1,3 @@
+Pacman 37 15
+Ghost 37 4
+Ready 521 260
