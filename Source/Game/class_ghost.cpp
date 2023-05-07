@@ -183,10 +183,10 @@ void GameGhost::move(int x1, int y1) {
 	//if pacman hit the wall (include portal)
 	else {
 		//check that if pacman hit a portal
-		int* t = gameMap.portal_detect(position[0], position[1]);
-		if (t != nullptr) {
-			position[0] = t[0];
-			position[1] = t[1];
+		pair<int, int> t = gameMap.portal_detect(position[0], position[1]);
+		if (t.first != -1) {
+			position[0] = t.first;
+			position[1] = t.second;
 			this->SetTopLeft(16 * (position[0] - 2) + window_shift[0], 16 * position[1] + window_shift[1]);
 		}
 		//check that if the position that pacman prefer is executable 

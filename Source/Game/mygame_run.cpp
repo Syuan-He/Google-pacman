@@ -76,18 +76,21 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 
 		if (Score.get_coin_nums() == 0) {
 			phase = 4;
+			Pacman.SetFrameIndexOfBitmap(0);
+			Map.Background.SetAnimation(300, false);
+			exc_time_begin = time(NULL);
 		}
 	}
 }
 
 void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 {
+	//更換關卡
 	change_level(level);
-
-	//背景初始化
-	Map.Background.SetTopLeft(Map.Background.window_shift[0], Map.Background.window_shift[1]);
-	Map.Background.SetFrameIndexOfBitmap(0);
 	
+	//分數初始化
+	Score.initialize(Map);
+
 	//pacman初始化
 	Pacman.LoadBitmapByString({
 		"Resources/pacman/pacman0.bmp",
@@ -113,8 +116,6 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/words/NULL.bmp",
 		}, RGB(0, 0, 0));
 	Pacman.initialize();
-
-	Score.initialize(Map);
 
 	//Blinky 初始化
 	Blinky.LoadBitmapByString({
@@ -241,8 +242,34 @@ void CGameStateRun::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	case VK_DOWN:
 		Pacman.set_dir_waitfor(3);
 		break;
+	//按T 以啟用debug mod
+	case 0x54:
+		debug_mod = !debug_mod;
+		break;
 	default:
 		break;
+	}
+	if (debug_mod) {
+		switch (nChar){
+		//按W 進入下一關
+		case 0x57:
+			phase = 4;
+			break;
+		//按S 進入上一關
+		case 0x53:
+			phase = 4;
+			level -= 2;
+			break;
+		//按I 以啟用無敵模式
+		case 0x49:
+			invincible = !invincible;
+			break;
+		default:
+			break;
+		}
+	}
+	else {
+		invincible = false;
 	}
 }
 
@@ -287,8 +314,11 @@ void CGameStateRun::OnShow()
 		choasTime = time(NULL);
 		choasTimeChange = choasTime;
 	}
-	pacman_get_catch();
-
+	//pacman是否被鬼抓到
+	if (!invincible) {
+		pacman_get_catch();
+	}
+	
 	//debug
-	debugText();
+	if(debug_mod) debugText();
 }

@@ -86,19 +86,11 @@ void CGameStateRun::show_obj_by_phase() {
 	}
 	//階段4(吃完豆子)
 	else if (phase == 4) {
-		if (Score.get_coin_nums() == 0) {
-			Pacman.SetFrameIndexOfBitmap(0);
-			Map.Background.SetAnimation(300, false);
-			exc_time_begin = time(NULL);
-			Score.set_coin_nums(-1);
-		}
-
 		Pacman.ShowBitmap(2);
 
 		//遊戲結束
 		if (time(NULL) - exc_time_begin > 4) {
-			level += 1;
-			change_level(level);
+			change_level(++ level);
 			Score.initialize(Map);
 			Pacman.initialize();
 			Blinky.initialize();
@@ -106,13 +98,14 @@ void CGameStateRun::show_obj_by_phase() {
 			Inky.initialize();
 			Clyde.initialize();
 			Ready_icon.SetTopLeft(Ready_icon.window_shift[0], Ready_icon.window_shift[1]);
-			Pacman.hearts_icon.set_num_abs(2);
+			Pacman.hearts_icon.set_nums(2, 1);
 			exc_time_begin = time(NULL);
 			phase = 0;
 		}
 	}
 }
 
+//pacman是否被鬼抓到
 void CGameStateRun::pacman_get_catch(int mode) {
 	if (phase != 1) {
 		return;
@@ -135,14 +128,13 @@ void CGameStateRun::pacman_get_catch(int mode) {
 	}
 }
 
+//切換關卡
 void CGameStateRun::change_level(int level) {
 	//地圖陣列初始化
 	string str = "Resources/GameMap/GameMap_" + to_string(level);
 	GameMap NewMap;
 	NewMap.map_loader(str);
 	Map = NewMap;
-	Map.Background.SetTopLeft(Map.Background.window_shift[0], Map.Background.window_shift[1]);
-	Map.Background.SetFrameIndexOfBitmap(0);
 
 	//加入參考地圖
 	Pacman.set_game_map(Map);
@@ -162,20 +154,24 @@ void CGameStateRun::change_level(int level) {
 
 	infile.close();
 	// 遍歷 map，輸出所有的 key 和 value
+	Pacman.set_inital(map_t["A_Pacman"].first, map_t["A_Pacman"].second, map_t["W_Character"].first, map_t["W_Character"].second, 0);
+	Blinky.set_inital(map_t["A_Blinky"].first, map_t["A_Blinky"].second, map_t["W_Character"].first, map_t["W_Character"].second, 0);
+	Pinky.set_inital(map_t["A_Pinky"].first, map_t["A_Pinky"].second, map_t["W_Character"].first, map_t["W_Character"].second, 0);
+	Inky.set_inital(map_t["A_Inky"].first, map_t["A_Inky"].second, map_t["W_Character"].first, map_t["W_Character"].second, 0);
+	Clyde.set_inital(map_t["A_Clyde"].first, map_t["A_Clyde"].second, map_t["W_Character"].first, map_t["W_Character"].second, 0);
 
-	Pacman.set_inital(map_t["Pacman"].first, map_t["Pacman"].second, 0);
-	Blinky.set_inital(map_t["Blinky"].first, map_t["Blinky"].second, 0);
-	Pinky.set_inital(map_t["Pinky"].first, map_t["Pinky"].second, 0);
-	Inky.set_inital(map_t["Inky"].first, map_t["Inky"].second, 0);
-	Clyde.set_inital(map_t["Clyde"].first, map_t["Clyde"].second, 0);
+	Map.Background.window_shift.set_value(map_t["W_Background"].first, map_t["W_Background"].second);
+	Ready_icon.window_shift.set_value(map_t["W_Ready"].first, map_t["W_Ready"].second);
+	Score.set_window_shift(map_t["W_ScoreDot"].first, map_t["W_ScoreDot"].second);
 
-	Ready_icon.window_shift.set_value(map_t["Ready"].first, map_t["Ready"].second);
+	Map.Background.SetTopLeft(Map.Background.window_shift[0], Map.Background.window_shift[1]);
+	Map.Background.SetFrameIndexOfBitmap(0);
 }
 
 //Debug顯示
 void CGameStateRun::debugText() {
 	CDC *pDC = CDDraw::GetBackCDC();
-	string strPacPos = "", strPacPoi = "", strGameTime = "";
+	string strPacPos = "", strPacPoi = "", strGameTime = "", strInvincible = "Invincible: ";
 
 	//地圖陣列位置
 	strPacPos += to_string(Pacman[0]) + ", " + to_string(Pacman[1]);	//position in array
@@ -183,6 +179,8 @@ void CGameStateRun::debugText() {
 	strPacPoi += to_string(modeCount);
 
 	strGameTime += to_string((time(NULL) - modePlayTime)%27);
+
+	strInvincible += invincible ? "True" : "False";
 
 	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
 	CTextDraw::Print(pDC, 25, 430, strPacPos);
@@ -192,6 +190,9 @@ void CGameStateRun::debugText() {
 
 	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
 	CTextDraw::Print(pDC, 25, 490, strGameTime);
+
+	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
+	CTextDraw::Print(pDC, 25, 520, strInvincible);
 
 	CDDraw::ReleaseBackCDC();
 }

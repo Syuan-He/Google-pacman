@@ -47,13 +47,14 @@ int MultUIObj::get_nums() {
 	return obj_num;
 }
 
-//設定物件數量
-void MultUIObj::set_nums(int increase) {
-	obj_num += increase;
-}
-
-void MultUIObj::set_num_abs(int value) {
-	obj_num = value;
+//設定物件數量(mode 0: 採累加, mode 1: 採直接設定)
+void MultUIObj::set_nums(int increase, int mode) {
+	if (mode == 0) {
+		obj_num += increase;
+	}
+	else if (mode == 1) {
+		obj_num = increase;
+	}
 }
 
 //回傳第index個CMovingBitmap

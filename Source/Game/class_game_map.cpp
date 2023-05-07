@@ -9,6 +9,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <array> 
 
 using namespace game_framework;
 
@@ -17,6 +18,7 @@ void GameMap::map_loader(string str) {
 	string map_matrix = str + "/google_map.txt";
 	string map_portal = str + "/portal_pos.txt";
 
+	//載入地圖陣列
 	ifstream inputFile;
 	inputFile.open(map_matrix, ifstream::in);
 	string line;
@@ -39,23 +41,21 @@ void GameMap::map_loader(string str) {
 
 	//更新地圖大小
 	map_len.set_value(y, x);
-	y = 0;
-	
+
+	//載入傳送門位置
 	inputFile.open(map_portal, ifstream::in);
 	while (getline(inputFile, line))
 	{
-		istringstream token(line);
-		x = 0;
-		string num;
-		while (token >> num)
-		{
-			portal_position[y][x] = stoi(num);
-			x++;
+		istringstream iss(line);
+		array<int, 4> lineNumbers;
+		for (int i = 0; i < 4; i++) {
+			iss >> lineNumbers[i];
 		}
-		y++;
+		portal_position.push_back(lineNumbers);
 	}
 	inputFile.close();
 
+	//載入背景圖檔
 	Background.LoadBitmapByString({
 		str + "/image/googleMap0.bmp",
 		str + "/image/googleMap1.bmp",
@@ -63,16 +63,17 @@ void GameMap::map_loader(string str) {
 }
 
 //偵測傳送門
-int* GameMap::portal_detect(int x, int y) {
-	if (x == portal_position[0][0] && y == portal_position[0][1]) {
-		return portal_position[1];
+pair<int,int> GameMap::portal_detect(int x, int y) {
+
+	for (auto i : portal_position) {
+		if (x == i[0] && y == i[1]) {
+			return pair<int, int>(i[2], i[3]);
+		}
+		else if (x == i[2] && y == i[3]) {
+			return pair<int, int>(i[0], i[1]);
+		}
 	}
-	else if (x == portal_position[1][0] && y == portal_position[1][1]) {
-		return portal_position[0];
-	}
-	else {
-		return nullptr;
-	}
+	return pair<int, int>(-1, -1);
 }
 
 //回傳地圖陣列值

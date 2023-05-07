@@ -4,6 +4,7 @@
 using namespace game_framework;
 
 //Character::~Character() {};
+//腳色是否可以往dir移動
 bool Character::CanMove(int dir) {
 	switch (dir)
 	{
@@ -70,6 +71,7 @@ void Character::set_dir_waitfor(int dir) {
 	dir_waitfor = dir;
 }
 
+//設定腳色在視窗中的位置
 void Character::setPos(int x, int y) {
 	position[0] = x;
 	position[1] = y;
@@ -81,12 +83,15 @@ void Character::set_game_map(const GameMap& map_t) {
 	gameMap = map_t;
 }
 
-void Character::set_inital(int x, int y, int index) {
+//設定初始化數值
+void Character::set_inital(int x, int y, int w_x, int w_y, int index) {
 	initial_pos[0] = x;
 	initial_pos[1] = y;
+	window_shift.set_value(w_x, w_y);
 	initial_frame_index = index;
 }
 
+//初始化
 void Character::initialize() {
 	this->setPos(initial_pos[0], initial_pos[1]);
 	this->SetFrameIndexOfBitmap(initial_frame_index);

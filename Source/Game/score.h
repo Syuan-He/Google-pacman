@@ -18,7 +18,8 @@ public:
 
 	void add_coin(CMovingBitmap c);
 	void add_power_pellets(const CMovingBitmap& c);
-	void set_coin_nums(int increase);
+	void set_coin_nums(int increase, int mode = 0);
+	void set_window_shift(int x, int y);
 
 	int get_coin_nums();
 	

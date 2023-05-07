@@ -109,9 +109,9 @@ namespace game_framework {
 		GameGhost Clyde;				// orange one
 		GameScore Score;
 		UIObject P1_icon{25, 40};		//player1 圖標
-		UIObject Ready_icon;	//Ready 圖標
+		UIObject Ready_icon;			//Ready 圖標
 
-		time_t exc_time_begin;
+		time_t exc_time_begin;			//遊戲起始時間
 
 		//void ghostMoveControl();
 		time_t modePlayTime;
@@ -129,11 +129,14 @@ namespace game_framework {
 		time_t choasTime;
 		int choasTimeLong = 10;
 
-		int phase = 0;					//階段
-		int level = 0;
-		void show_obj_by_phase();
-		void pacman_get_catch(int mode = 0);
-		void change_level(int level);
+		int phase = 0;							//階段
+		int level = 0;							//遊戲關卡
+		void show_obj_by_phase();				//顯示物件
+		void pacman_get_catch(int mode = 0);	//pacman是否被鬼抓到
+		void change_level(int level);			//切換關卡
+
+		bool debug_mod = true;
+		bool invincible;
 		void debugText();
 	};
 

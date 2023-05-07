@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../Library/gameutil.h"
+#include <array>
 
 using namespace game_framework;
 
@@ -39,8 +40,7 @@ public:
 	void add_obj(const CMovingBitmap& o);
 	int get_nums();
 
-	void set_nums(int increase);
-	void set_num_abs(int value);
+	void set_nums(int increase, int mode = 0);
 
 	//回傳第index個CMovingBitmap
 	CMovingBitmap& operator[](int index);
@@ -50,7 +50,7 @@ public:
 class GameMap {
 private:
 	//傳送門位置
-	int portal_position[2][2];
+	vector<array<int, 4>> portal_position;
 	//地圖陣列
 	vector<vector<int>> gameMap;
 public:
@@ -59,7 +59,7 @@ public:
 	//背景
 	UIObject Background;
 	void map_loader(string str);
-	int* portal_detect(int x, int y);
+	pair<int, int> portal_detect(int x, int y);
 
 	//回傳地圖陣列值
 	const vector<int>& operator[](int i) const;

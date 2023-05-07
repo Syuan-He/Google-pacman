@@ -20,9 +20,19 @@ void  GameScore::add_power_pellets(const CMovingBitmap& c) {
 	power_pellets.push_back(c);
 }
 
-//設定豆子數量
-void GameScore::set_coin_nums(int increase) {
-	total_coin_nums += increase;
+//設定豆子數量(mode 0: 採累加, mode 採直接設定)
+void GameScore::set_coin_nums(int increase, int mode) {
+	if (mode == 0) {
+		total_coin_nums += increase;
+	}
+	else if (mode == 1) {
+		total_coin_nums = increase;
+	}
+}
+
+void GameScore::set_window_shift(int x, int y) {
+	window_shift[0] = x;
+	window_shift[1] = y;
 }
 
 //取得豆子數量
@@ -91,6 +101,10 @@ bool GameScore::get_power(GamePacman obj) {
 }
 
 void GameScore::initialize(GameMap Map) {
+	coins.clear();
+	power_pellets.clear();
+	set_coin_nums(0, 1);
+
 	//豆子,大力丸初始化
 	for (int i = 0; i < Map.map_len[0]; i++) {
 		for (int j = 0; j < Map.map_len[1]; j++) {
@@ -98,7 +112,7 @@ void GameScore::initialize(GameMap Map) {
 			if (Map[i][j] == 0) {
 				unique_ptr<CMovingBitmap> t(new CMovingBitmap);
 				t->LoadBitmapA("Resources/words/coin.bmp");
-				t->SetTopLeft(16 * (j - 2) + 6 + Map.Background.window_shift[0], 16 * i + 6 + Map.Background.window_shift[1]);
+				t->SetTopLeft(16 * (j - 2) + 6 + window_shift[0], 16 * i + 6 + window_shift[1]);
 				add_coin(*t);
 				set_coin_nums(1);
 			}
@@ -106,7 +120,7 @@ void GameScore::initialize(GameMap Map) {
 			else if (Map[i][j] == 3) {
 				unique_ptr<CMovingBitmap> t(new CMovingBitmap);
 				t->LoadBitmapA("Resources/words/dot.bmp");
-				t->SetTopLeft(16 * (j - 2) + 4 + Map.Background.window_shift[0], 16 * i + 4 + Map.Background.window_shift[1]);
+				t->SetTopLeft(16 * (j - 2) + 4 + window_shift[0], 16 * i + 4 + window_shift[1]);
 				add_power_pellets(*t);
 			}
 		}

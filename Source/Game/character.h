@@ -14,7 +14,7 @@ protected:
 	int total_step = 0;				//移動步數(最大16)
 	int velocity = 2;				//移動速動
 	int initial_pos[2];				//起始位置
-	int initial_frame_index;
+	int initial_frame_index;		//起始圖片
 
 	//參考地圖
 	GameMap gameMap;
@@ -31,7 +31,7 @@ public:
 	void set_dir_waitfor(int dir);
 	void setPos(int x, int y);
 	void set_game_map(const GameMap& map_t);
-	void set_inital(int x, int y, int index);
+	void set_inital(int x, int y,int w_x, int w_y, int index);
 	void initialize();
 
 	//回傳pacman位置
@@ -47,8 +47,6 @@ public:
 	void move();
 	//血條
 	MultUIObj hearts_icon{ 2 , 25, 388 };
-	//位移
-	TwoEleContainer window_shift{ 19, 96 };
 
 	void show_heart_icon(int size);
 
