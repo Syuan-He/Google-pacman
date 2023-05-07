@@ -138,7 +138,7 @@ namespace game_framework {
 		void change_level(int level);			//切換關卡
 
 		bool debug_mod = true;
-		bool invincible;
+		bool invincible = false;
 		void debugText();
 	};
 
