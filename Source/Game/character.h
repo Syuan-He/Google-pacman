@@ -57,15 +57,16 @@ public:
 class GameGhost : public Character {
 private:
 	bool setDirLock;				//防止turnBack()無法生效
+	int waitVelocity;
 public:
-	bool isChoas = false;
+	int isChoas = 0;
 	bool choasFlash = false;
 
 	void move(int x1, int y1);
 
 	int selectDir(int dir, int x1, int y1);
 	void turnBack();
-	int getDirWait();		//取得dir_waitfor的值，之後應該用不到，可能會刪除
+	void setVelocity(int v);
 
 	bool isVaildNode(int x, int y, int xx, int yy);
 	int astar(int x0, int y0, int x1, int y1);

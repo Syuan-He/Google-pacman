@@ -41,10 +41,9 @@ void CGameStateRun::show_obj_by_phase() {
 	//階段1(遊戲中)
 	else if (phase == 1) {
 		//顯示鬼
-		Blinky.ShowBitmap(2);
-		Pinky.ShowBitmap(2);
-		Inky.ShowBitmap(2);
-		Clyde.ShowBitmap(2);
+		for (GameGhost &obj : ghosts) {
+			obj.ShowBitmap(2);
+		}
 		//pacman顯示
 		Pacman.ShowBitmap(2);
 		//顯示分數
@@ -72,10 +71,9 @@ void CGameStateRun::show_obj_by_phase() {
 
 			//重新初始化
 			Pacman.initialize();
-			Blinky.initialize();
-			Pinky.initialize();
-			Inky.initialize();
-			Clyde.initialize();
+			for (GameGhost &obj : ghosts) {
+				obj.initialize();
+			}
 		}
 	}
 	//階段3(生命歸零)
@@ -93,10 +91,9 @@ void CGameStateRun::show_obj_by_phase() {
 			change_level(++ level);
 			Score.initialize(Map);
 			Pacman.initialize();
-			Blinky.initialize();
-			Pinky.initialize();
-			Inky.initialize();
-			Clyde.initialize();
+			for (GameGhost &obj : ghosts) {
+				obj.initialize();
+			}
 			Ready_icon.SetTopLeft(Ready_icon.window_shift[0], Ready_icon.window_shift[1]);
 			Pacman.hearts_icon.set_nums(2, 1);
 			exc_time_begin = time(NULL);
@@ -110,20 +107,28 @@ void CGameStateRun::pacman_get_catch(int mode) {
 	if (phase != 1) {
 		return;
 	}
-	vector<GameGhost> ghosts = { Blinky, Pinky, Inky, Clyde };
-	for (GameGhost obj : ghosts) {
-		bool get_catch = false;
+
+	bool get_catch = false;
+	for (GameGhost &obj : ghosts) {
+		get_catch = false;
 		if (mode == 0) {
 			get_catch = Pacman.IsOverlap(Pacman, obj);
 		}
 		else if (mode == 1) {
 			get_catch = (Pacman[0] == obj[0] && Pacman[1] == obj[1]);
 		}
+
 		if (get_catch && !obj.isChoas) {
 			Pacman.hearts_icon.set_nums(-1);
 			phase = 2;
 			Pacman.SetFrameIndexOfBitmap(8);
 			break;
+		}
+		else if (get_catch && obj.isChoas == 1) {
+					obj.isChoas = 2;
+					obj.choasFlash = false;
+					obj.setVelocity(4);
+					Score.get_ghost(Pacman, obj, ghostCatchTime);	
 		}
 	}
 }
@@ -138,10 +143,9 @@ void CGameStateRun::change_level(int level) {
 
 	//加入參考地圖
 	Pacman.set_game_map(Map);
-	Blinky.set_game_map(Map);
-	Pinky.set_game_map(Map);
-	Inky.set_game_map(Map);
-	Clyde.set_game_map(Map);
+	for (GameGhost &obj : ghosts) {
+		obj.set_game_map(Map);
+	}
 
 	ifstream infile(str + "/charater_pos.txt");  // 打開文件
 	map<string, pair<int, int>> map_t;  // 定義一個 map
@@ -155,10 +159,10 @@ void CGameStateRun::change_level(int level) {
 	infile.close();
 	// 遍歷 map，輸出所有的 key 和 value
 	Pacman.set_inital(map_t["A_Pacman"].first, map_t["A_Pacman"].second, map_t["W_Character"].first, map_t["W_Character"].second, 0);
-	Blinky.set_inital(map_t["A_Blinky"].first, map_t["A_Blinky"].second, map_t["W_Character"].first, map_t["W_Character"].second, 0);
-	Pinky.set_inital(map_t["A_Pinky"].first, map_t["A_Pinky"].second, map_t["W_Character"].first, map_t["W_Character"].second, 0);
-	Inky.set_inital(map_t["A_Inky"].first, map_t["A_Inky"].second, map_t["W_Character"].first, map_t["W_Character"].second, 0);
-	Clyde.set_inital(map_t["A_Clyde"].first, map_t["A_Clyde"].second, map_t["W_Character"].first, map_t["W_Character"].second, 0);
+	ghosts[0].set_inital(map_t["A_Blinky"].first, map_t["A_Blinky"].second, map_t["W_Character"].first, map_t["W_Character"].second, 0);
+	ghosts[1].set_inital(map_t["A_Pinky"].first, map_t["A_Pinky"].second, map_t["W_Character"].first, map_t["W_Character"].second, 0);
+	ghosts[2].set_inital(map_t["A_Inky"].first, map_t["A_Inky"].second, map_t["W_Character"].first, map_t["W_Character"].second, 0);
+	ghosts[3].set_inital(map_t["A_Clyde"].first, map_t["A_Clyde"].second, map_t["W_Character"].first, map_t["W_Character"].second, 0);
 
 	Map.Background.window_shift.set_value(map_t["W_Background"].first, map_t["W_Background"].second);
 	Ready_icon.window_shift.set_value(map_t["W_Ready"].first, map_t["W_Ready"].second);
@@ -171,6 +175,7 @@ void CGameStateRun::change_level(int level) {
 //Debug顯示
 void CGameStateRun::debugText() {
 	CDC *pDC = CDDraw::GetBackCDC();
+
 	string strPacPos = "", strPacPoi = "", strGameTime = "", strInvincible = "Invincible: ";
 
 	//地圖陣列位置
@@ -178,7 +183,9 @@ void CGameStateRun::debugText() {
 	//視窗位置
 	strPacPoi += to_string(modeCount);
 
-	strGameTime += to_string((time(NULL) - modePlayTime)%27);
+	strCatchTime += to_string(Score.get_power(Pacman));
+
+	strInkyChoas += to_string(Inky.isChoas);
 
 	strInvincible += invincible ? "True" : "False";
 
@@ -189,7 +196,10 @@ void CGameStateRun::debugText() {
 	CTextDraw::Print(pDC, 25, 460, strPacPoi);
 
 	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
-	CTextDraw::Print(pDC, 25, 490, strGameTime);
+	CTextDraw::Print(pDC, 25, 490, strCatchTime);
+
+	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
+	CTextDraw::Print(pDC, 25, 520, strInkyChoas);
 
 	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
 	CTextDraw::Print(pDC, 25, 520, strInvincible);

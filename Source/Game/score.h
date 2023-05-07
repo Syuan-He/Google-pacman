@@ -22,12 +22,13 @@ public:
 	void set_window_shift(int x, int y);
 
 	int get_coin_nums();
-	
+
 	void show_coins();
 	void show_power_pellets();
 	void show_score(int size);
 	void get_point(GamePacman obj);
 	bool get_power(GamePacman obj);
+	void get_ghost(GamePacman obj, GameGhost ghost, int catchTime);
 
 	void initialize(GameMap Map);
 };

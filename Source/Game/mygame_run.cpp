@@ -47,20 +47,18 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 			modeLock = true;
 		}
 		else if (!isChoasTime()) {
-			Blinky.isChoas = false;
-			Pinky.isChoas = false;
-			Inky.isChoas = false;
-			Clyde.isChoas = false;
-			Blinky.choasFlash = false;
-			Pinky.choasFlash = false;
-			Inky.choasFlash = false;
-			Clyde.choasFlash = false;
+			for (GameGhost &obj : ghosts) {
+				if (obj.isChoas != 2) {
+					obj.isChoas = false;
+					obj.choasFlash = false;
+					obj.setVelocity(2);
+				}
+			}
 		}
 		else if ((time(NULL) - choasTime) > choasTimeLong - 3) {
-			Blinky.choasFlash = true;
-			Pinky.choasFlash = true;
-			Inky.choasFlash = true;
-			Clyde.choasFlash = true;
+			for (GameGhost &obj : ghosts) {
+				obj.choasFlash = true;
+			}
 		}
 		else if (choasTimeChange != time(NULL)) {
 			choasTimeChange = time(NULL);
@@ -118,7 +116,7 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 	Pacman.initialize();
 
 	//Blinky 初始化
-	Blinky.LoadBitmapByString({
+	ghosts[0].LoadBitmapByString({
 		"Resources/red/red0.bmp",
 		"Resources/red/red1.bmp",
 		"Resources/red/red2.bmp",
@@ -132,10 +130,10 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/choas/choas2.bmp",
 		"Resources/choas/choas3.bmp"
 		}, RGB(0, 0, 0));
-	Blinky.initialize();
+	ghosts[0].initialize();
 
 	//Pinky 初始化
-	Pinky.LoadBitmapByString({
+	ghosts[1].LoadBitmapByString({
 		"Resources/pink/pink6.bmp",
 		"Resources/pink/pink7.bmp",
 		"Resources/pink/pink0.bmp",
@@ -149,10 +147,10 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/choas/choas2.bmp",
 		"Resources/choas/choas3.bmp"
 		}, RGB(0, 0, 0));
-	Pinky.initialize();
+	ghosts[1].initialize();
 
 	//Inky 初始化
-	Inky.LoadBitmapByString({
+	ghosts[2].LoadBitmapByString({
 		"Resources/blue/blue6.bmp",
 		"Resources/blue/blue7.bmp",
 		"Resources/blue/blue0.bmp",
@@ -166,10 +164,10 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/choas/choas2.bmp",
 		"Resources/choas/choas3.bmp"
 		}, RGB(0, 0, 0));
-	Inky.initialize();
+	ghosts[2].initialize();
 
 	//Clyde 初始化
-	Clyde.LoadBitmapByString({
+	ghosts[3].LoadBitmapByString({
 		"Resources/orange/orange6.bmp",
 		"Resources/orange/orange7.bmp",
 		"Resources/orange/orange0.bmp",
@@ -183,7 +181,7 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/choas/choas2.bmp",
 		"Resources/choas/choas3.bmp"
 		}, RGB(0, 0, 0));
-	Clyde.initialize();
+	ghosts[3].initialize();
 
 	//P1初始化
 	P1_icon.LoadBitmapA("Resources/words/P1.bmp");
@@ -306,19 +304,21 @@ void CGameStateRun::OnShow()
 	Score.get_point(Pacman);
 	//偵測是否吃到大力丸、鬼進入混亂模式
 	if (Score.get_power(Pacman)) {
-		Blinky.isChoas = true;
-		Pinky.isChoas = true;
-		Inky.isChoas = true;
-		Clyde.isChoas = true;
+		for (GameGhost &obj : ghosts) {
+		obj.isChoas = true;
+		obj.choasFlash = false;
+		obj.setVelocity(1);
+		}
 		ghostTurnBack();
 		choasTime = time(NULL);
 		choasTimeChange = choasTime;
 	}
+
 	//pacman是否被鬼抓到
 	if (!invincible) {
 		pacman_get_catch();
-	}
-	
+	}	
+
 	//debug
 	if(debug_mod) debugText();
 }

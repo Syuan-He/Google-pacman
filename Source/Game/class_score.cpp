@@ -94,10 +94,23 @@ bool GameScore::get_power(GamePacman obj) {
 	for (auto it = power_pellets.begin(); it != power_pellets.end(); it ++) {
 		if (obj.IsOverlap(obj, *it)) {
 			it = power_pellets.erase(it);
+			score += 10;
 			return true;
 		}
 	}
 	return false;
+}
+
+void GameScore::get_ghost(GamePacman obj, GameGhost ghost, int catchTime) {
+	if (obj.IsOverlap(obj, ghost)) {
+		ghost.isChoas = 2;
+		ghost.choasFlash = false;
+		int plusPoint = 200;
+		for (int i = 0; i < catchTime; i++) {
+			plusPoint *= 2;
+		}
+		score += plusPoint;
+	}
 }
 
 void GameScore::initialize(GameMap Map) {

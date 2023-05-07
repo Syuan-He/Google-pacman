@@ -70,7 +70,7 @@ namespace game_framework {
 	private:
 		CMovingBitmap logo;								// csie的logo
 		UIObject Background;
-		GameMenu Menu_main{ 438, 370, 563, 384, 60};
+		GameMenu Menu_main{ 438, 370, 563, 384, 60 };
 		UIObject Setting_background;
 		GameMenu Menu_setting;
 
@@ -94,7 +94,7 @@ namespace game_framework {
 		void OnKeyUp(UINT, UINT, UINT);
 		void OnLButtonDown(UINT nFlags, CPoint point);  // 處理滑鼠的動作
 		void OnLButtonUp(UINT nFlags, CPoint point);	// 處理滑鼠的動作
-		void OnMouseMove(UINT nFlags, CPoint point);	// 處理滑鼠的動作 
+		void OnMouseMove(UINT nFlags, CPoint point);	// 處理滑鼠的動作
 		void OnRButtonDown(UINT nFlags, CPoint point);  // 處理滑鼠的動作
 		void OnRButtonUp(UINT nFlags, CPoint point);	// 處理滑鼠的動作
 	protected:
@@ -107,6 +107,7 @@ namespace game_framework {
 		GameGhost Pinky;				// pink one
 		GameGhost Inky;					// blue one
 		GameGhost Clyde;				// orange one
+		vector<GameGhost> ghosts = { Blinky, Pinky, Inky, Clyde };
 		GameScore Score;
 		UIObject P1_icon{25, 40};		//player1 圖標
 		UIObject Ready_icon;			//Ready 圖標
@@ -117,6 +118,7 @@ namespace game_framework {
 		time_t modePlayTime;
 		int scatterTime = 7;
 		int chaseTime = 20;
+		int ghostCatchTime = 0;
 		int modeCount;
 		bool modeLock;
 		bool isScatterTime();
