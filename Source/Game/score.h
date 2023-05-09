@@ -28,7 +28,7 @@ public:
 	void show_score(int size);
 	void get_point(GamePacman obj);
 	bool get_power(GamePacman obj);
-	void get_ghost(GamePacman obj, GameGhost ghost, int catchTime);
+	int get_ghost(GamePacman obj, GameGhost ghost, int catchTime);
 
 	void initialize(GameMap Map);
 };

@@ -66,6 +66,12 @@ void Character::update_position(int dir) {
 	}
 }
 
+void Character::update_moving_schedule() {
+	for (int i = 0; i < velocity; i++) {
+		moving_schedule[i] = int(round(float(16 * (i + 1)) / velocity)) - int(round(float(16 * i) / velocity));
+	}
+}
+
 //dir_waitfor設定
 void Character::set_dir_waitfor(int dir) {
 	dir_waitfor = dir;
@@ -76,6 +82,11 @@ void Character::setPos(int x, int y) {
 	position[0] = x;
 	position[1] = y;
 	this->SetTopLeft(16 * (x - 2) + window_shift[0], 16 * y + window_shift[1]);
+}
+
+//設定速度
+void  Character::setVelocity(int v) {
+	waitVelocity = v;
 }
 
 //參考地圖設定(在設定完後才能使用gameMap)
@@ -98,6 +109,8 @@ void Character::initialize() {
 	total_step = 0;
 	dir_now = 2;				//目前移動方向
 	dir_waitfor = 2;
+	velocity = 6;
+	update_moving_schedule();
 }
 
 //回傳pacman位置

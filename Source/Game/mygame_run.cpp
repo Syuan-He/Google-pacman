@@ -51,7 +51,7 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 				if (obj.isChoas != 2) {
 					obj.isChoas = false;
 					obj.choasFlash = false;
-					obj.setVelocity(2);
+					obj.setVelocity(6);
 				}
 			}
 		}
@@ -128,7 +128,11 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/choas/choas0.bmp",
 		"Resources/choas/choas1.bmp",
 		"Resources/choas/choas2.bmp",
-		"Resources/choas/choas3.bmp"
+		"Resources/choas/choas3.bmp",
+		"Resources/eyes/eyes0.bmp",
+		"Resources/eyes/eyes1.bmp",
+		"Resources/eyes/eyes2.bmp",
+		"Resources/eyes/eyes3.bmp",
 		}, RGB(0, 0, 0));
 	ghosts[0].initialize();
 
@@ -145,7 +149,11 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/choas/choas0.bmp",
 		"Resources/choas/choas1.bmp",
 		"Resources/choas/choas2.bmp",
-		"Resources/choas/choas3.bmp"
+		"Resources/choas/choas3.bmp",
+		"Resources/eyes/eyes0.bmp",
+		"Resources/eyes/eyes1.bmp",
+		"Resources/eyes/eyes2.bmp",
+		"Resources/eyes/eyes3.bmp",
 		}, RGB(0, 0, 0));
 	ghosts[1].initialize();
 
@@ -162,7 +170,11 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/choas/choas0.bmp",
 		"Resources/choas/choas1.bmp",
 		"Resources/choas/choas2.bmp",
-		"Resources/choas/choas3.bmp"
+		"Resources/choas/choas3.bmp",
+		"Resources/eyes/eyes0.bmp",
+		"Resources/eyes/eyes1.bmp",
+		"Resources/eyes/eyes2.bmp",
+		"Resources/eyes/eyes3.bmp",
 		}, RGB(0, 0, 0));
 	ghosts[2].initialize();
 
@@ -179,7 +191,11 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/choas/choas0.bmp",
 		"Resources/choas/choas1.bmp",
 		"Resources/choas/choas2.bmp",
-		"Resources/choas/choas3.bmp"
+		"Resources/choas/choas3.bmp",
+		"Resources/eyes/eyes0.bmp",
+		"Resources/eyes/eyes1.bmp",
+		"Resources/eyes/eyes2.bmp",
+		"Resources/eyes/eyes3.bmp",
 		}, RGB(0, 0, 0));
 	ghosts[3].initialize();
 
@@ -305,9 +321,11 @@ void CGameStateRun::OnShow()
 	//偵測是否吃到大力丸、鬼進入混亂模式
 	if (Score.get_power(Pacman)) {
 		for (GameGhost &obj : ghosts) {
-		obj.isChoas = true;
-		obj.choasFlash = false;
-		obj.setVelocity(1);
+			obj.isChoas = true;
+			obj.choasFlash = false;
+			//減緩鬼的移動速度
+			obj.setVelocity(12);
+			obj.update_moving_schedule();
 		}
 		ghostTurnBack();
 		choasTime = time(NULL);

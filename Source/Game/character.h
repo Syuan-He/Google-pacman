@@ -11,8 +11,10 @@ protected:
 	int dir_now = 2;				//目前移動方向
 	int dir_waitfor = 2;			//期望移動方向
 	int position[2];				//位置
-	int total_step = 0;				//移動步數(最大16)
-	int velocity = 2;				//移動速動
+	int total_step = 0;				//已移動步數
+	int velocity = 6;				//移動速動(1 ~ 16 數字越小越快)
+	int waitVelocity = 6;			//期望移動速動
+	int moving_schedule[16] = {0};	//移動距離表
 	int initial_pos[2];				//起始位置
 	int initial_frame_index;		//起始圖片
 
@@ -26,10 +28,12 @@ public:
 	TwoEleContainer window_shift{ 19, 96 };
 
 	void update_position(int dir);
+	void update_moving_schedule();
 	bool CanMove(int dir);
 
 	void set_dir_waitfor(int dir);
 	void setPos(int x, int y);
+	void setVelocity(int v);
 	void set_game_map(const GameMap& map_t);
 	void set_inital(int x, int y,int w_x, int w_y, int index);
 	void initialize();
@@ -57,7 +61,6 @@ public:
 class GameGhost : public Character {
 private:
 	bool setDirLock;				//防止turnBack()無法生效
-	int waitVelocity;
 public:
 	int isChoas = 0;
 	bool choasFlash = false;
@@ -66,8 +69,7 @@ public:
 
 	int selectDir(int dir, int x1, int y1);
 	void turnBack();
-	void setVelocity(int v);
-
+	
 	bool isVaildNode(int x, int y, int xx, int yy);
 	int astar(int x0, int y0, int x1, int y1);
 };

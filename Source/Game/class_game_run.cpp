@@ -125,10 +125,12 @@ void CGameStateRun::pacman_get_catch(int mode) {
 			break;
 		}
 		else if (get_catch && obj.isChoas == 1) {
-					obj.isChoas = 2;
-					obj.choasFlash = false;
-					obj.setVelocity(4);
-					Score.get_ghost(Pacman, obj, ghostCatchTime);	
+			Sleep(1500);												//之後插入分數
+
+			obj.isChoas = 2;
+			obj.choasFlash = false;
+			obj.setVelocity(2);
+			obj.update_moving_schedule();	
 		}
 	}
 }

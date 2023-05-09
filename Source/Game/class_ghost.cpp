@@ -105,14 +105,13 @@ int GameGhost::astar(int x0, int y0, int x1, int y1) {
 }
 
 void GameGhost::move(int x1, int y1) {
-
-	//if pacman had took a step(one step = 16px)
-	if (total_step == 16) {
-		//updte pacman's position on the map
+	if (total_step == velocity) {
 		update_position(dir_now);
 
+		//更新速度
 		if (waitVelocity != velocity) {
 			velocity = waitVelocity;
+			update_moving_schedule();
 		}
 
 		if (setDirLock) {
@@ -126,7 +125,8 @@ void GameGhost::move(int x1, int y1) {
 		else if (isChoas == 2) {
 			if (position[0] == initial_pos[0] && position[1] == initial_pos[1]) {
 				isChoas = 0;
-				waitVelocity = 2;
+				//變為原始速度
+				waitVelocity = 6;
 			}
 			dir_waitfor = selectDir(dir_now, initial_pos[0], initial_pos[1]);
 		}
@@ -134,14 +134,17 @@ void GameGhost::move(int x1, int y1) {
 			dir_waitfor = selectDir(dir_now, x1, y1);
 		}
 
-		//if the position that pacman prefer is executable 
 		if (CanMove(dir_waitfor)) {
-			//change the diraction to the new one
 			dir_now = dir_waitfor;
-			//set pacman's picture to the orther one that match with the diraction
 		}
-		//reset pacman's total step
 		total_step = 0;
+
+		pair<int, int> t = gameMap.portal_detect(position[0], position[1]);
+		if (t.first != -1) {
+			position[0] = t.first;
+			position[1] = t.second;
+			this->SetTopLeft(16 * (position[0] - 2) + window_shift[0], 16 * position[1] + window_shift[1]);
+		}
 	}
 	else if (!CanMove(dir_now) && total_step == 0 && (position[0] != x1 || position[1] != y1)) {
 		turnBack();
@@ -149,21 +152,28 @@ void GameGhost::move(int x1, int y1) {
 	}
 	//pacman's animetion when it move
 	if (isChoas == 1) {
-		if (choasFlash && total_step % 16 < 4) {
-			this->SetFrameIndexOfBitmap(11);
+		if (total_step % (velocity / 2) < velocity / 4) {
+			if (choasFlash && total_step < velocity / 2) {
+				this->SetFrameIndexOfBitmap(10);
+			}
+			else {
+				this->SetFrameIndexOfBitmap(8);
+			}
 		}
-		else if (total_step % 16 < 8) {
-			this->SetFrameIndexOfBitmap(8);
-		}
-		else if (choasFlash && total_step % 16 < 12) {
-			this->SetFrameIndexOfBitmap(10);
-		}
-		else {
-			this->SetFrameIndexOfBitmap(9);
+		else{
+			if (choasFlash && total_step < velocity / 2) {
+				this->SetFrameIndexOfBitmap(11);
+			}
+			else {
+				this->SetFrameIndexOfBitmap(9);
+			}
 		}
 	}
+	else if (isChoas == 2) {
+		this->SetFrameIndexOfBitmap(12 + dir_now);
+	}
 	else {
-		if (total_step % 16 < 8) {
+		if (total_step < velocity / 2) {
 			this->SetFrameIndexOfBitmap(dir_now * 2);
 		}
 		else {
@@ -176,36 +186,24 @@ void GameGhost::move(int x1, int y1) {
 		switch (dir_now)
 		{
 		case 0:
-			this->SetTopLeft(this->GetLeft() + velocity, this->GetTop());
+			this->SetTopLeft(this->GetLeft() + moving_schedule[total_step], this->GetTop());
 			break;
 		case 1:
-			this->SetTopLeft(this->GetLeft(), this->GetTop() - velocity);
+			this->SetTopLeft(this->GetLeft(), this->GetTop() - moving_schedule[total_step]);
 			break;
 		case 2:
-			this->SetTopLeft(this->GetLeft() - velocity, this->GetTop());
+			this->SetTopLeft(this->GetLeft() - moving_schedule[total_step], this->GetTop());
 			break;
 		case 3:
-			this->SetTopLeft(this->GetLeft(), this->GetTop() + velocity);
+			this->SetTopLeft(this->GetLeft(), this->GetTop() + moving_schedule[total_step]);
 			break;
 		default:
 			break;
 		}
-		total_step += velocity;
+		total_step ++;
 	}
-	//if pacman hit the wall (include portal)
-	else {
-		//check that if pacman hit a portal
-		pair<int, int> t = gameMap.portal_detect(position[0], position[1]);
-		if (t.first != -1) {
-			position[0] = t.first;
-			position[1] = t.second;
-			this->SetTopLeft(16 * (position[0] - 2) + window_shift[0], 16 * position[1] + window_shift[1]);
-		}
-		//check that if the position that pacman prefer is executable 
-		else if (CanMove(dir_waitfor)) {
-			//change the diraction
-			dir_now = dir_waitfor;
-		}
+	else if (CanMove(dir_waitfor)) {
+		dir_now = dir_waitfor;
 	}
 }
 
@@ -234,9 +232,6 @@ int GameGhost::selectDir(int dir, int x1, int y1) {
 		}
 	}
 	return dirNext;
-}
-void GameGhost::setVelocity(int v) {
-	waitVelocity = v;
 }
 
 bool CGameStateRun::isScatterTime() {
