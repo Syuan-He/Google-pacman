@@ -125,12 +125,17 @@ void CGameStateRun::pacman_get_catch(int mode) {
 			break;
 		}
 		else if (get_catch && obj.isChoas == 1) {
-			Sleep(1500);												//之後插入分數
+			Sleep(1250);												//之後插入分數
 
 			obj.isChoas = 2;
 			obj.choasFlash = false;
 			obj.setVelocity(2);
 			obj.update_moving_schedule();	
+			Score.get_ghost(Pacman, obj, ghostCatchTime);
+			ghostCatchTime++;
+			if (ghostCatchTime > 3) {
+				ghostCatchTime = 0;
+			}
 		}
 	}
 }
@@ -183,9 +188,9 @@ void CGameStateRun::debugText() {
 	//地圖陣列位置
 	strPacPos += to_string(Pacman[0]) + ", " + to_string(Pacman[1]);	//position in array
 	//視窗位置
-	strPacPoi += to_string(modeCount);
+	strPacPoi += to_string(ghosts[0].GetLeft()) + ", " + to_string(ghosts[0].GetTop());
 
-	strCatchTime += to_string(Score.get_power(Pacman));
+	strCatchTime += to_string(16*(ghosts[0].getInitPos(0))+ 19) + ", " + to_string(16*(ghosts[0].getInitPos(1))+96);
 
 	strInkyChoas += to_string(Inky.isChoas);
 

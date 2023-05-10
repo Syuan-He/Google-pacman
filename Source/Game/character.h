@@ -14,7 +14,7 @@ protected:
 	int total_step = 0;				//已移動步數
 	int velocity = 6;				//移動速動(1 ~ 16 數字越小越快)
 	int waitVelocity = 6;			//期望移動速動
-	int moving_schedule[16] = {0};	//移動距離表
+	int moving_schedule[16] = { 0 };	//移動距離表
 	int initial_pos[2];				//起始位置
 	int initial_frame_index;		//起始圖片
 
@@ -35,7 +35,7 @@ public:
 	void setPos(int x, int y);
 	void setVelocity(int v);
 	void set_game_map(const GameMap& map_t);
-	void set_inital(int x, int y,int w_x, int w_y, int index);
+	void set_inital(int x, int y, int w_x, int w_y, int index);
 	void initialize();
 
 	//回傳pacman位置
@@ -62,14 +62,19 @@ class GameGhost : public Character {
 private:
 	bool setDirLock;				//防止turnBack()無法生效
 public:
-	int isChoas = 0;
-	bool choasFlash = false;
+	void initialize();
+	void inHomeAnim();
+	
+	int isChoas = 0;				// isChoas 0: 狀態無; 1: 混亂; 2: 回家 3: 在家裡
+	bool choasFlash = false;		// 設定 Choas 快結束時的閃爍
 
 	void move(int x1, int y1);
 
 	int selectDir(int dir, int x1, int y1);
 	void turnBack();
-	
+
 	bool isVaildNode(int x, int y, int xx, int yy);
 	int astar(int x0, int y0, int x1, int y1);
+
+	int getInitPos(int n);
 };

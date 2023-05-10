@@ -13,6 +13,43 @@
 using namespace game_framework;
 
 const int nextPos[4][2] = { {1,0},{0,-1},{-1,0},{0,1} };
+
+void GameGhost::initialize() {
+	Character::initialize();
+	isChoas = 0;
+	choasFlash = false;
+}
+
+void GameGhost::inHomeAnim() {
+	
+		if (GetTop() > 16 * (initial_pos[1] + 4) + window_shift[1]) {
+			dir_now = 1;
+		}
+		else if (GetTop() < 16 * (initial_pos[1] + 4) + window_shift[1]) {
+			dir_waitfor = 3;
+		}
+	
+
+	switch (dir_now)
+	{
+	case 0:
+		this->SetTopLeft(this->GetLeft() + 2, this->GetTop());
+		break;
+	case 1:
+		this->SetTopLeft(this->GetLeft(), this->GetTop() - 2);
+		break;
+	case 2:
+		this->SetTopLeft(this->GetLeft() - 2, this->GetTop());
+		break;
+	case 3:
+		this->SetTopLeft(this->GetLeft(), this->GetTop() + 2);
+		break;
+	default:
+		break;
+	}
+	
+}
+
 //節點
 typedef struct NODE {
 	int x, y,
@@ -105,38 +142,54 @@ int GameGhost::astar(int x0, int y0, int x1, int y1) {
 }
 
 void GameGhost::move(int x1, int y1) {
+
+	//if pacman had took a step(one step = 16px)
 	if (total_step == velocity) {
+		//updte pacman's position on the map
 		update_position(dir_now);
 
-		//更新速度
+		//為避免圖片偏移，在ghost完整移動完才更新速度的設定
 		if (waitVelocity != velocity) {
 			velocity = waitVelocity;
 			update_moving_schedule();
 		}
 
-		if (setDirLock) {
+		//更新移動方向
+		if (setDirLock) {	//確保turnBack時 dir 與 dir_waitfor 不會被追蹤程式覆蓋掉
 			setDirLock = false;
 		}
-		else if (isChoas == 1) {
-			if (CanMove((dir_now + 1) % 4) || CanMove((dir_now + 3) % 4)) {
-				dir_waitfor = rand() % 4;
-			}
-		}
-		else if (isChoas == 2) {
-			if (position[0] == initial_pos[0] && position[1] == initial_pos[1]) {
-				isChoas = 0;
-				//變為原始速度
-				waitVelocity = 6;
-			}
-			dir_waitfor = selectDir(dir_now, initial_pos[0], initial_pos[1]);
-		}
 		else {
-			dir_waitfor = selectDir(dir_now, x1, y1);
+			switch (isChoas) {
+			
+			//混亂狀態
+			case 1:
+				if (CanMove((dir_now + 1) % 4) || CanMove((dir_now + 3) % 4)) {
+					dir_waitfor = rand() % 4;
+				}
+				break;
+			
+			//goHome
+			case 2:
+				if (position[0] == initial_pos[0] && position[1] == initial_pos[1]) {
+					isChoas = 0;
+					waitVelocity = 6;
+				}
+				dir_waitfor = selectDir(dir_now, initial_pos[0], initial_pos[1]);
+				break;
+
+			//正常狀態
+			case 0:
+				dir_waitfor = selectDir(dir_now, x1, y1);
+				break;
+			}
 		}
 
+		//if the position that pacman prefer is executable 
 		if (CanMove(dir_waitfor)) {
+			//change the diraction to the new one
 			dir_now = dir_waitfor;
 		}
+		//reset pacman's total step
 		total_step = 0;
 
 		pair<int, int> t = gameMap.portal_detect(position[0], position[1]);
@@ -146,9 +199,9 @@ void GameGhost::move(int x1, int y1) {
 			this->SetTopLeft(16 * (position[0] - 2) + window_shift[0], 16 * position[1] + window_shift[1]);
 		}
 	}
+	// 在鬼卡住？時讓鬼走反路
 	else if (!CanMove(dir_now) && total_step == 0 && (position[0] != x1 || position[1] != y1)) {
 		turnBack();
-		//dir_waitfor = astar(position[0], position[1], x1, y1);
 	}
 	//pacman's animetion when it move
 	if (isChoas == 1) {
@@ -160,7 +213,7 @@ void GameGhost::move(int x1, int y1) {
 				this->SetFrameIndexOfBitmap(8);
 			}
 		}
-		else{
+		else {
 			if (choasFlash && total_step < velocity / 2) {
 				this->SetFrameIndexOfBitmap(11);
 			}
@@ -265,4 +318,8 @@ void CGameStateRun::ghostTurnBack() {
 	for (GameGhost &obj : ghosts) {
 		obj.turnBack();
 	}
+}
+
+int GameGhost::getInitPos(int n) {
+	return initial_pos[n];
 }

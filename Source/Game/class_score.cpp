@@ -101,7 +101,7 @@ bool GameScore::get_power(GamePacman obj) {
 	return false;
 }
 
-int GameScore::get_ghost(GamePacman obj, GameGhost ghost, int catchTime) {
+void GameScore::get_ghost(GamePacman obj, GameGhost ghost, int catchTime) {
 	if (obj.IsOverlap(obj, ghost)) {
 		ghost.isChoas = 2;
 		ghost.choasFlash = false;
@@ -110,10 +110,7 @@ int GameScore::get_ghost(GamePacman obj, GameGhost ghost, int catchTime) {
 			plusPoint *= 2;
 		}
 		score += plusPoint;
-
-		return plusPoint;
 	}
-	return -1;
 }
 
 void GameScore::initialize(GameMap Map) {

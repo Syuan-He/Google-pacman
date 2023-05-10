@@ -47,6 +47,7 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 			modeLock = true;
 		}
 		else if (!isChoasTime()) {
+			ghostCatchTime = 0;
 			for (GameGhost &obj : ghosts) {
 				if (obj.isChoas != 2) {
 					obj.isChoas = false;
@@ -320,12 +321,15 @@ void CGameStateRun::OnShow()
 	Score.get_point(Pacman);
 	//偵測是否吃到大力丸、鬼進入混亂模式
 	if (Score.get_power(Pacman)) {
+		ghostCatchTime = 0;
 		for (GameGhost &obj : ghosts) {
-			obj.isChoas = true;
-			obj.choasFlash = false;
-			//減緩鬼的移動速度
-			obj.setVelocity(12);
-			obj.update_moving_schedule();
+			if (obj.isChoas != 2) {
+				obj.isChoas = true;
+				obj.choasFlash = false;
+				//減緩鬼的移動速度
+				obj.setVelocity(12);
+				obj.update_moving_schedule();
+			}
 		}
 		ghostTurnBack();
 		choasTime = time(NULL);

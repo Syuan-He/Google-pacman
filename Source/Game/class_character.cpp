@@ -4,7 +4,7 @@
 using namespace game_framework;
 
 //Character::~Character() {};
-//腳色是否可以往dir移動
+//角色是否可以往dir移動
 bool Character::CanMove(int dir) {
 	switch (dir)
 	{
@@ -77,7 +77,7 @@ void Character::set_dir_waitfor(int dir) {
 	dir_waitfor = dir;
 }
 
-//設定腳色在視窗中的位置
+//設定角色在視窗中的位置
 void Character::setPos(int x, int y) {
 	position[0] = x;
 	position[1] = y;
@@ -110,6 +110,7 @@ void Character::initialize() {
 	dir_now = 2;				//目前移動方向
 	dir_waitfor = 2;
 	velocity = 6;
+	waitVelocity = 6;
 	update_moving_schedule();
 }
 
