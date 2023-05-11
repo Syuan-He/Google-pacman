@@ -73,9 +73,7 @@ void CGameStateRun::show_obj_by_phase() {
 
 			//重新初始化
 			Pacman.initialize();
-			for (GameGhost &obj : ghosts) {
-				obj.initialize();
-			}
+			initialGhosts();
 		}
 	}
 	//階段3(生命歸零)
@@ -93,9 +91,7 @@ void CGameStateRun::show_obj_by_phase() {
 			change_level(++ level);
 			Score.initialize(Map);
 			Pacman.initialize();
-			for (GameGhost &obj : ghosts) {
-				obj.initialize();
-			}
+			initialGhosts();
 			Ready_icon.SetTopLeft(Ready_icon.window_shift[0], Ready_icon.window_shift[1]);
 			Pacman.hearts_icon.set_nums(2, 1);
 			exc_time_begin = time(NULL);

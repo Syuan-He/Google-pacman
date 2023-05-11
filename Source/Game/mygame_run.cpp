@@ -39,10 +39,10 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 		Pacman.move();
 
 		/*
-		ghosts[1].inHomeAnim();
-		ghosts[2].inHomeAnim();
+		//ghosts[1].inHomeAnim();
+		//ghosts[2].inHomeAnim();
 		
-		ghosts[3].outDoorAnim();
+		ghosts[0].outDoorAnim();
 		//*/
 		//模式改變前的方向改變
 		//*
@@ -142,10 +142,10 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/choas/choas1.bmp",
 		"Resources/choas/choas2.bmp",
 		"Resources/choas/choas3.bmp",
-		"Resources/eyes/eyes0.bmp",
-		"Resources/eyes/eyes1.bmp",
-		"Resources/eyes/eyes2.bmp",
 		"Resources/eyes/eyes3.bmp",
+		"Resources/eyes/eyes0.bmp",
+		"Resources/eyes/eyes2.bmp",
+		"Resources/eyes/eyes1.bmp",
 		"Resources/words/200.bmp",
 		"Resources/words/400.bmp",
 		"Resources/words/800.bmp",
@@ -167,10 +167,10 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/choas/choas1.bmp",
 		"Resources/choas/choas2.bmp",
 		"Resources/choas/choas3.bmp",
-		"Resources/eyes/eyes0.bmp",
-		"Resources/eyes/eyes1.bmp",
-		"Resources/eyes/eyes2.bmp",
 		"Resources/eyes/eyes3.bmp",
+		"Resources/eyes/eyes0.bmp",
+		"Resources/eyes/eyes2.bmp",
+		"Resources/eyes/eyes1.bmp",
 		"Resources/words/200.bmp",
 		"Resources/words/400.bmp",
 		"Resources/words/800.bmp",
@@ -192,10 +192,10 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/choas/choas1.bmp",
 		"Resources/choas/choas2.bmp",
 		"Resources/choas/choas3.bmp",
-		"Resources/eyes/eyes0.bmp",
-		"Resources/eyes/eyes1.bmp",
-		"Resources/eyes/eyes2.bmp",
 		"Resources/eyes/eyes3.bmp",
+		"Resources/eyes/eyes0.bmp",
+		"Resources/eyes/eyes2.bmp",
+		"Resources/eyes/eyes1.bmp",
 		"Resources/words/200.bmp",
 		"Resources/words/400.bmp",
 		"Resources/words/800.bmp",
@@ -217,10 +217,10 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/choas/choas1.bmp",
 		"Resources/choas/choas2.bmp",
 		"Resources/choas/choas3.bmp",
-		"Resources/eyes/eyes0.bmp",
-		"Resources/eyes/eyes1.bmp",
-		"Resources/eyes/eyes2.bmp",
 		"Resources/eyes/eyes3.bmp",
+		"Resources/eyes/eyes0.bmp",
+		"Resources/eyes/eyes2.bmp",
+		"Resources/eyes/eyes1.bmp",
 		"Resources/words/200.bmp",
 		"Resources/words/400.bmp",
 		"Resources/words/800.bmp",
@@ -303,7 +303,9 @@ void CGameStateRun::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		//按S 進入上一關
 		case 0x53:
 			phase = 4;
-			level -= 2;
+			if (level >= 2) {
+				level -= 2;
+			}
 			break;
 		//按I 以啟用無敵模式
 		case 0x49:
