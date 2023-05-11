@@ -18,36 +18,79 @@ void GameGhost::initialize() {
 	Character::initialize();
 	isChoas = 0;
 	choasFlash = false;
+	setDirLock = false;
 }
 
 void GameGhost::inHomeAnim() {
 	
-		if (GetTop() > 16 * (initial_pos[1] + 4) + window_shift[1]) {
-			dir_now = 1;
-		}
-		else if (GetTop() < 16 * (initial_pos[1] + 4) + window_shift[1]) {
-			dir_waitfor = 3;
-		}
-	
-
-	switch (dir_now)
-	{
-	case 0:
-		this->SetTopLeft(this->GetLeft() + 2, this->GetTop());
-		break;
-	case 1:
-		this->SetTopLeft(this->GetLeft(), this->GetTop() - 2);
-		break;
-	case 2:
-		this->SetTopLeft(this->GetLeft() - 2, this->GetTop());
-		break;
-	case 3:
-		this->SetTopLeft(this->GetLeft(), this->GetTop() + 2);
-		break;
-	default:
-		break;
+	if (GetTop() > 16 * (initial_pos[1]) + window_shift[1] +56) {
+		dir_waitfor = 1;
+	}
+	else if (GetTop() < 16 * (initial_pos[1]) + window_shift[1] + 42) {
+		dir_waitfor = 3;
 	}
 	
+
+	switch (dir_waitfor)
+	{
+	case 1:
+		this->SetTopLeft(this->GetLeft(), this->GetTop() - 1);
+		break;
+	case 3:
+		this->SetTopLeft(this->GetLeft(), this->GetTop() + 1);
+		break;
+	}
+	if (GetTop()%10 < 5) {
+		this->SetFrameIndexOfBitmap(dir_waitfor * 2);
+	}
+	else {
+		this->SetFrameIndexOfBitmap(dir_waitfor * 2 + 1);
+	}
+}
+
+void GameGhost::outDoorAnim() {
+
+	if (!setDirLock && GetTop() < 16 * (initial_pos[1]) + window_shift[1] + 48) {
+		dir_waitfor = 3;
+	}
+	else if (!setDirLock && GetTop() > 16 * (initial_pos[1]) + window_shift[1] + 48) {
+		dir_waitfor = 1;
+	}
+	else if (GetLeft() < 16 * (initial_pos[0]) + window_shift[0] - 23) {
+		dir_waitfor = 0;
+	}
+	else if (GetLeft() > 16 * (initial_pos[0]) + window_shift[0] - 23) {
+		dir_waitfor = 2;
+	}
+	else if (!setDirLock && GetLeft() == 16 * (initial_pos[0]) + window_shift[0] - 23) {
+		setDirLock = true;
+		dir_waitfor = 1;
+	}
+	else if (GetTop() >= 16 * initial_pos[1] + window_shift[1]) {
+		dir_waitfor = 2;
+	}
+
+	switch (dir_waitfor)
+	{
+	case 0:
+		this->SetTopLeft(this->GetLeft() + 1, this->GetTop());
+		break;
+	case 1:
+		this->SetTopLeft(this->GetLeft(), this->GetTop() - 1);
+		break;
+	case 2:
+		this->SetTopLeft(this->GetLeft() - 1, this->GetTop());
+		break;
+	case 3:
+		this->SetTopLeft(this->GetLeft(), this->GetTop() + 1);
+		break;
+	}
+	if (GetTop() % 10 < 5) {
+		this->SetFrameIndexOfBitmap(dir_waitfor * 2);
+	}
+	else {
+		this->SetFrameIndexOfBitmap(dir_waitfor * 2 + 1);
+	}
 }
 
 //節點
@@ -316,10 +359,29 @@ void CGameStateRun::ghostScatter() {
 }
 void CGameStateRun::ghostTurnBack() {
 	for (GameGhost &obj : ghosts) {
-		obj.turnBack();
+		if(!obj.inHome)
+			obj.turnBack();
 	}
 }
 
 int GameGhost::getInitPos(int n) {
 	return initial_pos[n];
+}
+
+void CGameStateRun::initialGhosts() {
+	for (GameGhost &obj : ghosts) {
+		obj.initialize();
+	}
+	/*
+	ghosts[0].inHome = false;
+	ghosts[1].inHome = true;
+	ghosts[2].inHome = true;
+	ghosts[3].inHome = true;
+	
+	ghosts[1].SetTopLeft(16 * (ghosts[1].getInitPos(0)) + ghosts[1].window_shift[0] - 23, 16 * (ghosts[1].getInitPos(1) + 3) + ghosts[1].window_shift[1]);
+	ghosts[2].SetTopLeft(16 * (ghosts[2].getInitPos(0)) + ghosts[2].window_shift[0] - 55, 16 * (ghosts[2].getInitPos(1) + 3) + ghosts[2].window_shift[1]);
+	ghosts[3].SetTopLeft(16 * (ghosts[3].getInitPos(0)) + ghosts[3].window_shift[0] + 9, 16 * (ghosts[3].getInitPos(1) + 3) + ghosts[3].window_shift[1]);
+	ghosts[1].set_dir_waitfor(3);
+	ghosts[2].set_dir_waitfor(1);
+	ghosts[3].set_dir_waitfor(1);//*/
 }

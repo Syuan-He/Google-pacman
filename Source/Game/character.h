@@ -64,9 +64,11 @@ private:
 public:
 	void initialize();
 	void inHomeAnim();
+	void outDoorAnim();
 	
 	int isChoas = 0;				// isChoas 0: 狀態無; 1: 混亂; 2: 回家 3: 在家裡
 	bool choasFlash = false;		// 設定 Choas 快結束時的閃爍
+	bool inHome = true;
 
 	void move(int x1, int y1);
 

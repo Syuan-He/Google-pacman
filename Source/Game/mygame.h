@@ -119,6 +119,7 @@ namespace game_framework {
 		int scatterTime = 7;
 		int chaseTime = 20;
 		int ghostCatchTime = 0;
+		int flag = 0;
 		int modeCount;
 		bool modeLock;
 		bool isScatterTime();
@@ -127,6 +128,7 @@ namespace game_framework {
 		void ghostChase();
 		void ghostScatter();
 		void ghostTurnBack();
+		void initialGhosts();
 
 		time_t choasTime;
 		int choasTimeLong = 10;

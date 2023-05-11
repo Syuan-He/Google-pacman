@@ -32,9 +32,20 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 {
 	//階段2才能移動
 	if (phase == 1) {
+		if (flag != ghostCatchTime) {
+			Sleep(1250);
+			flag = ghostCatchTime;
+		}
 		Pacman.move();
 
+		/*
+		ghosts[1].inHomeAnim();
+		ghosts[2].inHomeAnim();
+		
+		ghosts[3].outDoorAnim();
+		//*/
 		//模式改變前的方向改變
+		//*
 		if (modeLock && modeCount < 7 && (isScatterTime() || isChaseTime() || isChoasTime())) {
 			ghostTurnBack();
 			modeCount++;
@@ -48,6 +59,7 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 		}
 		else if (!isChoasTime()) {
 			ghostCatchTime = 0;
+			flag = 0;
 			for (GameGhost &obj : ghosts) {
 				if (obj.isChoas != 2) {
 					obj.isChoas = false;
@@ -78,7 +90,7 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 			Pacman.SetFrameIndexOfBitmap(0);
 			Map.Background.SetAnimation(300, false);
 			exc_time_begin = time(NULL);
-		}
+		}//*/
 	}
 }
 
@@ -134,6 +146,10 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/eyes/eyes1.bmp",
 		"Resources/eyes/eyes2.bmp",
 		"Resources/eyes/eyes3.bmp",
+		"Resources/words/200.bmp",
+		"Resources/words/400.bmp",
+		"Resources/words/800.bmp",
+		"Resources/words/1600.bmp",
 		}, RGB(0, 0, 0));
 	ghosts[0].initialize();
 
@@ -155,6 +171,10 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/eyes/eyes1.bmp",
 		"Resources/eyes/eyes2.bmp",
 		"Resources/eyes/eyes3.bmp",
+		"Resources/words/200.bmp",
+		"Resources/words/400.bmp",
+		"Resources/words/800.bmp",
+		"Resources/words/1600.bmp",
 		}, RGB(0, 0, 0));
 	ghosts[1].initialize();
 
@@ -176,6 +196,10 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/eyes/eyes1.bmp",
 		"Resources/eyes/eyes2.bmp",
 		"Resources/eyes/eyes3.bmp",
+		"Resources/words/200.bmp",
+		"Resources/words/400.bmp",
+		"Resources/words/800.bmp",
+		"Resources/words/1600.bmp",
 		}, RGB(0, 0, 0));
 	ghosts[2].initialize();
 
@@ -197,8 +221,14 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/eyes/eyes1.bmp",
 		"Resources/eyes/eyes2.bmp",
 		"Resources/eyes/eyes3.bmp",
+		"Resources/words/200.bmp",
+		"Resources/words/400.bmp",
+		"Resources/words/800.bmp",
+		"Resources/words/1600.bmp",
 		}, RGB(0, 0, 0));
 	ghosts[3].initialize();
+
+	initialGhosts();
 
 	//P1初始化
 	P1_icon.LoadBitmapA("Resources/words/P1.bmp");
@@ -315,8 +345,6 @@ void CGameStateRun::OnRButtonUp(UINT nFlags, CPoint point)	// 處理滑鼠的動
 
 void CGameStateRun::OnShow()
 {
-	//顯示物件
-	show_obj_by_phase();
 	//偵測是否吃到豆子
 	Score.get_point(Pacman);
 	//偵測是否吃到大力丸、鬼進入混亂模式
@@ -337,10 +365,10 @@ void CGameStateRun::OnShow()
 	}
 
 	//pacman是否被鬼抓到
-	if (!invincible) {
-		pacman_get_catch();
-	}	
+	pacman_get_catch();
 
 	//debug
 	if(debug_mod) debugText();
+	//顯示物件
+	show_obj_by_phase();
 }

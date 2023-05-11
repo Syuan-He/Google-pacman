@@ -36,6 +36,8 @@ void CGameStateRun::show_obj_by_phase() {
 			modePlayTime = time(NULL);
 			modeCount = 0;
 			modeLock = false;
+			ghostCatchTime = 0;
+			flag = 0;
 		}
 	}
 	//階段1(遊戲中)
@@ -118,14 +120,14 @@ void CGameStateRun::pacman_get_catch(int mode) {
 			get_catch = (Pacman[0] == obj[0] && Pacman[1] == obj[1]);
 		}
 
-		if (get_catch && !obj.isChoas) {
+		if (get_catch && !obj.isChoas && !invincible) {
 			Pacman.hearts_icon.set_nums(-1);
 			phase = 2;
 			Pacman.SetFrameIndexOfBitmap(8);
 			break;
 		}
 		else if (get_catch && obj.isChoas == 1) {
-			Sleep(1250);												//之後插入分數
+			obj.SetFrameIndexOfBitmap(16 + ghostCatchTime);
 
 			obj.isChoas = 2;
 			obj.choasFlash = false;
@@ -188,9 +190,9 @@ void CGameStateRun::debugText() {
 	//地圖陣列位置
 	strPacPos += to_string(Pacman[0]) + ", " + to_string(Pacman[1]);	//position in array
 	//視窗位置
-	strPacPoi += to_string(ghosts[0].GetLeft()) + ", " + to_string(ghosts[0].GetTop());
+	strPacPoi += to_string(ghosts[2].GetLeft()) + ", " + to_string(ghosts[2].GetTop());
 
-	strCatchTime += to_string(16*(ghosts[0].getInitPos(0))+ 19) + ", " + to_string(16*(ghosts[0].getInitPos(1))+96);
+	strCatchTime += to_string(16*(ghosts[2].getInitPos(0)) - 4) + ", " + to_string(16*(ghosts[2].getInitPos(1)+1)+96);
 
 	strInkyChoas += to_string(Inky.isChoas);
 
