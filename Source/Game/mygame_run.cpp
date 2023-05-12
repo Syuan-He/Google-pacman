@@ -303,7 +303,7 @@ void CGameStateRun::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		//按S 進入上一關
 		case 0x53:
 			phase = 4;
-			if (level >= 2) {
+			if (level >= 1) {
 				level -= 2;
 			}
 			break;
@@ -352,6 +352,7 @@ void CGameStateRun::OnShow()
 	//偵測是否吃到大力丸、鬼進入混亂模式
 	if (Score.get_power(Pacman)) {
 		ghostCatchTime = 0;
+		flag = 0;
 		for (GameGhost &obj : ghosts) {
 			if (obj.isChoas != 2) {
 				obj.isChoas = true;
