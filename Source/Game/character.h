@@ -17,7 +17,6 @@ protected:
 	int moving_schedule[16] = { 0 };	//移動距離表
 	int initial_pos[2];				//起始位置
 	int initial_frame_index;		//起始圖片
-
 	//參考地圖
 	GameMap gameMap;
 public:
@@ -38,12 +37,15 @@ public:
 	void set_inital(int x, int y, int w_x, int w_y, int index);
 	void initialize();
 
+	int get_velocity();
 	//回傳pacman位置
 	int& operator[](int index);
 };
 
 //Pacman
 class GamePacman : public Character {
+private:
+	int step_counter = 0;
 public:
 	//GamePacman() {};
 	//~GamePacman() {};
@@ -52,8 +54,10 @@ public:
 	//血條
 	MultUIObj hearts_icon{ 2 , 25, 388 };
 
+	void reset_step_counter();
+	
+	int get_step_counter();
 	void show_heart_icon(int size);
-
 	int getDirNow();
 };
 

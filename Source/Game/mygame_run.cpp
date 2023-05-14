@@ -25,6 +25,7 @@ void CGameStateRun::OnBeginState()
 {
 	//遊戲開始時間
 	exc_time_begin = time(NULL);
+	Game_audio -> Play(0);
 }
 
 time_t choasTimeChange;
@@ -57,9 +58,10 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 		else if (!modeLock && !(isScatterTime() || isChaseTime() || isChoasTime())) {
 			modeLock = true;
 		}
-		else if (!isChoasTime()) {
+		else if ((time(NULL) - choasTime) == choasTimeLong) {
 			ghostCatchTime = 0;
 			flag = 0;
+			Game_audio->Stop(AUDIO_POWERUP);
 			for (GameGhost &obj : ghosts) {
 				if (obj.isChoas != 2) {
 					obj.isChoas = false;
@@ -269,6 +271,16 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		t -> SetTopLeft(i * 32 + Pacman.hearts_icon.window_shift[0], Pacman.hearts_icon.window_shift[1]);
 		Pacman.hearts_icon.add_obj(*t);
 	}
+
+	Game_audio->Load(AUDIO_BEGIN, "Resources/audio/pacman_beginning.wav");
+	Game_audio->Load(AUDIO_MOVE, "Resources/audio/pacman_wakka.wav");
+	Game_audio->Load(AUDIO_DIE, "Resources/audio/pacman_death.wav");
+	Game_audio->Load(AUDIO_EAT_FRUIT, "Resources/audio/pacman_eatfruit.wav");
+	Game_audio->Load(AUDIO_EAT_GHOST, "Resources/audio/pacman_eatghost.wav");
+	Game_audio->Load(AUDIO_MUTIPLAYER, "Resources/audio/pacman_extrapac.wav");
+	Game_audio->Load(AUDIO_INTERMISSION, "Resources/audio/pacman_intermission.wav");
+	Game_audio->Load(AUDIO_SIREN, "Resources/audio/pacman_siren.wav");
+	Game_audio->Load(AUDIO_POWERUP, "Resources/audio/pacman_power_up.wav");
 }
 
 void CGameStateRun::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
@@ -348,9 +360,20 @@ void CGameStateRun::OnRButtonUp(UINT nFlags, CPoint point)	// 處理滑鼠的動
 void CGameStateRun::OnShow()
 {
 	//偵測是否吃到豆子
-	Score.get_point(Pacman);
+	if (Score.get_point(Pacman)) {
+		//播放音效
+		Game_audio -> Resume();
+		//重置計數器
+		Pacman.reset_step_counter();
+	}
+	//再走為一步前不得取消音效
+	else if (Pacman.get_step_counter() >= Pacman.get_velocity()) {
+		Game_audio->Pause_one(AUDIO_MOVE);
+		Pacman.reset_step_counter();
+	}	
 	//偵測是否吃到大力丸、鬼進入混亂模式
 	if (Score.get_power(Pacman)) {
+		Game_audio -> Play(AUDIO_POWERUP, true);
 		ghostCatchTime = 0;
 		flag = 0;
 		for (GameGhost &obj : ghosts) {

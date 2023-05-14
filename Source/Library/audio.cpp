@@ -289,6 +289,18 @@ void CAudio::Pause()
 	}
 }
 
+void CAudio::Pause_one(int p)
+{
+	if (!isOpened)
+		return;
+	map<int, Info>::iterator i;
+	if(info[p].isGood){
+		char command[MAX_MCI_COMMAND_SIZE];
+		sprintf(command, "pause device%d wait", p);
+		SendMciCommand(command);
+	}
+}
+
 void CAudio::Play(unsigned id, bool repeat_flag)
 {
 	if (!isOpened)

@@ -114,6 +114,11 @@ void Character::initialize() {
 	update_moving_schedule();
 }
 
+//回傳速度
+int Character::get_velocity() {
+	return velocity;
+}
+
 //回傳pacman位置
 int& Character::operator[](int index) {
 	return position[index];

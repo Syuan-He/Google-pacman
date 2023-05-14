@@ -79,15 +79,17 @@ void GameScore::show_score(int size) {
 }
 
 //偵測是否吃到豆子
-void GameScore::get_point(GamePacman obj) {
+bool GameScore::get_point(GamePacman obj) {
 	for (auto it = coins.begin(); it != coins.end(); it ++) {
 		if (obj.IsOverlap(obj, *it)) {
 			it = coins.erase(it);
 			total_coin_nums--;
 			score += 10;
-			break;
+
+			return true;
 		}
 	}
+	return false;
 }
 
 bool GameScore::get_power(GamePacman obj) {

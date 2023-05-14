@@ -32,6 +32,9 @@ void CGameStateRun::show_obj_by_phase() {
 		Ready_icon.ShowBitmap(2);
 		//5秒後進入階段2
 		if (time(NULL) - exc_time_begin > 4) {
+			//播放音效
+			Game_audio -> Play(AUDIO_MOVE, true);
+
 			phase = 1;
 			modePlayTime = time(NULL);
 			modeCount = 0;
@@ -55,7 +58,12 @@ void CGameStateRun::show_obj_by_phase() {
 	else if (phase == 2) {
 		//死亡動畫
 		if (Pacman.GetFrameIndexOfBitmap() == 8) {
+			//暫停音效
+			Game_audio->Pause_one(AUDIO_MOVE);
+			Game_audio->Stop(AUDIO_POWERUP);
 			Sleep(300);
+			//播放音效
+			Game_audio->Play(AUDIO_DIE);
 		}
 		Pacman.SetFrameIndexOfBitmap(Pacman.GetFrameIndexOfBitmap() + 1);
 		Pacman.ShowBitmap(2);
@@ -80,14 +88,21 @@ void CGameStateRun::show_obj_by_phase() {
 	else if (phase == 3) {
 		Ready_icon.SetFrameIndexOfBitmap(1);
 		Ready_icon.ShowBitmap(2);
-		GotoGameState(GAME_STATE_OVER);
+		GotoGameState(GAME_STATE_INIT);
 	}
 	//階段4(吃完豆子)
 	else if (phase == 4) {
+		if (time(NULL) == exc_time_begin) {
+			//停止所有音效
+			Game_audio->Stop(AUDIO_MOVE);
+			Game_audio->Stop(AUDIO_POWERUP);
+			//播放勝利
+			Game_audio->Play(AUDIO_INTERMISSION);
+		}
 		Pacman.ShowBitmap(2);
 
 		//遊戲結束
-		if (time(NULL) - exc_time_begin > 4) {
+		if (time(NULL) - exc_time_begin > 5) {
 			change_level(++ level);
 			Score.initialize(Map);
 			Pacman.initialize();
@@ -123,6 +138,7 @@ void CGameStateRun::pacman_get_catch(int mode) {
 			break;
 		}
 		else if (get_catch && obj.isChoas == 1) {
+			Game_audio->Play(AUDIO_EAT_GHOST);
 			obj.SetFrameIndexOfBitmap(16 + ghostCatchTime);
 
 			obj.isChoas = 2;

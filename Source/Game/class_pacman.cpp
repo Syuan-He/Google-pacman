@@ -15,6 +15,7 @@ using namespace game_framework;
 
 //pacman的移動
 void GamePacman::move() {
+	step_counter ++;
 	//如果走為一步
 	if (total_step == velocity) {
 		//更新位置
@@ -76,6 +77,14 @@ void GamePacman::move() {
 	else if (CanMove(dir_waitfor)) {
 		dir_now = dir_waitfor;
 	}
+}
+
+void  GamePacman::reset_step_counter() {
+	step_counter = 0;
+}
+
+int GamePacman::get_step_counter() {
+	return step_counter;
 }
 
 //血條顯示
