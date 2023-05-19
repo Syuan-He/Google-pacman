@@ -150,6 +150,7 @@ void CGameStateInit::OnShow()
 		Menu_main.show_menu();
 	}
 	else if (menu_now == 1) {
+		menu_now = 0;
 		GotoGameState(GAME_STATE_RUN);
 	}
 	else if (menu_now == 2) {

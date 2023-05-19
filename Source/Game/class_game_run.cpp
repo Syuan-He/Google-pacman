@@ -16,6 +16,8 @@ using namespace game_framework;
 void CGameStateRun::show_obj_by_phase() {
 	//背景顯示
 	Map.Background.ShowBitmap(2);
+	//顯示傳送門
+	Map.show_portal();
 	//豆子顯示
 	Score.show_coins();
 	//大力丸顯示
@@ -34,7 +36,6 @@ void CGameStateRun::show_obj_by_phase() {
 		if (time(NULL) - exc_time_begin > 4) {
 			//播放音效
 			Game_audio -> Play(AUDIO_MOVE, true);
-
 			phase = 1;
 			modePlayTime = time(NULL);
 			modeCount = 0;
@@ -86,18 +87,26 @@ void CGameStateRun::show_obj_by_phase() {
 	}
 	//階段3(生命歸零)
 	else if (phase == 3) {
-		Ready_icon.SetFrameIndexOfBitmap(1);
-		Ready_icon.ShowBitmap(2);
+		change_level(level = 0);
+		Score.initialize(Map);
+		Pacman.initialize();
+		Pacman.hearts_icon.set_nums(2, 1);
+		Pacman.heart_initialize();
+		initialGhosts();
+		Ready_icon.SetTopLeft(Ready_icon.window_shift[0], Ready_icon.window_shift[1]);
+		exc_time_begin = time(NULL);
+		phase = 0;
 		GotoGameState(GAME_STATE_INIT);
 	}
 	//階段4(吃完豆子)
 	else if (phase == 4) {
-		if (time(NULL) == exc_time_begin) {
+		if (Score.get_coin_nums() == 0) {
 			//停止所有音效
 			Game_audio->Stop(AUDIO_MOVE);
 			Game_audio->Stop(AUDIO_POWERUP);
 			//播放勝利
 			Game_audio->Play(AUDIO_INTERMISSION);
+			Score.set_coin_nums(1, 1);
 		}
 		Pacman.ShowBitmap(2);
 
@@ -106,11 +115,13 @@ void CGameStateRun::show_obj_by_phase() {
 			change_level(++ level);
 			Score.initialize(Map);
 			Pacman.initialize();
+			Pacman.hearts_icon.set_nums(2, 1);
+			Pacman.heart_initialize();
 			initialGhosts();
 			Ready_icon.SetTopLeft(Ready_icon.window_shift[0], Ready_icon.window_shift[1]);
-			Pacman.hearts_icon.set_nums(2, 1);
 			exc_time_begin = time(NULL);
 			phase = 0;
+			Game_audio->Play(AUDIO_BEGIN);
 		}
 	}
 }
@@ -185,6 +196,7 @@ void CGameStateRun::change_level(int level) {
 	ghosts[2].set_inital(map_t["A_Inky"].first, map_t["A_Inky"].second, map_t["W_Character"].first, map_t["W_Character"].second, 0);
 	ghosts[3].set_inital(map_t["A_Clyde"].first, map_t["A_Clyde"].second, map_t["W_Character"].first, map_t["W_Character"].second, 0);
 
+	Pacman.hearts_icon.window_shift.set_value(map_t["W_Hearts"].first, map_t["W_Hearts"].second);
 	Map.Background.window_shift.set_value(map_t["W_Background"].first, map_t["W_Background"].second);
 	Ready_icon.window_shift.set_value(map_t["W_Ready"].first, map_t["W_Ready"].second);
 	Score.set_window_shift(map_t["W_ScoreDot"].first, map_t["W_ScoreDot"].second);

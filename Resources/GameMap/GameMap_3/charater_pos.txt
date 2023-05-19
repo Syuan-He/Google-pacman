@@ -1,0 +1,10 @@
+W_Background 10 100
+W_Ready 505 308
+W_ScoreDot 41 100
+W_Character 35 96
+W_Hearts 25 450
+A_Pacman 31 19
+A_Blinky 35 7
+A_Pinky 35 7
+A_Inky 35 7
+A_Clyde 35 7

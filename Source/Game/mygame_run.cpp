@@ -25,7 +25,7 @@ void CGameStateRun::OnBeginState()
 {
 	//遊戲開始時間
 	exc_time_begin = time(NULL);
-	Game_audio -> Play(0);
+	Game_audio -> Play(AUDIO_BEGIN);
 }
 
 time_t choasTimeChange;
@@ -230,6 +230,7 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		}, RGB(0, 0, 0));
 	ghosts[3].initialize();
 
+	//鬼初始化
 	initialGhosts();
 
 	//P1初始化
@@ -265,13 +266,9 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 	}
 
 	//血條初始化
-	for (int i = 0; i < Pacman.hearts_icon.get_nums(); i++) {
-		unique_ptr<CMovingBitmap> t(new CMovingBitmap);
-		t -> LoadBitmapA("Resources/pacman/pacman5.bmp");
-		t -> SetTopLeft(i * 32 + Pacman.hearts_icon.window_shift[0], Pacman.hearts_icon.window_shift[1]);
-		Pacman.hearts_icon.add_obj(*t);
-	}
+	Pacman.heart_initialize();
 
+	//載入音效
 	Game_audio->Load(AUDIO_BEGIN, "Resources/audio/pacman_beginning.wav");
 	Game_audio->Load(AUDIO_MOVE, "Resources/audio/pacman_wakka.wav");
 	Game_audio->Load(AUDIO_DIE, "Resources/audio/pacman_death.wav");
@@ -308,17 +305,18 @@ void CGameStateRun::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	}
 	if (debug_mod) {
 		switch (nChar){
-		//按W 進入下一關
-		case 0x57:
-			phase = 4;
-			break;
 		//按S 進入上一關
 		case 0x53:
-			phase = 4;
 			if (level >= 1) {
 				level -= 2;
 			}
+		//按W 進入下一關
+		case 0x57:
+			phase = 4;
+			Game_audio->Stop(AUDIO_MOVE);
+			Game_audio->Stop(AUDIO_POWERUP);
 			break;
+		
 		//按I 以啟用無敵模式
 		case 0x49:
 			invincible = !invincible;

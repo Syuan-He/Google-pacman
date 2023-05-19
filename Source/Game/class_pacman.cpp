@@ -87,6 +87,16 @@ int GamePacman::get_step_counter() {
 	return step_counter;
 }
 
+void GamePacman::heart_initialize() {
+	hearts_icon.clear_objs();
+	for (int i = 0; i < hearts_icon.get_nums(); i++) {
+		unique_ptr<CMovingBitmap> t(new CMovingBitmap);
+		t->LoadBitmapA("Resources/pacman/pacman5.bmp");
+		t->SetTopLeft(i * 32 + hearts_icon.window_shift[0], hearts_icon.window_shift[1]);
+		hearts_icon.add_obj(*t);
+	}
+}
+
 //血條顯示
 void GamePacman::show_heart_icon(int size) {
 	for (int i = 0; i < hearts_icon.get_nums(); i++) {

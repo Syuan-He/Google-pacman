@@ -57,6 +57,7 @@ public:
 	void reset_step_counter();
 	
 	int get_step_counter();
+	void heart_initialize();
 	void show_heart_icon(int size);
 	int getDirNow();
 };

@@ -42,16 +42,28 @@ void GameMap::map_loader(string str) {
 	//更新地圖大小
 	map_len.set_value(y, x);
 
+	//傳送門圖像清空
+	portal_icon.clear();
+
 	//載入傳送門位置
 	inputFile.open(map_portal, ifstream::in);
 	while (getline(inputFile, line))
 	{
 		istringstream iss(line);
 		array<int, 4> lineNumbers;
+		int display;
 		for (int i = 0; i < 4; i++) {
 			iss >> lineNumbers[i];
 		}
+		iss >> display;
 		portal_position.push_back(lineNumbers);
+
+		//若需要則載入傳送門
+		if (display == 1) {
+			add_portal_icon(16 * lineNumbers[0] + Background.window_shift[0] - 16, 16 * lineNumbers[1] + Background.window_shift[1] -7);
+			add_portal_icon(16 * lineNumbers[2] + Background.window_shift[0] - 16, 16 * lineNumbers[3] + Background.window_shift[1] -7);
+		}
+
 	}
 	inputFile.close();
 
@@ -64,7 +76,6 @@ void GameMap::map_loader(string str) {
 
 //偵測傳送門
 pair<int,int> GameMap::portal_detect(int x, int y) {
-
 	for (auto i : portal_position) {
 		if (x == i[0] && y == i[1]) {
 			return pair<int, int>(i[2], i[3]);
@@ -74,6 +85,28 @@ pair<int,int> GameMap::portal_detect(int x, int y) {
 		}
 	}
 	return pair<int, int>(-1, -1);
+}
+
+//加入傳送門物件
+void GameMap::add_portal_icon(int x, int y) {
+	unique_ptr<CMovingBitmap> t(new CMovingBitmap);
+	t->LoadBitmapByString({
+		"Resources/portal/portal_0.bmp",
+		"Resources/portal/portal_1.bmp",
+		"Resources/portal/portal_2.bmp",
+		}, RGB(0, 0, 0));
+	t->SetTopLeft(x, y);
+	t->SetAnimation(100, false);
+	portal_icon.push_back(*t);
+}
+
+//顯示傳送門
+void GameMap::show_portal() {
+	if (!portal_icon.empty()) {
+		for (unsigned int i = 0; i < portal_icon.size(); i++) {
+			portal_icon[i].ShowBitmap();
+		}
+	}
 }
 
 //回傳地圖陣列值

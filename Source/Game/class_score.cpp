@@ -140,4 +140,5 @@ void GameScore::initialize(GameMap Map) {
 			}
 		}
 	}
+	score = 0;
 }
