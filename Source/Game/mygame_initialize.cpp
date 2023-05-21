@@ -54,6 +54,23 @@ void CGameStateInit::OnInit()
 	Menu_setting.target.SetTopLeft(147, 152);
 	Menu_setting.menu.set_nums(6);
 
+	Loading_icon.LoadBitmapByString({
+		"Resources/initialize/loading/loading_0.bmp",
+		"Resources/initialize/loading/loading_1.bmp",
+		"Resources/initialize/loading/loading_2.bmp",
+		"Resources/initialize/loading/loading_3.bmp",
+		"Resources/initialize/loading/loading_4.bmp",
+		"Resources/initialize/loading/loading_5.bmp",
+		"Resources/initialize/loading/loading_6.bmp",
+		"Resources/initialize/loading/loading_7.bmp",
+		"Resources/initialize/loading/loading_8.bmp",
+		"Resources/initialize/loading/loading_9.bmp",
+		"Resources/initialize/loading/loading_10.bmp",
+		"Resources/initialize/loading/loading_11.bmp",
+		"Resources/initialize/loading/OK.bmp",
+		}, RGB(255, 255, 27));
+	Loading_icon.SetTopLeft(900, 500);
+	Loading_icon.SetAnimation(200, true);
 }
 
 void CGameStateInit::OnBeginState()
@@ -102,13 +119,18 @@ void CGameStateInit::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 			break;
 		case VK_RETURN:
 			switch (Menu_setting.get_target_pos()) {
+			case 1:
+			case 2:
+				Loading_icon.ToggleAnimation();
+				button_kick = 2;
+				break;
 			case 4:
 			case 5:
 				menu_now = 0;
 				break;
 			default:
 				break;
-			}
+			}	
 		default:
 			break;
 		}
@@ -128,11 +150,24 @@ void CGameStateInit::OnShow()
 		Menu_main.show_menu();
 	}
 	else if (menu_now == 1) {
+		menu_now = 0;
 		GotoGameState(GAME_STATE_RUN);
 	}
 	else if (menu_now == 2) {
 		Setting_background.ShowBitmap();
 		Menu_setting.target.ShowBitmap();
+		switch (button_kick)
+		{
+		case 1:
+		case 2:
+			Loading_icon.ShowBitmap();
+			if (!Loading_icon.IsAnimation()) {
+				button_kick = -1;
+			}
+			break;
+		default:
+			break;
+		}
 	}
 	//draw_text();
 }

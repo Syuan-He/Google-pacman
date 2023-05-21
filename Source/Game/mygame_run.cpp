@@ -25,6 +25,7 @@ void CGameStateRun::OnBeginState()
 {
 	//遊戲開始時間
 	exc_time_begin = time(NULL);
+	Game_audio -> Play(AUDIO_BEGIN);
 }
 
 time_t choasTimeChange;
@@ -41,7 +42,7 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 		/*
 		//ghosts[1].inHomeAnim();
 		//ghosts[2].inHomeAnim();
-
+		
 		ghosts[0].outDoorAnim();
 		//*/
 		//模式改變前的方向改變
@@ -57,12 +58,15 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 		else if (!modeLock && !(isScatterTime() || isChaseTime() || isChoasTime())) {
 			modeLock = true;
 		}
-		else if (!isChoasTime()) {
+		else if ((time(NULL) - choasTime) == choasTimeLong) {
+			ghostCatchTime = 0;
+			flag = 0;
+			Game_audio->Stop(AUDIO_POWERUP);
 			for (GameGhost &obj : ghosts) {
 				if (obj.isChoas != 2) {
 					obj.isChoas = false;
 					obj.choasFlash = false;
-					obj.setVelocity(2);
+					obj.setVelocity(6);
 				}
 			}
 		}
@@ -88,7 +92,7 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 			Pacman.SetFrameIndexOfBitmap(0);
 			Map.Background.SetAnimation(300, false);
 			exc_time_begin = time(NULL);
-		}
+		}//*/
 	}
 }
 
@@ -139,7 +143,15 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/choas/choas0.bmp",
 		"Resources/choas/choas1.bmp",
 		"Resources/choas/choas2.bmp",
-		"Resources/choas/choas3.bmp"
+		"Resources/choas/choas3.bmp",
+		"Resources/eyes/eyes3.bmp",
+		"Resources/eyes/eyes0.bmp",
+		"Resources/eyes/eyes2.bmp",
+		"Resources/eyes/eyes1.bmp",
+		"Resources/words/200.bmp",
+		"Resources/words/400.bmp",
+		"Resources/words/800.bmp",
+		"Resources/words/1600.bmp",
 		}, RGB(0, 0, 0));
 	ghosts[0].initialize();
 
@@ -156,7 +168,15 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/choas/choas0.bmp",
 		"Resources/choas/choas1.bmp",
 		"Resources/choas/choas2.bmp",
-		"Resources/choas/choas3.bmp"
+		"Resources/choas/choas3.bmp",
+		"Resources/eyes/eyes3.bmp",
+		"Resources/eyes/eyes0.bmp",
+		"Resources/eyes/eyes2.bmp",
+		"Resources/eyes/eyes1.bmp",
+		"Resources/words/200.bmp",
+		"Resources/words/400.bmp",
+		"Resources/words/800.bmp",
+		"Resources/words/1600.bmp",
 		}, RGB(0, 0, 0));
 	ghosts[1].initialize();
 
@@ -173,7 +193,15 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/choas/choas0.bmp",
 		"Resources/choas/choas1.bmp",
 		"Resources/choas/choas2.bmp",
-		"Resources/choas/choas3.bmp"
+		"Resources/choas/choas3.bmp",
+		"Resources/eyes/eyes3.bmp",
+		"Resources/eyes/eyes0.bmp",
+		"Resources/eyes/eyes2.bmp",
+		"Resources/eyes/eyes1.bmp",
+		"Resources/words/200.bmp",
+		"Resources/words/400.bmp",
+		"Resources/words/800.bmp",
+		"Resources/words/1600.bmp",
 		}, RGB(0, 0, 0));
 	ghosts[2].initialize();
 
@@ -190,9 +218,20 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/choas/choas0.bmp",
 		"Resources/choas/choas1.bmp",
 		"Resources/choas/choas2.bmp",
-		"Resources/choas/choas3.bmp"
+		"Resources/choas/choas3.bmp",
+		"Resources/eyes/eyes3.bmp",
+		"Resources/eyes/eyes0.bmp",
+		"Resources/eyes/eyes2.bmp",
+		"Resources/eyes/eyes1.bmp",
+		"Resources/words/200.bmp",
+		"Resources/words/400.bmp",
+		"Resources/words/800.bmp",
+		"Resources/words/1600.bmp",
 		}, RGB(0, 0, 0));
 	ghosts[3].initialize();
+
+	//鬼初始化
+	initialGhosts();
 
 	//P1初始化
 	P1_icon.LoadBitmapA("Resources/words/P1.bmp");
@@ -227,12 +266,18 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 	}
 
 	//血條初始化
-	for (int i = 0; i < Pacman.hearts_icon.get_nums(); i++) {
-		unique_ptr<CMovingBitmap> t(new CMovingBitmap);
-		t -> LoadBitmapA("Resources/pacman/pacman5.bmp");
-		t -> SetTopLeft(i * 32 + Pacman.hearts_icon.window_shift[0], Pacman.hearts_icon.window_shift[1]);
-		Pacman.hearts_icon.add_obj(*t);
-	}
+	Pacman.heart_initialize();
+
+	//載入音效
+	Game_audio->Load(AUDIO_BEGIN, "Resources/audio/pacman_beginning.wav");
+	Game_audio->Load(AUDIO_MOVE, "Resources/audio/pacman_wakka.wav");
+	Game_audio->Load(AUDIO_DIE, "Resources/audio/pacman_death.wav");
+	Game_audio->Load(AUDIO_EAT_FRUIT, "Resources/audio/pacman_eatfruit.wav");
+	Game_audio->Load(AUDIO_EAT_GHOST, "Resources/audio/pacman_eatghost.wav");
+	Game_audio->Load(AUDIO_MUTIPLAYER, "Resources/audio/pacman_extrapac.wav");
+	Game_audio->Load(AUDIO_INTERMISSION, "Resources/audio/pacman_intermission.wav");
+	Game_audio->Load(AUDIO_SIREN, "Resources/audio/pacman_siren.wav");
+	Game_audio->Load(AUDIO_POWERUP, "Resources/audio/pacman_power_up.wav");
 }
 
 void CGameStateRun::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
@@ -260,15 +305,18 @@ void CGameStateRun::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	}
 	if (debug_mod) {
 		switch (nChar){
+		//按S 進入上一關
+		case 0x53:
+			if (level >= 1) {
+				level -= 2;
+			}
 		//按W 進入下一關
 		case 0x57:
 			phase = 4;
+			Game_audio->Stop(AUDIO_MOVE);
+			Game_audio->Stop(AUDIO_POWERUP);
 			break;
-		//按S 進入上一關
-		case 0x53:
-			phase = 4;
-			level -= 2;
-			break;
+		
 		//按I 以啟用無敵模式
 		case 0x49:
 			invincible = !invincible;
@@ -309,16 +357,31 @@ void CGameStateRun::OnRButtonUp(UINT nFlags, CPoint point)	// 處理滑鼠的動
 
 void CGameStateRun::OnShow()
 {
-	//顯示物件
-	show_obj_by_phase();
 	//偵測是否吃到豆子
-	Score.get_point(Pacman);
+	if (Score.get_point(Pacman)) {
+		//播放音效
+		Game_audio -> Resume();
+		//重置計數器
+		Pacman.reset_step_counter();
+	}
+	//再走為一步前不得取消音效
+	else if (Pacman.get_step_counter() >= Pacman.get_velocity()) {
+		Game_audio->Pause_one(AUDIO_MOVE);
+		Pacman.reset_step_counter();
+	}	
 	//偵測是否吃到大力丸、鬼進入混亂模式
 	if (Score.get_power(Pacman)) {
+		Game_audio -> Play(AUDIO_POWERUP, true);
+		ghostCatchTime = 0;
+		flag = 0;
 		for (GameGhost &obj : ghosts) {
-		obj.isChoas = true;
-		obj.choasFlash = false;
-		obj.setVelocity(1);
+			if (obj.isChoas != 2) {
+				obj.isChoas = true;
+				obj.choasFlash = false;
+				//減緩鬼的移動速度
+				obj.setVelocity(12);
+				obj.update_moving_schedule();
+			}
 		}
 		ghostTurnBack();
 		choasTime = time(NULL);
@@ -326,10 +389,10 @@ void CGameStateRun::OnShow()
 	}
 
 	//pacman是否被鬼抓到
-	if (!invincible) {
-		pacman_get_catch();
-	}	
+	pacman_get_catch();
 
 	//debug
 	if(debug_mod) debugText();
+	//顯示物件
+	show_obj_by_phase();
 }

@@ -57,6 +57,10 @@ void MultUIObj::set_nums(int increase, int mode) {
 	}
 }
 
+void MultUIObj::clear_objs() {
+	objs.clear();
+}
+
 //回傳第index個CMovingBitmap
 CMovingBitmap& MultUIObj::operator[](int index) {
 	return objs[index];

@@ -9,69 +9,91 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <math.h>
 
 using namespace game_framework;
 
+//pacman的移動
 void GamePacman::move() {
-	//if pacman had took a step(one step = 16px)
-	if (total_step == 16) {
-		//updte pacman's position on the map
+	step_counter ++;
+	//如果走為一步
+	if (total_step == velocity) {
+		//更新位置
 		update_position(dir_now);
 
-		//if the position that pacman prefer is executable 
+		//更新速度
+		if (waitVelocity != velocity) {
+			velocity = waitVelocity;
+		}
+
+		//更新方向
 		if (CanMove(dir_waitfor)) {
-			//change the diraction to the new one
 			dir_now = dir_waitfor;
-			//set pacman's picture to the orther one that match with the diraction
 		}
-		//reset pacman's total step
+		//重置步數
 		total_step = 0;
-	}
-	//pacman's animetion when it move
-	if (total_step % 16 < 5) {
-		this->SetFrameIndexOfBitmap(dir_now * 2 + 1);
-	}
-	else if (total_step % 16 < 10) {
-		this->SetFrameIndexOfBitmap(dir_now * 2 + 2);
-	}
-	else {
-		this->SetFrameIndexOfBitmap(0);
-	}
-	//if the diraction now is executable keep going
-	if (CanMove(dir_now)) {
-		switch (dir_now)
-		{
-		case 0:
-			this->SetTopLeft(this->GetLeft() + velocity, this->GetTop());
-			break;
-		case 1:
-			this->SetTopLeft(this->GetLeft(), this->GetTop() - velocity);
-			break;
-		case 2:
-			this->SetTopLeft(this->GetLeft() - velocity, this->GetTop());
-			break;
-		case 3:
-			this->SetTopLeft(this->GetLeft(), this->GetTop() + velocity);
-			break;
-		default:
-			break;
-		}
-		total_step += velocity;
-	}
-	//if pacman hit the wall (include portal)
-	else {
-		//check that if pacman hit a portal
+		
+		//檢查是否通過傳送門
 		pair<int, int> t = gameMap.portal_detect(position[0], position[1]);
 		if (t.first != -1) {
 			position[0] = t.first;
 			position[1] = t.second;
 			this->SetTopLeft(16 * (position[0] - 2) + window_shift[0], 16 * position[1] + window_shift[1]);
 		}
-		//check that if the position that pacman prefer is executable 
-		else if (CanMove(dir_waitfor)) {
-			//change the diraction
-			dir_now = dir_waitfor;
+	}
+
+	//pacman移動動畫
+	if (total_step < velocity / 3) {
+		this->SetFrameIndexOfBitmap(dir_now * 2 + 1);
+	}
+	else if (total_step < velocity * 2 / 3) {
+		this->SetFrameIndexOfBitmap(dir_now * 2 + 2);
+	}
+	else {
+		this->SetFrameIndexOfBitmap(0);
+	}
+
+	//移動
+	if (CanMove(dir_now)) {
+		switch (dir_now)
+		{
+		case 0:
+			this->SetTopLeft(this->GetLeft() + moving_schedule[total_step], this->GetTop());
+			break;
+		case 1:
+			this->SetTopLeft(this->GetLeft(), this->GetTop() - moving_schedule[total_step]);
+			break;
+		case 2:
+			this->SetTopLeft(this->GetLeft() - moving_schedule[total_step], this->GetTop());
+			break;
+		case 3:
+			this->SetTopLeft(this->GetLeft(), this->GetTop() + moving_schedule[total_step]);
+			break;
+		default:
+			break;
 		}
+		total_step ++;
+	}
+	else if (CanMove(dir_waitfor)) {
+		dir_now = dir_waitfor;
+	}
+}
+
+void  GamePacman::reset_step_counter() {
+	step_counter = 0;
+}
+
+int GamePacman::get_step_counter() {
+	return step_counter;
+}
+
+void GamePacman::heart_initialize() {
+	hearts_icon.clear_objs();
+	for (int i = 0; i < hearts_icon.get_nums(); i++) {
+		unique_ptr<CMovingBitmap> t(new CMovingBitmap);
+		t->LoadBitmapA("Resources/pacman/pacman5.bmp");
+		t->SetTopLeft(i * 32 + hearts_icon.window_shift[0], hearts_icon.window_shift[1]);
+		hearts_icon.add_obj(*t);
 	}
 }
 

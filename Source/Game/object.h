@@ -41,7 +41,7 @@ public:
 	int get_nums();
 
 	void set_nums(int increase, int mode = 0);
-
+	void clear_objs();
 	//回傳第index個CMovingBitmap
 	CMovingBitmap& operator[](int index);
 };
@@ -53,14 +53,19 @@ private:
 	vector<array<int, 4>> portal_position;
 	//地圖陣列
 	vector<vector<int>> gameMap;
+	//傳送門(圖像)陣列
+	vector<CMovingBitmap> portal_icon;
 public:
 	//地同長度
 	TwoEleContainer map_len;
 	//背景
 	UIObject Background;
+
 	void map_loader(string str);
 	pair<int, int> portal_detect(int x, int y);
+	void add_portal_icon(int x, int y);
 
+	void show_portal();
 	//回傳地圖陣列值
 	const vector<int>& operator[](int i) const;
 };

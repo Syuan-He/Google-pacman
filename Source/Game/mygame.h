@@ -40,6 +40,7 @@
 #include "object.h"
 #include "character.h"
 #include "score.h"
+#include "../Library/audio.h"
 #include <time.h>
 
 namespace game_framework {
@@ -48,9 +49,15 @@ namespace game_framework {
 	/////////////////////////////////////////////////////////////////////////////
 
 	enum AUDIO_ID {				// 定義各種音效的編號
-		AUDIO_DING,				// 0
-		AUDIO_LAKE,				// 1
-		AUDIO_NTUT				// 2
+		AUDIO_BEGIN,			// 0
+		AUDIO_MOVE,				// 1
+		AUDIO_DIE,				// 2
+		AUDIO_EAT_FRUIT,		// 3
+		AUDIO_EAT_GHOST,		// 4
+		AUDIO_MUTIPLAYER,		// 5
+		AUDIO_INTERMISSION,		// 6
+		AUDIO_SIREN,			// 7
+		AUDIO_POWERUP			// 8
 	};
 
 	/////////////////////////////////////////////////////////////////////////////
@@ -73,8 +80,11 @@ namespace game_framework {
 		GameMenu Menu_main{ 438, 370, 563, 384, 60 };
 		UIObject Setting_background;
 		GameMenu Menu_setting;
+		UIObject Loading_icon;
 
+		time_t loading_time_begin;
 		int menu_now = 0;
+		int button_kick = -1;
 
 		void draw_text();
 	};
@@ -97,6 +107,7 @@ namespace game_framework {
 		void OnMouseMove(UINT nFlags, CPoint point);	// 處理滑鼠的動作
 		void OnRButtonDown(UINT nFlags, CPoint point);  // 處理滑鼠的動作
 		void OnRButtonUp(UINT nFlags, CPoint point);	// 處理滑鼠的動作
+
 	protected:
 		void OnMove();									// 移動遊戲元素
 		void OnShow();									// 顯示這個狀態的遊戲畫面
@@ -112,6 +123,8 @@ namespace game_framework {
 		UIObject P1_icon{25, 40};		//player1 圖標
 		UIObject Ready_icon;			//Ready 圖標
 
+		CAudio* Game_audio = CAudio::Instance();
+
 		time_t exc_time_begin;			//遊戲起始時間
 
 		//void ghostMoveControl();
@@ -119,6 +132,7 @@ namespace game_framework {
 		int scatterTime = 7;
 		int chaseTime = 20;
 		int ghostCatchTime = 0;
+		int flag = 0;
 		int modeCount;
 		bool modeLock;
 		bool isScatterTime();
@@ -127,6 +141,7 @@ namespace game_framework {
 		void ghostChase();
 		void ghostScatter();
 		void ghostTurnBack();
+		void initialGhosts();
 
 		time_t choasTime;
 		int choasTimeLong = 10;
@@ -138,7 +153,7 @@ namespace game_framework {
 		void change_level(int level);			//切換關卡
 
 		bool debug_mod = true;
-		bool invincible;
+		bool invincible = false;
 		void debugText();
 
 		//test
