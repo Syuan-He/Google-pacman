@@ -43,7 +43,7 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 		if (using_auto) {
 			one_step_time = (one_step_time + 1) % Pacman.get_velocity();
 			if (one_step_time == 0) {
-				pair<pair<int, int>, int> t = min_dis_pacman_ghost();
+				pair<pair<int, int>, int> t = min_dis_pacman_ghost(Pacman[0], Pacman[1]);
 
 				int g = t.first.second * 4;
 				g += t.second * 16;
@@ -52,18 +52,28 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 				else if (t.first.first < 10) g += 2;
 				else g += 3;
 
-				int c = near_coin_dir();
-				int p = near_power_dir();
+				int c = near_coin_dir(Pacman[0], Pacman[1]);
+				int p = near_power_dir(Pacman[0], Pacman[1]);
 
-				pair<pair<int, int>, pair<int, int>> d = near_wall();
+				pair<pair<int, int>, pair<int, int>> d = near_wall(Pacman[0], Pacman[1]);
 				int w = d.first.first * 1 + d.first.second * 4 + d.second.first * 2 + d.second.second * 8;
-
-				int dir = Auto.choose_dir(g, c, p, w);
+				int dir;
+				int x_p;
+				int y_p;
+				do{
+					x_p = Pacman[0];
+					y_p = Pacman[1];
+					dir = Auto.choose_dir(g, c, p, w);
+					if (dir == 0) x_p++;
+					if (dir == 1) y_p--;
+					if (dir == 2) x_p--;
+					if (dir == 3) y_p++;
+				}while (Map[y_p][x_p] == 1);
 				Pacman.set_dir_waitfor(dir);
-				int* p_ = expect_next_step(dir, t, c, p, d);
+				int* p_ = expect_next_step(dir);
 				double reward_e = Auto.get_expected_max_score(p_[0], p_[1], p_[2], p_[3]);
 				Auto.train(p_, Pacman[0], Pacman[1], Reward, reward_e, dir);
-
+				delete[] p_;
 				Reward = 0;
 			}
 		}

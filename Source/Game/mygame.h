@@ -162,11 +162,11 @@ namespace game_framework {
 		double Reward = 0;
 
 		GameAuto Auto;
-		pair<pair<int, int>, int> min_dis_pacman_ghost();
-		int near_coin_dir();
-		int near_power_dir();
-		pair<pair<int, int>, pair<int, int>>  near_wall();
-		int* expect_next_step(int dir, pair<pair<int, int>, int> a, int b, int c, pair<pair<int, int>, pair<int, int>> d);
+		pair<pair<int, int>, int> min_dis_pacman_ghost(int x_p, int y_p);
+		int near_coin_dir(int x, int y);
+		int near_power_dir(int x, int y);
+		pair<pair<int, int>, pair<int, int>>  near_wall(int x, int y);
+		int* expect_next_step(int dir);
 	};
 
 	/////////////////////////////////////////////////////////////////////////////
