@@ -140,6 +140,15 @@ namespace game_framework {
 		bool debug_mod = true;
 		bool invincible;
 		void debugText();
+
+		//test
+		GameAuto Auto;
+		pair<pair<int, int>, int> min_dis_pacman_ghost();
+		int near_coin_dir();
+		int near_power_dir();
+		pair<pair<int, int>, pair<int, int>>  near_wall();
+		int* expect_next_step(int dir);
+		double reward();
 	};
 
 	/////////////////////////////////////////////////////////////////////////////

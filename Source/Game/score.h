@@ -30,5 +30,8 @@ public:
 	bool get_power(GamePacman obj);
 	void get_ghost(GamePacman obj, GameGhost ghost, int catchTime);
 
+	int get_coin_dir(int x, int y);
+	int get_power_dir(int x, int y);
+
 	void initialize(GameMap Map);
 };
