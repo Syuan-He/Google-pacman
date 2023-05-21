@@ -32,9 +32,20 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 {
 	//階段2才能移動
 	if (phase == 1) {
+		if (flag != ghostCatchTime) {
+			Sleep(1250);
+			flag = ghostCatchTime;
+		}
 		Pacman.move();
 
+		/*
+		//ghosts[1].inHomeAnim();
+		//ghosts[2].inHomeAnim();
+
+		ghosts[0].outDoorAnim();
+		//*/
 		//模式改變前的方向改變
+		//*
 		if (modeLock && modeCount < 7 && (isScatterTime() || isChaseTime() || isChoasTime())) {
 			ghostTurnBack();
 			modeCount++;
