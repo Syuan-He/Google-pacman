@@ -26,6 +26,8 @@ void CGameStateRun::OnBeginState()
 	//遊戲開始時間
 	exc_time_begin = time(NULL);
 	Game_audio -> Play(AUDIO_BEGIN);
+	
+	Auto.game_set();
 }
 
 time_t choasTimeChange;
@@ -38,7 +40,33 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 			flag = ghostCatchTime;
 		}
 		Pacman.move();
+		if (using_auto) {
+			one_step_time = (one_step_time + 1) % Pacman.get_velocity();
+			if (one_step_time == 0) {
+				pair<pair<int, int>, int> t = min_dis_pacman_ghost();
 
+				int g = t.first.second * 4;
+				g += t.second * 16;
+				if (t.first.first < 2) g += 0;
+				else if (t.first.first < 5) g += 1;
+				else if (t.first.first < 10) g += 2;
+				else g += 3;
+
+				int c = near_coin_dir();
+				int p = near_power_dir();
+
+				pair<pair<int, int>, pair<int, int>> d = near_wall();
+				int w = d.first.first * 1 + d.first.second * 4 + d.second.first * 2 + d.second.second * 8;
+
+				int dir = Auto.choose_dir(g, c, p, w);
+				Pacman.set_dir_waitfor(dir);
+				int* p_ = expect_next_step(dir, t, c, p, d);
+				double reward_e = Auto.get_expected_max_score(p_[0], p_[1], p_[2], p_[3]);
+				Auto.train(p_, Pacman[0], Pacman[1], Reward, reward_e, dir);
+
+				Reward = 0;
+			}
+		}
 		/*
 		//ghosts[1].inHomeAnim();
 		//ghosts[2].inHomeAnim();
@@ -359,6 +387,7 @@ void CGameStateRun::OnShow()
 {
 	//偵測是否吃到豆子
 	if (Score.get_point(Pacman)) {
+		if (using_auto) Reward += 10;
 		//播放音效
 		Game_audio -> Resume();
 		//重置計數器
@@ -371,6 +400,7 @@ void CGameStateRun::OnShow()
 	}	
 	//偵測是否吃到大力丸、鬼進入混亂模式
 	if (Score.get_power(Pacman)) {
+		if (using_auto) Reward += 5;
 		Game_audio -> Play(AUDIO_POWERUP, true);
 		ghostCatchTime = 0;
 		flag = 0;
@@ -389,7 +419,11 @@ void CGameStateRun::OnShow()
 	}
 
 	//pacman是否被鬼抓到
-	pacman_get_catch();
+	int t = pacman_get_catch();
+	if (using_auto) {
+		if (t == 1) Reward -= 999;
+		if (t == 2) Reward += 20;
+	}
 
 	//debug
 	if(debug_mod) debugText();

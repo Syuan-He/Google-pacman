@@ -94,6 +94,7 @@ private:
 	const int dis_1 = 5;
 	const int dis_2 = 10;
 	double rate = 0.8;
+	double lr = 0.001;
 	int greedy = 20;
 	//32: 4(ghost_dis)*4(ghost_dir)*(ghost_state), 4: 4(coin_dir), 4: 4(power_dir), 4: 2(IsWall?)^4(wall_dir), 4: 4(dir_waitfor)
 	double Q_table[32][4][4][16][4];
@@ -101,4 +102,6 @@ public:
 	bool game_set();
 	double get_expected_max_score(int g, int c, int p, int w);
 	double game_go(int* p, int x, int y, double reward, int dir);
+	int choose_dir(int g, int c, int p, int w);
+	void train(int* p, int x, int y, double reward, double reward_e, int dir);
 };

@@ -149,7 +149,7 @@ namespace game_framework {
 		int phase = 0;							//階段
 		int level = 0;							//遊戲關卡
 		void show_obj_by_phase();				//顯示物件
-		void pacman_get_catch(int mode = 0);	//pacman是否被鬼抓到
+		int pacman_get_catch(int mode = 0);	//pacman是否被鬼抓到
 		void change_level(int level);			//切換關卡
 
 		bool debug_mod = true;
@@ -157,13 +157,16 @@ namespace game_framework {
 		void debugText();
 
 		//test
+		bool using_auto = true;
+		int one_step_time = 0;
+		double Reward = 0;
+
 		GameAuto Auto;
 		pair<pair<int, int>, int> min_dis_pacman_ghost();
 		int near_coin_dir();
 		int near_power_dir();
 		pair<pair<int, int>, pair<int, int>>  near_wall();
-		int* expect_next_step(int dir);
-		double reward();
+		int* expect_next_step(int dir, pair<pair<int, int>, int> a, int b, int c, pair<pair<int, int>, pair<int, int>> d);
 	};
 
 	/////////////////////////////////////////////////////////////////////////////

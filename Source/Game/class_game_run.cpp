@@ -127,9 +127,9 @@ void CGameStateRun::show_obj_by_phase() {
 }
 
 //pacman是否被鬼抓到
-void CGameStateRun::pacman_get_catch(int mode) {
+int CGameStateRun::pacman_get_catch(int mode) {
 	if (phase != 1) {
-		return;
+		return 0;
 	}
 
 	bool get_catch = false;
@@ -146,6 +146,7 @@ void CGameStateRun::pacman_get_catch(int mode) {
 			Pacman.hearts_icon.set_nums(-1);
 			phase = 2;
 			Pacman.SetFrameIndexOfBitmap(8);
+			return 1;
 			break;
 		}
 		else if (get_catch && obj.isChoas == 1) {
@@ -161,8 +162,10 @@ void CGameStateRun::pacman_get_catch(int mode) {
 			if (ghostCatchTime > 3) {
 				ghostCatchTime = 0;
 			}
+			return 2;
 		}
 	}
+	return 0;
 }
 
 //切換關卡
@@ -223,11 +226,11 @@ void CGameStateRun::debugText() {
 
 	strInvincible += invincible ? "True" : "False";
 
-	strNearGhost += to_string(min_dis_pacman_ghost().first.first);
-	strNearGhostDir += to_string(min_dis_pacman_ghost().first.second);
-	strNearGhostState += to_string(min_dis_pacman_ghost().second);
-	strNearCoin += to_string(near_coin_dir());
-	strNearPower += to_string(near_power_dir());
+	//strNearGhost += to_string(min_dis_pacman_ghost().first.first);
+	//strNearGhostDir += to_string(min_dis_pacman_ghost().first.second);
+	//strNearGhostState += to_string(min_dis_pacman_ghost().second);
+	//strNearCoin += to_string(near_coin_dir());
+	//strNearPower += to_string(near_power_dir());
 
 	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
 	CTextDraw::Print(pDC, 25, 430, strPacPos);
@@ -295,29 +298,24 @@ int CGameStateRun::near_power_dir() {
 
 pair<pair<int, int>, pair<int, int>> CGameStateRun::near_wall() {
 	pair<pair<int, int>, pair<int, int>> t;
-	t.first.first = Map[Pacman[0] + 1][Pacman[1]] == 1;
-	t.second.first = Map[Pacman[0]][Pacman[1] - 1] == 1;
-	t.first.second = Map[Pacman[0] - 1][Pacman[1]] == 1;
-	t.second.second = Map[Pacman[0]][Pacman[1] + 1] == 1;
+	t.first.first = Map[Pacman[1]][Pacman[0] + 1] == 1;
+	t.second.first = Map[Pacman[1] - 1][Pacman[0]] == 1;
+	t.first.second = Map[Pacman[1]][Pacman[0] - 1] == 1;
+	t.second.second = Map[Pacman[1] + 1][Pacman[0]] == 1;
 
 	return t;
 }
 
-int* CGameStateRun::expect_next_step(int dir) {
+int* CGameStateRun::expect_next_step(int dir, pair<pair<int, int>, int> a, int b, int c, pair<pair<int, int>, pair<int, int>> d) {
 	int* t = new int(4);
 	int dis;
 	int x = Pacman[0];
 	int y = Pacman[1];
 
 	if (dir == 0) Pacman.setPos(x + 1, y);
-	else if (dir == 1) Pacman.setPos(x, y + 1);
+	else if (dir == 1) Pacman.setPos(x, y - 1);
 	else if (dir == 2) Pacman.setPos(x - 1, y);
-	else Pacman.setPos(x, y - 1);
-
-	pair<pair<int, int>, int> a = min_dis_pacman_ghost();
-	int b = near_coin_dir();
-	int c = near_power_dir();
-	pair<pair<int, int>, pair<int, int>> d = near_wall();
+	else Pacman.setPos(x, y + 1);
 
 	if (a.first.first < 2) dis = 0;
 	else if (a.first.first < 5) dis = 1;
@@ -331,8 +329,4 @@ int* CGameStateRun::expect_next_step(int dir) {
 
 	Pacman.setPos(x, y);
 	return t;
-}
-
-double CGameStateRun::reward() {
-	return 0;
 }
