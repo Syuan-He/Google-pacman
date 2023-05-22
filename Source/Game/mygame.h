@@ -158,8 +158,11 @@ namespace game_framework {
 
 		//test
 		bool using_auto = true;
-		int one_step_time = 0;
+		int one_step_time = -1;
 		double Reward = 0;
+		double last_score = 0;
+		double accurcy_up = 0;
+		const int train_v = 2;
 
 		GameAuto Auto;
 		pair<pair<int, int>, int> min_dis_pacman_ghost(int x_p, int y_p);

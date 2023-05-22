@@ -90,18 +90,15 @@ public:
 
 class GameAuto {
 private: 
-	const int dis_0 = 2;
-	const int dis_1 = 5;
-	const int dis_2 = 10;
 	double rate = 0.8;
-	double lr = 0.001;
-	int greedy = 20;
-	//32: 4(ghost_dis)*4(ghost_dir)*(ghost_state), 4: 4(coin_dir), 4: 4(power_dir), 4: 2(IsWall?)^4(wall_dir), 4: 4(dir_waitfor)
-	double Q_table[32][4][4][16][4];
+	double lr = 0.01;
+	int greedy = 50;
+	//16: 2(ghost_dis)*4(ghost_dir)*(ghost_state), 4: 4(coin_dir), 4: 4(power_dir), 4: 2(IsWall?)^4(wall_dir), 4: 4(dir_waitfor), 4: 4(last diraction)
+	double Q_table[16][4][4][16][4][4] = {0};
 public:
 	bool game_set();
-	double get_expected_max_score(int g, int c, int p, int w);
+	double get_expected_max_score(int g, int c, int p, int w, int d);
 	double game_go(int* p, int x, int y, double reward, int dir);
-	int choose_dir(int g, int c, int p, int w);
+	int choose_dir(int g, int c, int p, int w, int dir);
 	void train(int* p, int x, int y, double reward, double reward_e, int dir);
 };

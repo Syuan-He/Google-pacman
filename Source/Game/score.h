@@ -26,6 +26,8 @@ public:
 	void show_coins();
 	void show_power_pellets();
 	void show_score(int size);
+
+	int get_score();
 	bool get_point(GamePacman obj);
 	bool get_power(GamePacman obj);
 	void get_ghost(GamePacman obj, GameGhost ghost, int catchTime);

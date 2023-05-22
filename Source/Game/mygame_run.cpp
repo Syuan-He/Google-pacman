@@ -39,18 +39,20 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 			Sleep(1250);
 			flag = ghostCatchTime;
 		}
+
 		Pacman.move();
+
 		if (using_auto) {
 			one_step_time = (one_step_time + 1) % Pacman.get_velocity();
 			if (one_step_time == 0) {
+				int T_X = Pacman[0], T_Y = Pacman[1], T_V = Pacman.get_velocity();
+
 				pair<pair<int, int>, int> t = min_dis_pacman_ghost(Pacman[0], Pacman[1]);
 
-				int g = t.first.second * 4;
-				g += t.second * 16;
-				if (t.first.first < 2) g += 0;
-				else if (t.first.first < 5) g += 1;
-				else if (t.first.first < 10) g += 2;
-				else g += 3;
+				int g = t.first.second * 2;
+				g += t.second * 8;
+				if (t.first.first < 5) g += 0;
+				else g += 1;
 
 				int c = near_coin_dir(Pacman[0], Pacman[1]);
 				int p = near_power_dir(Pacman[0], Pacman[1]);
@@ -60,18 +62,21 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 				int dir;
 				int x_p;
 				int y_p;
-				do{
+				do {
 					x_p = Pacman[0];
 					y_p = Pacman[1];
-					dir = Auto.choose_dir(g, c, p, w);
+					dir = Auto.choose_dir(g, c, p, w, Pacman.getDirNow());
 					if (dir == 0) x_p++;
 					if (dir == 1) y_p--;
 					if (dir == 2) x_p--;
 					if (dir == 3) y_p++;
-				}while (Map[y_p][x_p] == 1);
-				Pacman.set_dir_waitfor(dir);
+				} while (Map[y_p][x_p] == 1);
+
+				if (dir == (Pacman.getDirNow() + 2) % 4) Reward -= 10;
+
 				int* p_ = expect_next_step(dir);
-				double reward_e = Auto.get_expected_max_score(p_[0], p_[1], p_[2], p_[3]);
+				Pacman.set_dir_waitfor(dir);
+				double reward_e = Auto.get_expected_max_score(p_[0], p_[1], p_[2], p_[3], p_[4]);
 				Auto.train(p_, Pacman[0], Pacman[1], Reward, reward_e, dir);
 				delete[] p_;
 				Reward = 0;
@@ -104,7 +109,7 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 				if (obj.isChoas != 2) {
 					obj.isChoas = false;
 					obj.choasFlash = false;
-					obj.setVelocity(6);
+					obj.setVelocity(train_v);
 				}
 			}
 		}
@@ -397,7 +402,9 @@ void CGameStateRun::OnShow()
 {
 	//偵測是否吃到豆子
 	if (Score.get_point(Pacman)) {
+		//吃豆子加分
 		if (using_auto) Reward += 10;
+
 		//播放音效
 		Game_audio -> Resume();
 		//重置計數器
@@ -410,7 +417,9 @@ void CGameStateRun::OnShow()
 	}	
 	//偵測是否吃到大力丸、鬼進入混亂模式
 	if (Score.get_power(Pacman)) {
+		//吃大力丸加分
 		if (using_auto) Reward += 5;
+
 		Game_audio -> Play(AUDIO_POWERUP, true);
 		ghostCatchTime = 0;
 		flag = 0;
@@ -419,7 +428,7 @@ void CGameStateRun::OnShow()
 				obj.isChoas = true;
 				obj.choasFlash = false;
 				//減緩鬼的移動速度
-				obj.setVelocity(12);
+				obj.setVelocity(4);
 				obj.update_moving_schedule();
 			}
 		}
@@ -431,7 +440,9 @@ void CGameStateRun::OnShow()
 	//pacman是否被鬼抓到
 	int t = pacman_get_catch();
 	if (using_auto) {
+		//被鬼吃扣分
 		if (t == 1) Reward -= 999;
+		//吃鬼加分
 		if (t == 2) Reward += 20;
 	}
 

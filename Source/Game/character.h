@@ -60,6 +60,7 @@ public:
 	void heart_initialize();
 	void show_heart_icon(int size);
 	int getDirNow();
+	int get_total_step();
 };
 
 //鬼

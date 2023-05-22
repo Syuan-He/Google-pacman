@@ -78,6 +78,10 @@ void GameScore::show_score(int size) {
 	}
 }
 
+int GameScore::get_score() {
+	return score;
+}
+
 //偵測是否吃到豆子
 bool GameScore::get_point(GamePacman obj) {
 	for (auto it = coins.begin(); it != coins.end(); it ++) {

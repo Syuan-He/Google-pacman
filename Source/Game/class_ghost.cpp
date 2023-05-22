@@ -97,9 +97,9 @@ void GameGhost::outDoorAnim() {
 			total_step = 0;
 			dir_now = 2;				//目前移動方向
 			dir_waitfor = 2;
-			if (isChoas != 1) {
-				waitVelocity = 6;
-			}
+			//if (isChoas != 1) {
+			//	waitVelocity = 2;
+			//}
 			update_moving_schedule();
 			setDirLock = false;
 

@@ -109,8 +109,8 @@ void Character::initialize() {
 	total_step = 0;
 	dir_now = 2;				//目前移動方向
 	dir_waitfor = 2;
-	velocity = 6;
-	waitVelocity = 6;
+	velocity = 2;
+	waitVelocity = 2;
 	update_moving_schedule();
 }
 

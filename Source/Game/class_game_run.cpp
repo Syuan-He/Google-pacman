@@ -33,7 +33,7 @@ void CGameStateRun::show_obj_by_phase() {
 		//Ready圖標顯示
 		Ready_icon.ShowBitmap(2);
 		//5秒後進入階段2
-		if (time(NULL) - exc_time_begin > 4) {
+		if (time(NULL) - exc_time_begin > (using_auto? 1 : 4)) {
 			//播放音效
 			Game_audio -> Play(AUDIO_MOVE, true);
 			phase = 1;
@@ -59,12 +59,18 @@ void CGameStateRun::show_obj_by_phase() {
 	else if (phase == 2) {
 		//死亡動畫
 		if (Pacman.GetFrameIndexOfBitmap() == 8) {
-			//暫停音效
-			Game_audio->Pause_one(AUDIO_MOVE);
-			Game_audio->Stop(AUDIO_POWERUP);
-			Sleep(300);
-			//播放音效
-			Game_audio->Play(AUDIO_DIE);
+			if (using_auto) {
+				accurcy_up = Score.get_score() / last_score;
+				last_score = (last_score + Score.get_score()) / 2;
+			}
+			else {
+				//暫停音效
+				Game_audio->Pause_one(AUDIO_MOVE);
+				Game_audio->Stop(AUDIO_POWERUP);
+				Sleep(300);
+				//播放音效
+				Game_audio->Play(AUDIO_DIE);
+			}
 		}
 		Pacman.SetFrameIndexOfBitmap(Pacman.GetFrameIndexOfBitmap() + 1);
 		Pacman.ShowBitmap(2);
@@ -214,7 +220,7 @@ void CGameStateRun::debugText() {
 	CDC *pDC = CDDraw::GetBackCDC();
 
 	string strPacPos = "", strPacPoi = "", strCatchTime = "", strInkyChoas = "", strInvincible = "Invincible: ", strNearGhost = "D(ghost):",
-		strNearGhostDir = "Dir(ghost):", strNearGhostState = "S(ghost):", strNearCoin = "Dir(coin):", strNearPower = "Dir(power):";
+		strNearGhostDir = "Dir(ghost):", strNearGhostState = "S(ghost):", strNearCoin = "Dir(coin):", strNearPower = "Dir(power):", strAccurcy = "A:";
 
 	//地圖陣列位置
 	strPacPos += to_string(Pacman[0]) + ", " + to_string(Pacman[1]);	//position in array
@@ -234,6 +240,7 @@ void CGameStateRun::debugText() {
 	strNearGhostState += to_string(min_dis_pacman_ghost(xx, yy).second);
 	strNearCoin += to_string(near_coin_dir(xx, yy));
 	strNearPower += to_string(near_power_dir(xx, yy));
+	strAccurcy += to_string(accurcy_up);
 
 	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
 	CTextDraw::Print(pDC, 25, 430, strPacPos);
@@ -260,6 +267,8 @@ void CGameStateRun::debugText() {
 	CTextDraw::Print(pDC, 625, 430, strNearPower);
 	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
 	CTextDraw::Print(pDC, 625, 460, strNearGhostDir);
+	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
+	CTextDraw::Print(pDC, 625, 490, strAccurcy);
 
 	CDDraw::ReleaseBackCDC();
 }
@@ -308,7 +317,7 @@ pair<pair<int, int>, pair<int, int>> CGameStateRun::near_wall(int x, int y) {
 }
 
 int* CGameStateRun::expect_next_step(int dir) {
-	int* t = new int[4];
+	int* t = new int[5];
 	int dis;
 	int x = Pacman[0];
 	int y = Pacman[1];
@@ -323,15 +332,14 @@ int* CGameStateRun::expect_next_step(int dir) {
 	int c = near_power_dir(x, y);
 	pair<pair<int, int>, pair<int, int>> d = near_wall(x, y);
 
-	if (a.first.first < 2) dis = 0;
-	else if (a.first.first < 5) dis = 1;
-	else if (a.first.first < 10) dis = 2;
-	else dis = 3;
+	if (a.first.first < 5) dis = 0;
+	else dis = 1;
 
-	t[0] = dis + 4 * a.first.second + 16 * a.second;
+	t[0] = dis + 2 * a.first.second + 8 * a.second;
 	t[1] = b;
 	t[2] = c;
 	t[3] = d.first.first * 1 + d.first.second * 4 + d.second.first * 2 + d.second.second * 8;
+	t[4] = Pacman.getDirNow();
 
 	return t;
 }
