@@ -107,8 +107,8 @@ void Character::initialize() {
 	this->setPos(initial_pos[0], initial_pos[1]);
 	this->SetFrameIndexOfBitmap(initial_frame_index);
 	total_step = 0;
-	dir_now = 2;				//目前移動方向
-	dir_waitfor = 2;
+	dir_now = 0;				//目前移動方向
+	dir_waitfor = 0;
 	velocity = 2;
 	waitVelocity = 2;
 	update_moving_schedule();

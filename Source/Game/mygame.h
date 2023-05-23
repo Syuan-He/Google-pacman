@@ -123,7 +123,7 @@ namespace game_framework {
 		UIObject P1_icon{25, 40};		//player1 圖標
 		UIObject Ready_icon;			//Ready 圖標
 
-		CAudio* Game_audio = CAudio::Instance();
+		//CAudio* Game_audio = CAudio::Instance();
 
 		time_t exc_time_begin;			//遊戲起始時間
 
@@ -158,11 +158,27 @@ namespace game_framework {
 
 		//test
 		bool using_auto = true;
-		int one_step_time = -1;
+		bool using_Qtable = false;
 		double Reward = 0;
-		double last_score = 0;
-		double accurcy_up = 0;
-		const int train_v = 2;
+		double total_score = 0;
+		int total_coin_nums;
+		int round_time = 0;
+		int updata_round_time = 0;
+		double accurcy = 0;
+
+		const int TRAIN_V = 2;
+		const int DIS_NEAR = 4;
+		const int UPDATA_TIME = 3;
+
+		const int R_turn_back = -100;
+		const int R_get_point = 50;
+		const int R_get_power = 10;
+		const int R_ate_by_ghost = -999;
+		const int R_eat_ghost = 100;
+
+		int** Q_state;
+		double* reward_expect;
+		double total_reward = 0;
 
 		GameAuto Auto;
 		pair<pair<int, int>, int> min_dis_pacman_ghost(int x_p, int y_p);

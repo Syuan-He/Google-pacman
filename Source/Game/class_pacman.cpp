@@ -19,7 +19,7 @@ void GamePacman::move() {
 	//如果走為一步
 	if (total_step == velocity) {
 		//更新位置
-		update_position(dir_now);
+		//update_position(dir_now);
 
 		//更新速度
 		if (waitVelocity != velocity) {

@@ -6,6 +6,7 @@
 #include "../Library/gameutil.h"
 #include "../Library/gamecore.h"
 #include "mygame.h"
+#include <fstream>
 
 bool GameAuto::game_set() {
 	for (int i_g = 0; i_g < 16; i_g ++) {
@@ -64,4 +65,39 @@ int GameAuto::choose_dir(int g, int c, int p, int w, int d) {
 void GameAuto::train(int* p, int x, int y, double reward, double reward_e, int dir) {
 	double reward_ = game_go(p, x, y, reward, dir);
 	Q_table[p[0]][p[1]][p[2]][p[3]][p[4]][dir] += lr * (reward_ - reward_e);
+}
+
+double GameAuto::count_reward_r(int* p, int x, int y, double reward, int dir) {
+	return game_go(p, x, y, reward, dir);
+}
+
+void GameAuto::mult_train(int** p, double reward, double* reward_e, int time) {
+	for (int i = 0; i < time; i ++) {
+		Q_table[p[i][0]][p[i][1]][p[i][2]][p[i][3]][p[i][4]][p[i][5]] += lr * (reward - reward_e[i]);
+	}
+}
+
+void GameAuto::store_matrix(string dir) {
+	ofstream outputFile(dir, ios::trunc);
+	if (outputFile.is_open()) {
+		for (int i_0 = 0; i_0 < 16; i_0++) {
+			for (int i_1 = 0; i_1 < 4; i_1++) {
+				for (int i_2 = 0; i_2 < 4; i_2++) {
+					for (int i_3 = 0; i_3 < 16; i_3++) {
+						for (int i_4 = 0; i_4 < 4; i_4++) {
+							for (int i_5 = 0; i_5 < 4; i_5++) {
+								outputFile << Q_table[i_0][i_1][i_2][i_3][i_4][i_5] << " ";
+							}
+							outputFile << "\n";
+						}
+						outputFile << "\n";
+					}
+					outputFile << "\n";
+				}
+				outputFile << "\n";
+			}
+			outputFile << "\n";
+		}
+		outputFile.close();
+	}
 }

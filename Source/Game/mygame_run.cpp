@@ -25,9 +25,10 @@ void CGameStateRun::OnBeginState()
 {
 	//遊戲開始時間
 	exc_time_begin = time(NULL);
-	Game_audio -> Play(AUDIO_BEGIN);
+	//Game_audio -> Play(AUDIO_BEGIN);
 	
 	Auto.game_set();
+	total_coin_nums = Score.get_coin_nums();
 }
 
 time_t choasTimeChange;
@@ -40,18 +41,15 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 			flag = ghostCatchTime;
 		}
 
-		Pacman.move();
+		if (Pacman.get_total_step() == Pacman.get_velocity()) {
+			Pacman.update_position(Pacman.getDirNow());
 
-		if (using_auto) {
-			one_step_time = (one_step_time + 1) % Pacman.get_velocity();
-			if (one_step_time == 0) {
-				int T_X = Pacman[0], T_Y = Pacman[1], T_V = Pacman.get_velocity();
-
+			if (using_auto) {
 				pair<pair<int, int>, int> t = min_dis_pacman_ghost(Pacman[0], Pacman[1]);
 
 				int g = t.first.second * 2;
 				g += t.second * 8;
-				if (t.first.first < 5) g += 0;
+				if (t.first.first < DIS_NEAR) g += 0;
 				else g += 1;
 
 				int c = near_coin_dir(Pacman[0], Pacman[1]);
@@ -72,16 +70,34 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 					if (dir == 3) y_p++;
 				} while (Map[y_p][x_p] == 1);
 
-				if (dir == (Pacman.getDirNow() + 2) % 4) Reward -= 10;
+				if (!using_Qtable) {
+					if (dir == (Pacman.getDirNow() + 2) % 4) Reward += R_turn_back;
 
-				int* p_ = expect_next_step(dir);
+					int* p_ = expect_next_step(dir);
+
+					double reward_e = Auto.get_expected_max_score(p_[0], p_[1], p_[2], p_[3], p_[4]);
+
+					//reward_expect[updata_round_time] = reward_e;
+					//total_reward += Auto.count_reward_r(p_, Pacman[0], Pacman[1], Reward, dir);
+					//Q_state[updata_round_time] = p_;
+					//if (updata_round_time == UPDATA_TIME - 1) {
+					//	Auto.mult_train(Q_state, total_reward, reward_expect, UPDATA_TIME);
+					//	for (int i = 0; i < UPDATA_TIME; i++) {
+					//		delete[] Q_state[i];
+					//	}
+					//}
+					//updata_round_time = (updata_round_time + 1) % UPDATA_TIME;
+
+					Auto.train(p_, Pacman[0], Pacman[1], Reward, reward_e, dir);
+					delete[] p_;
+					Reward = 0;
+				}
+				
 				Pacman.set_dir_waitfor(dir);
-				double reward_e = Auto.get_expected_max_score(p_[0], p_[1], p_[2], p_[3], p_[4]);
-				Auto.train(p_, Pacman[0], Pacman[1], Reward, reward_e, dir);
-				delete[] p_;
-				Reward = 0;
 			}
 		}
+
+		Pacman.move();
 		/*
 		//ghosts[1].inHomeAnim();
 		//ghosts[2].inHomeAnim();
@@ -104,12 +120,12 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 		else if ((time(NULL) - choasTime) == choasTimeLong) {
 			ghostCatchTime = 0;
 			flag = 0;
-			Game_audio->Stop(AUDIO_POWERUP);
+			//Game_audio->Stop(AUDIO_POWERUP);
 			for (GameGhost &obj : ghosts) {
 				if (obj.isChoas != 2) {
 					obj.isChoas = false;
 					obj.choasFlash = false;
-					obj.setVelocity(train_v);
+					obj.setVelocity(TRAIN_V);
 				}
 			}
 		}
@@ -311,16 +327,20 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 	//血條初始化
 	Pacman.heart_initialize();
 
-	//載入音效
-	Game_audio->Load(AUDIO_BEGIN, "Resources/audio/pacman_beginning.wav");
-	Game_audio->Load(AUDIO_MOVE, "Resources/audio/pacman_wakka.wav");
-	Game_audio->Load(AUDIO_DIE, "Resources/audio/pacman_death.wav");
-	Game_audio->Load(AUDIO_EAT_FRUIT, "Resources/audio/pacman_eatfruit.wav");
-	Game_audio->Load(AUDIO_EAT_GHOST, "Resources/audio/pacman_eatghost.wav");
-	Game_audio->Load(AUDIO_MUTIPLAYER, "Resources/audio/pacman_extrapac.wav");
-	Game_audio->Load(AUDIO_INTERMISSION, "Resources/audio/pacman_intermission.wav");
-	Game_audio->Load(AUDIO_SIREN, "Resources/audio/pacman_siren.wav");
-	Game_audio->Load(AUDIO_POWERUP, "Resources/audio/pacman_power_up.wav");
+	////載入音效
+	//Game_audio->Load(AUDIO_BEGIN, "Resources/audio/pacman_beginning.wav");
+	//Game_audio->Load(AUDIO_MOVE, "Resources/audio/pacman_wakka.wav");
+	//Game_audio->Load(AUDIO_DIE, "Resources/audio/pacman_death.wav");
+	//Game_audio->Load(AUDIO_EAT_FRUIT, "Resources/audio/pacman_eatfruit.wav");
+	//Game_audio->Load(AUDIO_EAT_GHOST, "Resources/audio/pacman_eatghost.wav");
+	//Game_audio->Load(AUDIO_MUTIPLAYER, "Resources/audio/pacman_extrapac.wav");
+	//Game_audio->Load(AUDIO_INTERMISSION, "Resources/audio/pacman_intermission.wav");
+	//Game_audio->Load(AUDIO_SIREN, "Resources/audio/pacman_siren.wav");
+	//Game_audio->Load(AUDIO_POWERUP, "Resources/audio/pacman_power_up.wav");
+
+	//test
+	//Q_state = new int*[UPDATA_TIME];
+	//reward_expect = new double[UPDATA_TIME];
 }
 
 void CGameStateRun::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
@@ -356,14 +376,23 @@ void CGameStateRun::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		//按W 進入下一關
 		case 0x57:
 			phase = 4;
-			Game_audio->Stop(AUDIO_MOVE);
-			Game_audio->Stop(AUDIO_POWERUP);
+			//Game_audio->Stop(AUDIO_MOVE);
+			//Game_audio->Stop(AUDIO_POWERUP);
 			break;
 		
 		//按I 以啟用無敵模式
 		case 0x49:
 			invincible = !invincible;
 			break;
+		//按Q 以啟用Q表
+		case 0x51:
+			using_Qtable = !using_Qtable;
+			break;
+		//按Q 以輸出Q表
+		case 0x4F:
+			Auto.store_matrix("Resources/auto/Qtable.txt");
+			break;
+
 		default:
 			break;
 		}
@@ -403,24 +432,24 @@ void CGameStateRun::OnShow()
 	//偵測是否吃到豆子
 	if (Score.get_point(Pacman)) {
 		//吃豆子加分
-		if (using_auto) Reward += 10;
+		if (using_auto) Reward += R_get_point;
 
 		//播放音效
-		Game_audio -> Resume();
+		//Game_audio -> Resume();
 		//重置計數器
 		Pacman.reset_step_counter();
 	}
 	//再走為一步前不得取消音效
 	else if (Pacman.get_step_counter() >= Pacman.get_velocity()) {
-		Game_audio->Pause_one(AUDIO_MOVE);
+		//Game_audio->Pause_one(AUDIO_MOVE);
 		Pacman.reset_step_counter();
 	}	
 	//偵測是否吃到大力丸、鬼進入混亂模式
 	if (Score.get_power(Pacman)) {
 		//吃大力丸加分
-		if (using_auto) Reward += 5;
+		if (using_auto) Reward += R_get_power;
 
-		Game_audio -> Play(AUDIO_POWERUP, true);
+		//Game_audio -> Play(AUDIO_POWERUP, true);
 		ghostCatchTime = 0;
 		flag = 0;
 		for (GameGhost &obj : ghosts) {
@@ -441,9 +470,9 @@ void CGameStateRun::OnShow()
 	int t = pacman_get_catch();
 	if (using_auto) {
 		//被鬼吃扣分
-		if (t == 1) Reward -= 999;
+		if (t == 1) Reward += R_ate_by_ghost;
 		//吃鬼加分
-		if (t == 2) Reward += 20;
+		if (t == 2) Reward += R_eat_ghost;
 	}
 
 	//debug

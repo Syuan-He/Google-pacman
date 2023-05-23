@@ -32,17 +32,13 @@ void CGameStateRun::show_obj_by_phase() {
 		Pacman.ShowBitmap(2);
 		//Ready圖標顯示
 		Ready_icon.ShowBitmap(2);
-		//5秒後進入階段2
-		if (time(NULL) - exc_time_begin > (using_auto? 1 : 4)) {
-			//播放音效
-			Game_audio -> Play(AUDIO_MOVE, true);
-			phase = 1;
-			modePlayTime = time(NULL);
-			modeCount = 0;
-			modeLock = false;
-			ghostCatchTime = 0;
-			flag = 0;
-		}
+
+		phase = 1;
+		modePlayTime = time(NULL);
+		modeCount = 0;
+		modeLock = false;
+		ghostCatchTime = 0;
+		flag = 0;
 	}
 	//階段1(遊戲中)
 	else if (phase == 1) {
@@ -60,24 +56,28 @@ void CGameStateRun::show_obj_by_phase() {
 		//死亡動畫
 		if (Pacman.GetFrameIndexOfBitmap() == 8) {
 			if (using_auto) {
-				accurcy_up = Score.get_score() / last_score;
-				last_score = (last_score + Score.get_score()) / 2;
+				round_time = (round_time + 1) % 10;
+				total_score += Score.get_score() / 10;	
+				if (round_time == 9) {
+					accurcy = total_score / round_time / total_coin_nums;
+					total_score = 0;
+				}
 			}
 			else {
-				//暫停音效
-				Game_audio->Pause_one(AUDIO_MOVE);
-				Game_audio->Stop(AUDIO_POWERUP);
-				Sleep(300);
-				//播放音效
-				Game_audio->Play(AUDIO_DIE);
+				////暫停音效
+				//Game_audio->Pause_one(AUDIO_MOVE);
+				//Game_audio->Stop(AUDIO_POWERUP);
+				//Sleep(300);
+				////播放音效
+				//Game_audio->Play(AUDIO_DIE);
 			}
 		}
 		Pacman.SetFrameIndexOfBitmap(Pacman.GetFrameIndexOfBitmap() + 1);
 		Pacman.ShowBitmap(2);
-		Sleep(130);
+		//Sleep(130);
 
 		if (Pacman.GetFrameIndexOfBitmap() == 20) {
-			Sleep(500);
+			//Sleep(500);
 			if (Pacman.hearts_icon.get_nums() < 0) {
 				phase = 3;
 			}
@@ -89,7 +89,7 @@ void CGameStateRun::show_obj_by_phase() {
 			//重新初始化
 			Pacman.initialize();
 			initialGhosts();
-			if (using_auto) Score.initialize(Map);;
+			if (using_auto) Score.initialize(Map);
 		}
 	}
 	//階段3(生命歸零)
@@ -108,11 +108,11 @@ void CGameStateRun::show_obj_by_phase() {
 	//階段4(吃完豆子)
 	else if (phase == 4) {
 		if (Score.get_coin_nums() == 0) {
-			//停止所有音效
-			Game_audio->Stop(AUDIO_MOVE);
-			Game_audio->Stop(AUDIO_POWERUP);
-			//播放勝利
-			Game_audio->Play(AUDIO_INTERMISSION);
+			////停止所有音效
+			//Game_audio->Stop(AUDIO_MOVE);
+			//Game_audio->Stop(AUDIO_POWERUP);
+			////播放勝利
+			//Game_audio->Play(AUDIO_INTERMISSION);
 			Score.set_coin_nums(1, 1);
 		}
 		Pacman.ShowBitmap(2);
@@ -128,7 +128,7 @@ void CGameStateRun::show_obj_by_phase() {
 			Ready_icon.SetTopLeft(Ready_icon.window_shift[0], Ready_icon.window_shift[1]);
 			exc_time_begin = time(NULL);
 			phase = 0;
-			Game_audio->Play(AUDIO_BEGIN);
+			//Game_audio->Play(AUDIO_BEGIN);
 		}
 	}
 }
@@ -157,7 +157,7 @@ int CGameStateRun::pacman_get_catch(int mode) {
 			break;
 		}
 		else if (get_catch && obj.isChoas == 1) {
-			Game_audio->Play(AUDIO_EAT_GHOST);
+			//Game_audio->Play(AUDIO_EAT_GHOST);
 			obj.SetFrameIndexOfBitmap(16 + ghostCatchTime);
 
 			obj.isChoas = 2;
@@ -220,7 +220,8 @@ void CGameStateRun::debugText() {
 	CDC *pDC = CDDraw::GetBackCDC();
 
 	string strPacPos = "", strPacPoi = "", strCatchTime = "", strInkyChoas = "", strInvincible = "Invincible: ", strNearGhost = "D(ghost):",
-		strNearGhostDir = "Dir(ghost):", strNearGhostState = "S(ghost):", strNearCoin = "Dir(coin):", strNearPower = "Dir(power):", strAccurcy = "A:";
+		strNearGhostDir = "Dir(ghost):", strNearGhostState = "S(ghost):", strNearCoin = "Dir(coin):", strNearPower = "Dir(power):",
+		strAccurcy = "A:", strQtable = "Qtable:";
 
 	//地圖陣列位置
 	strPacPos += to_string(Pacman[0]) + ", " + to_string(Pacman[1]);	//position in array
@@ -240,7 +241,8 @@ void CGameStateRun::debugText() {
 	strNearGhostState += to_string(min_dis_pacman_ghost(xx, yy).second);
 	strNearCoin += to_string(near_coin_dir(xx, yy));
 	strNearPower += to_string(near_power_dir(xx, yy));
-	strAccurcy += to_string(accurcy_up);
+	strAccurcy += to_string(accurcy);
+	strQtable += to_string(using_Qtable);
 
 	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
 	CTextDraw::Print(pDC, 25, 430, strPacPos);
@@ -269,6 +271,8 @@ void CGameStateRun::debugText() {
 	CTextDraw::Print(pDC, 625, 460, strNearGhostDir);
 	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
 	CTextDraw::Print(pDC, 625, 490, strAccurcy);
+	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
+	CTextDraw::Print(pDC, 625, 520, strQtable);
 
 	CDDraw::ReleaseBackCDC();
 }
@@ -317,7 +321,7 @@ pair<pair<int, int>, pair<int, int>> CGameStateRun::near_wall(int x, int y) {
 }
 
 int* CGameStateRun::expect_next_step(int dir) {
-	int* t = new int[5];
+	int* t = new int[6];
 	int dis;
 	int x = Pacman[0];
 	int y = Pacman[1];
@@ -332,7 +336,7 @@ int* CGameStateRun::expect_next_step(int dir) {
 	int c = near_power_dir(x, y);
 	pair<pair<int, int>, pair<int, int>> d = near_wall(x, y);
 
-	if (a.first.first < 5) dis = 0;
+	if (a.first.first < DIS_NEAR) dis = 0;
 	else dis = 1;
 
 	t[0] = dis + 2 * a.first.second + 8 * a.second;
@@ -340,6 +344,8 @@ int* CGameStateRun::expect_next_step(int dir) {
 	t[2] = c;
 	t[3] = d.first.first * 1 + d.first.second * 4 + d.second.first * 2 + d.second.second * 8;
 	t[4] = Pacman.getDirNow();
+	t[5] = dir;
 
 	return t;
 }
+
