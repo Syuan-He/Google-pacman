@@ -170,10 +170,10 @@ namespace game_framework {
 		const int DIS_NEAR = 4;
 		const int UPDATA_TIME = 3;
 
-		const int R_turn_back = -100;
+		const int R_turn_back = -200;
 		const int R_get_point = 50;
 		const int R_get_power = 10;
-		const int R_ate_by_ghost = -999;
+		const int R_ate_by_ghost = -200;
 		const int R_eat_ghost = 100;
 
 		int** Q_state;

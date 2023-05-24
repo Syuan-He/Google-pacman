@@ -28,7 +28,7 @@ void CGameStateRun::OnBeginState()
 	//Game_audio -> Play(AUDIO_BEGIN);
 	
 	Auto.game_set();
-	Auto.create_file("Resources/auto/", "Qtable.txt");
+	//Auto.create_file("Resources/auto/", "Qtable.txt");
 	total_coin_nums = Score.get_coin_nums();
 }
 
@@ -72,7 +72,10 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 				} while (Map[y_p][x_p] == 1);
 
 				if (!using_Qtable) {
-					if (dir == (Pacman.getDirNow() + 2) % 4) Reward += R_turn_back;
+					int xx = Pacman.getDirNow();
+					if (dir == (Pacman.getDirNow() + 2) % 4) {
+						Reward += R_turn_back;
+					}
 
 					int* p_ = expect_next_step(dir);
 
@@ -389,11 +392,14 @@ void CGameStateRun::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		case 0x51:
 			using_Qtable = !using_Qtable;
 			break;
-		//按Q 以輸出Q表
+		//按O,P 以輸出Q表
 		case 0x4F:
 			Auto.store_matrix(Auto.get_Qtable_dir());
 			break;
-		//按Q 以輸出Q表
+		case 0x50:
+			Auto.store_matrix("Resources/auto/Qtable.txt");
+			break;
+		//按L 以輸出Q表
 		case 0x4C:
 			Auto.load_matrix("Resources/auto/Qtable.txt");
 			break;
