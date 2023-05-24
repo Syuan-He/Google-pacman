@@ -28,6 +28,7 @@ void CGameStateRun::OnBeginState()
 	//Game_audio -> Play(AUDIO_BEGIN);
 	
 	Auto.game_set();
+	Auto.create_file("Resources/auto/", "Qtable.txt");
 	total_coin_nums = Score.get_coin_nums();
 }
 
@@ -390,7 +391,11 @@ void CGameStateRun::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			break;
 		//按Q 以輸出Q表
 		case 0x4F:
-			Auto.store_matrix("Resources/auto/Qtable.txt");
+			Auto.store_matrix(Auto.get_Qtable_dir());
+			break;
+		//按Q 以輸出Q表
+		case 0x4C:
+			Auto.load_matrix("Resources/auto/Qtable.txt");
 			break;
 
 		default:

@@ -185,6 +185,7 @@ void CGameStateRun::change_level(int level) {
 
 	//加入參考地圖
 	Pacman.set_game_map(Map);
+	Score.set_game_map(Map);
 	for (GameGhost &obj : ghosts) {
 		obj.set_game_map(Map);
 	}
@@ -303,7 +304,7 @@ pair<pair<int, int>, int> CGameStateRun::min_dis_pacman_ghost(int x_p, int y_p) 
 }
 
 int CGameStateRun::near_coin_dir(int x, int y) {
-	return Score.get_coin_dir(16 * x + Pacman.window_shift[0] + 6, 16 * y + Pacman.window_shift[1] + 4);
+	return Score.get_coin_dir(16 * x + Pacman.window_shift[0] + 6, 16 * y + Pacman.window_shift[1] + 4, x, y);
 }
 
 int CGameStateRun::near_power_dir(int x, int y) {

@@ -35,6 +35,10 @@ void GameScore::set_window_shift(int x, int y) {
 	window_shift[1] = y;
 }
 
+void GameScore::set_game_map(const GameMap& map_t) {
+	gameMap = map_t;
+}
+
 //取得豆子數量
 int GameScore::get_coin_nums() {
 	return total_coin_nums;
@@ -119,26 +123,51 @@ void GameScore::get_ghost(GamePacman obj, GameGhost ghost, int catchTime) {
 	}
 }
 
-int GameScore::get_coin_dir(int x, int y) {
+int GameScore::get_coin_dir(int x, int y, int xx, int yy) {
 	int min_dis = 2000;
-	int dir;
+	int dir = -1;
+	int best_dir = -1;
+	bool* w = new bool[4];
+	
+	w[0] = gameMap[yy][xx + 1] == 1 ? false : true;
+	w[1] = gameMap[yy - 1][xx] == 1 ? false : true;
+	w[2] = gameMap[yy][xx - 1] == 1 ? false : true;
+	w[3] = gameMap[yy + 1][xx] == 1 ? false : true;
+
 	for (CMovingBitmap t : coins) {
 		int x_c = t.GetLeft();
 		if (x_c > x + min_dis || x_c < x - min_dis) continue;
 		int y_c = t.GetTop();
 		if (y_c > y + min_dis || y_c < y - min_dis) continue;
 		int dis = int(pow(pow((x - x_c), 2) + pow((y - y_c), 2), 0.5));
+
 		if (min_dis > dis){
-			min_dis = dis;
 			if (abs(x - x_c) > abs(y - y_c)) {
 				dir = x > x_c ? 2 : 0;
+				if (w[dir]) {
+					best_dir = dir;
+				}
 			}
 			else {
-				dir = y > y_c ? 1 : 3;
+				dir = x > y_c ? 1 : 3;
+				if (w[dir]) {
+					best_dir = dir;
+				}
 			}
 		}
 	}
-	return dir;
+
+	if (best_dir == -1) {
+		for (int i = 0; i < 4; i++) {
+			if (w[i]) {
+				best_dir = i;
+			}
+		}
+	}
+
+	delete[] w;
+
+	return best_dir;
 }
 
 int GameScore::get_power_dir(int x, int y) {
