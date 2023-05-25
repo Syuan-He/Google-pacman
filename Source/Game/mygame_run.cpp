@@ -28,7 +28,7 @@ void CGameStateRun::OnBeginState()
 	//Game_audio -> Play(AUDIO_BEGIN);
 	
 	Auto.game_set();
-	//Auto.create_file("Resources/auto/", "Qtable.txt");
+	Auto.create_file("Resources/auto/", "Qtable.txt");
 	total_coin_nums = Score.get_coin_nums();
 }
 
