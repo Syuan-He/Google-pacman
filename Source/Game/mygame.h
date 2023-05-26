@@ -127,12 +127,12 @@ namespace game_framework {
 
 		time_t exc_time_begin;			//遊戲起始時間
 
-		//void ghostMoveControl();
+		void ghostMoveControl();
 		time_t modePlayTime;
 		int scatterTime = 7;
 		int chaseTime = 20;
 		int ghostCatchTime = 0;
-		int flag = 0;
+		int preGhostCatchTime = 0;
 		int modeCount;
 		bool modeLock;
 		bool isScatterTime();
@@ -144,6 +144,7 @@ namespace game_framework {
 		void initialGhosts();
 
 		time_t choasTime;
+		time_t choasTimeChange;
 		int choasTimeLong = 10;
 
 		int phase = 0;							//階段

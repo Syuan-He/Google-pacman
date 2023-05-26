@@ -41,7 +41,7 @@ void CGameStateRun::show_obj_by_phase() {
 			modeCount = 0;
 			modeLock = false;
 			ghostCatchTime = 0;
-			flag = 0;
+			preGhostCatchTime = 0;
 		}
 	}
 	//階段1(遊戲中)

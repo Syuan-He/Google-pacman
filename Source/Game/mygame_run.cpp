@@ -28,71 +28,30 @@ void CGameStateRun::OnBeginState()
 	Game_audio -> Play(AUDIO_BEGIN);
 }
 
-time_t choasTimeChange;
+
 void CGameStateRun::OnMove()							// 移動遊戲元素
 {
 	//階段2才能移動
 	if (phase == 1) {
-		if (flag != ghostCatchTime) {
+		if (preGhostCatchTime != ghostCatchTime) {
 			Sleep(1250);
-			flag = ghostCatchTime;
+			preGhostCatchTime = ghostCatchTime;
 		}
 		Pacman.move();
 
-		/*
-		//ghosts[1].inHomeAnim();
-		//ghosts[2].inHomeAnim();
-		
-		ghosts[0].outDoorAnim();
-		//*/
 		//模式改變前的方向改變
 		//*
-		if (modeLock && modeCount < 7 && (isScatterTime() || isChaseTime() || isChoasTime())) {
-			ghostTurnBack();
-			modeCount++;
-			modeLock = false;
-			if (modeCount == 4) {
-				scatterTime = 5;
-			}
-		}
-		else if (!modeLock && !(isScatterTime() || isChaseTime() || isChoasTime())) {
-			modeLock = true;
-		}
-		else if ((time(NULL) - choasTime) == choasTimeLong) {
-			ghostCatchTime = 0;
-			flag = 0;
-			Game_audio->Stop(AUDIO_POWERUP);
-			for (GameGhost &obj : ghosts) {
-				if (obj.isChoas != 2) {
-					obj.isChoas = false;
-					obj.choasFlash = false;
-					obj.setVelocity(6);
-				}
-			}
-		}
-		else if ((time(NULL) - choasTime) > choasTimeLong - 3) {
-			for (GameGhost &obj : ghosts) {
-				obj.choasFlash = true;
-			}
-		}
-		else if (choasTimeChange != time(NULL)) {
-			choasTimeChange = time(NULL);
-			modePlayTime++;
-		}
-
-		if (modeCount >= 7 || isChaseTime()) {
-			ghostChase();
-		}
-		else {
-			ghostScatter();
-		}
+		ghostMoveControl();
+		for (GameGhost &obj : ghosts) {
+			obj.gameMove(Pacman[0], Pacman[1], modeCount >= 7 || isChaseTime());
+		}//*/
 
 		if (Score.get_coin_nums() == 0) {
 			phase = 4;
 			Pacman.SetFrameIndexOfBitmap(0);
 			Map.Background.SetAnimation(300, false);
 			exc_time_begin = time(NULL);
-		}//*/
+		}
 	}
 }
 
@@ -154,6 +113,7 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/words/1600.bmp",
 		}, RGB(0, 0, 0));
 	ghosts[0].initialize();
+	ghosts[0].setEdgePoint(Map.map_len[1], 0);
 
 	//Pinky 初始化
 	ghosts[1].LoadBitmapByString({
@@ -179,6 +139,7 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/words/1600.bmp",
 		}, RGB(0, 0, 0));
 	ghosts[1].initialize();
+	ghosts[1].setEdgePoint(0, 0);
 
 	//Inky 初始化
 	ghosts[2].LoadBitmapByString({
@@ -204,6 +165,7 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/words/1600.bmp",
 		}, RGB(0, 0, 0));
 	ghosts[2].initialize();
+	ghosts[2].setEdgePoint(Map.map_len[1], Map.map_len[0]);
 
 	//Clyde 初始化
 	ghosts[3].LoadBitmapByString({
@@ -229,10 +191,16 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/words/1600.bmp",
 		}, RGB(0, 0, 0));
 	ghosts[3].initialize();
+	ghosts[3].setEdgePoint(0, Map.map_len[0]);
 
 	//鬼初始化
 	initialGhosts();
-
+	for (int i = 0; i < 4; i++) {
+		ghosts[i].setChaseMode(0);
+	}
+	ghosts[1].waitPoints = 0;
+	ghosts[2].waitPoints = 10;
+	ghosts[3].waitPoints = 35;
 	//P1初始化
 	P1_icon.LoadBitmapA("Resources/words/P1.bmp");
 	P1_icon.SetTopLeft(P1_icon.window_shift[0], P1_icon.window_shift[1]);
@@ -363,6 +331,12 @@ void CGameStateRun::OnShow()
 		Game_audio -> Resume();
 		//重置計數器
 		Pacman.reset_step_counter();
+		if (ghosts[2].stayHome) {
+			ghosts[2].getPointNum++;
+		}
+		if (ghosts[3].stayHome) {
+			ghosts[3].getPointNum++;
+		}
 	}
 	//再走為一步前不得取消音效
 	else if (Pacman.get_step_counter() >= Pacman.get_velocity()) {
@@ -373,7 +347,7 @@ void CGameStateRun::OnShow()
 	if (Score.get_power(Pacman)) {
 		Game_audio -> Play(AUDIO_POWERUP, true);
 		ghostCatchTime = 0;
-		flag = 0;
+		preGhostCatchTime = 0;
 		for (GameGhost &obj : ghosts) {
 			if (obj.isChoas != 2) {
 				obj.isChoas = true;

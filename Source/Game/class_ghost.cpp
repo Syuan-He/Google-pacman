@@ -67,7 +67,6 @@ void GameGhost::inHomeAnim() {
 		}
 	}
 }
-
 void GameGhost::outDoorAnim() {
 
 	if (!setDirLock && GetTop() < 16 * (initial_pos[1]) + window_shift[1] + 48) {
@@ -244,126 +243,147 @@ int GameGhost::astar(int x0, int y0, int x1, int y1) {
 }
 
 void GameGhost::move(int x1, int y1) {
-	if (inHome) {
-		outDoorAnim();
-	}
-	else {
-		//if pacman had took a step(one step = 16px)
-		if (total_step == velocity) {
-			//updte pacman's position on the map
-			update_position(dir_now);
+	//if pacman had took a step(one step = 16px)
+	if (total_step == velocity) {
+		//updte pacman's position on the map
+		update_position(dir_now);
 
-			//為避免圖片偏移，在ghost完整移動完才更新速度的設定
-			if (waitVelocity != velocity) {
-				velocity = waitVelocity;
-				update_moving_schedule();
-			}
+		//為避免圖片偏移，在ghost完整移動完才更新速度的設定
+		if (waitVelocity != velocity) {
+			velocity = waitVelocity;
+			update_moving_schedule();
+		}
 
-			//更新移動方向
-			if (setDirLock) {	//確保turnBack時 dir 與 dir_waitfor 不會被追蹤程式覆蓋掉
-				setDirLock = false;
-			}
-			else {
-				switch (isChoas) {
+		//更新移動方向
+		if (setDirLock) {	//確保turnBack時 dir 與 dir_waitfor 不會被追蹤程式覆蓋掉
+			setDirLock = false;
+		}
+		else {
+			switch (isChoas) {
 
-					//混亂狀態
-				case 1:
-					if (CanMove((dir_now + 1) % 4) || CanMove((dir_now + 3) % 4)) {
-						dir_waitfor = rand() % 4;
-					}
-					break;
+				//混亂狀態
+			case 1:
+				if (CanMove((dir_now + 1) % 4) || CanMove((dir_now + 3) % 4)) {
+					dir_waitfor = rand() % 4;
+				}
+				break;
 
-					//goHome
-				case 2:
-					if (position[0] == initial_pos[0] && position[1] == initial_pos[1]) {
-						inHome = true;
-					}
-					dir_waitfor = selectDir(dir_now, initial_pos[0], initial_pos[1]);
-					break;
+				//goHome
+			case 2:
+				if (position[0] == initial_pos[0] && position[1] == initial_pos[1]) {
+					inHome = true;
+				}
+				dir_waitfor = selectDir(dir_now, initial_pos[0], initial_pos[1]);
+				break;
 
-					//正常狀態
+				//正常狀態
+			case 0:
+				switch (chaseMode) {
 				case 0:
 					dir_waitfor = selectDir(dir_now, x1, y1);
 					break;
+				case 1:
+					dir_waitfor = astar(position[0], position[1], x1, y1);
+					break;
 				}
-			}
-
-			//if the position that pacman prefer is executable 
-			if (CanMove(dir_waitfor)) {
-				//change the diraction to the new one
-				dir_now = dir_waitfor;
-			}
-			//reset pacman's total step
-			total_step = 0;
-
-			pair<int, int> t = gameMap.portal_detect(position[0], position[1]);
-			if (t.first != -1) {
-				position[0] = t.first;
-				position[1] = t.second;
-				this->SetTopLeft(16 * (position[0] - 2) + window_shift[0], 16 * position[1] + window_shift[1]);
-			}
-		}
-		// 在鬼卡住？時讓鬼走反路
-		else if (!CanMove(dir_now) && total_step == 0 && (position[0] != x1 || position[1] != y1)) {
-			turnBack();
-		}
-		//pacman's animetion when it move
-		if (isChoas == 1) {
-			if (total_step % (velocity / 2) < velocity / 4) {
-				if (choasFlash && clock() % 300 > 150) {
-					this->SetFrameIndexOfBitmap(10);
-				}
-				else {
-					this->SetFrameIndexOfBitmap(8);
-				}
-			}
-			else {
-				if (choasFlash && clock() % 300 > 150) {
-					this->SetFrameIndexOfBitmap(11);
-				}
-				else {
-					this->SetFrameIndexOfBitmap(9);
-				}
-			}
-		}
-		else if (isChoas == 2) {
-			this->SetFrameIndexOfBitmap(12 + dir_now);
-		}
-		else {
-			if (total_step < velocity / 2) {
-				this->SetFrameIndexOfBitmap(dir_now * 2);
-			}
-			else {
-				this->SetFrameIndexOfBitmap(dir_now * 2 + 1);
+				break;
 			}
 		}
 
-		//if the diraction now is executable keep going
-		if (CanMove(dir_now)) {
-			switch (dir_now)
-			{
-			case 0:
-				this->SetTopLeft(this->GetLeft() + moving_schedule[total_step], this->GetTop());
-				break;
-			case 1:
-				this->SetTopLeft(this->GetLeft(), this->GetTop() - moving_schedule[total_step]);
-				break;
-			case 2:
-				this->SetTopLeft(this->GetLeft() - moving_schedule[total_step], this->GetTop());
-				break;
-			case 3:
-				this->SetTopLeft(this->GetLeft(), this->GetTop() + moving_schedule[total_step]);
-				break;
-			default:
-				break;
-			}
-			total_step++;
-		}
-		else if (CanMove(dir_waitfor)) {
+		//if the position that pacman prefer is executable 
+		if (CanMove(dir_waitfor)) {
+			//change the diraction to the new one
 			dir_now = dir_waitfor;
 		}
-		if (isChoas == 2 && position[0] == initial_pos[0] && position[1] == initial_pos[1]) {
-			inHome = true;
+		//reset pacman's total step
+		total_step = 0;
+
+		pair<int, int> t = gameMap.portal_detect(position[0], position[1]);
+		if (t.first != -1) {
+			position[0] = t.first;
+			position[1] = t.second;
+			this->SetTopLeft(16 * (position[0] - 2) + window_shift[0], 16 * position[1] + window_shift[1]);
+		}
+	}
+	// 在鬼卡住？時讓鬼走反路
+	else if (!CanMove(dir_now) && total_step == 0 && (position[0] != x1 || position[1] != y1)) {
+		turnBack();
+	}
+	//pacman's animetion when it move
+	if (isChoas == 1) {
+		if (total_step % (velocity / 2) < velocity / 4) {
+			if (choasFlash && clock() % 300 > 150) {
+				this->SetFrameIndexOfBitmap(10);
+			}
+			else {
+				this->SetFrameIndexOfBitmap(8);
+			}
+		}
+		else {
+			if (choasFlash && clock() % 300 > 150) {
+				this->SetFrameIndexOfBitmap(11);
+			}
+			else {
+				this->SetFrameIndexOfBitmap(9);
+			}
+		}
+	}
+	else if (isChoas == 2) {
+		this->SetFrameIndexOfBitmap(12 + dir_now);
+	}
+	else {
+		if (total_step < velocity / 2) {
+			this->SetFrameIndexOfBitmap(dir_now * 2);
+		}
+		else {
+			this->SetFrameIndexOfBitmap(dir_now * 2 + 1);
+		}
+	}
+
+	//if the diraction now is executable keep going
+	if (CanMove(dir_now)) {
+		switch (dir_now)
+		{
+		case 0:
+			this->SetTopLeft(this->GetLeft() + moving_schedule[total_step], this->GetTop());
+			break;
+		case 1:
+			this->SetTopLeft(this->GetLeft(), this->GetTop() - moving_schedule[total_step]);
+			break;
+		case 2:
+			this->SetTopLeft(this->GetLeft() - moving_schedule[total_step], this->GetTop());
+			break;
+		case 3:
+			this->SetTopLeft(this->GetLeft(), this->GetTop() + moving_schedule[total_step]);
+			break;
+		default:
+			break;
+		}
+		total_step++;
+	}
+	else if (CanMove(dir_waitfor)) {
+		dir_now = dir_waitfor;
+	}
+	if (isChoas == 2 && position[0] == initial_pos[0] && position[1] == initial_pos[1]) {
+		inHome = true;
+	}
+}
+void GameGhost::gameMove(int x1, int y1, bool chaseRule) {
+	if (stayHome) {
+		inHomeAnim();
+		if (getPointNum >= waitPoints) {
+			stayHome = false;
+		}
+	}
+	else if (inHome) {
+		outDoorAnim();
+	}
+	else {
+		if (chaseRule) {
+			move(x1, y1);
+		}
+		else {
+			move(edgePoint[0], edgePoint[1]);
 		}
 	}
 }
@@ -395,6 +415,17 @@ int GameGhost::selectDir(int dir, int x1, int y1) {
 	return dirNext;
 }
 
+void GameGhost::setChaseMode(int mode){
+	chaseMode = mode;
+}
+void GameGhost::setEdgePoint(int x, int y) {
+	edgePoint[0] = x;
+	edgePoint[1] = y;
+}
+int GameGhost::getInitPos(int n) {
+	return initial_pos[n];
+}
+
 bool CGameStateRun::isScatterTime() {
 	return (time(NULL) - modePlayTime) % (scatterTime + chaseTime) == 0;
 }
@@ -405,6 +436,41 @@ bool CGameStateRun::isChoasTime() {
 	return (time(NULL) - choasTime) < choasTimeLong;
 }
 
+void CGameStateRun::ghostMoveControl() {
+	if (modeLock && modeCount < 7 && (isScatterTime() || isChaseTime() || isChoasTime())) {
+		ghostTurnBack();
+		modeCount++;
+		modeLock = false;
+		if (modeCount == 4) {
+			scatterTime = 5;
+		}
+	}
+	else if (!modeLock && !(isScatterTime() || isChaseTime() || isChoasTime())) {
+		modeLock = true;
+	}
+	else if ((time(NULL) - choasTime) == choasTimeLong) {
+		ghostCatchTime = 0;
+		preGhostCatchTime = 0;
+		Game_audio->Stop(AUDIO_POWERUP);
+		for (GameGhost &obj : ghosts) {
+			if (obj.isChoas != 2) {
+				obj.isChoas = false;
+				obj.choasFlash = false;
+				obj.setVelocity(6);
+			}
+		}
+	}
+	else if ((time(NULL) - choasTime) > choasTimeLong - 3) {
+		for (GameGhost &obj : ghosts) {
+			obj.choasFlash = true;
+		}
+	}
+	else if (choasTimeChange != time(NULL)) {
+		choasTimeChange = time(NULL);
+		modePlayTime++;
+	}
+}
+//ghostChase已被取代，可刪除
 void CGameStateRun::ghostChase() {
 	ghosts[0].move(Pacman[0], Pacman[1]);
 	ghosts[1].move(Pacman[0] + 4 * nextPos[Pacman.getDirNow()][0], Pacman[1] + 4 * nextPos[Pacman.getDirNow()][1]);
@@ -426,6 +492,7 @@ void CGameStateRun::ghostChase() {
 		}
 	}
 }
+//ghostScatter已被取代，可刪除
 void CGameStateRun::ghostScatter() {
 	ghosts[0].move(58, 0);
 	ghosts[1].move(3, 0);
@@ -449,10 +516,6 @@ void CGameStateRun::ghostTurnBack() {
 	}
 }
 
-int GameGhost::getInitPos(int n) {
-	return initial_pos[n];
-}
-
 void CGameStateRun::initialGhosts() {
 	for (GameGhost &obj : ghosts) {
 		obj.initialize();
@@ -462,6 +525,11 @@ void CGameStateRun::initialGhosts() {
 	ghosts[1].inHome = true;
 	ghosts[2].inHome = true;
 	ghosts[3].inHome = true;
+
+	ghosts[0].stayHome = false;
+	ghosts[1].stayHome = false;
+	ghosts[2].stayHome = true;
+	ghosts[3].stayHome = true;
 	
 	ghosts[1].SetTopLeft(16 * (ghosts[1].getInitPos(0)) + ghosts[1].window_shift[0] - 22, 16 * (ghosts[1].getInitPos(1) + 3) + ghosts[1].window_shift[1]);
 	ghosts[2].SetTopLeft(16 * (ghosts[2].getInitPos(0)) + ghosts[2].window_shift[0] - 55, 16 * (ghosts[2].getInitPos(1) + 3) + ghosts[2].window_shift[1]);
