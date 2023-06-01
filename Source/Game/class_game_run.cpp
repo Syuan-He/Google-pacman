@@ -112,17 +112,35 @@ void CGameStateRun::show_obj_by_phase() {
 
 		//遊戲結束
 		if (time(NULL) - exc_time_begin > 5) {
-			change_level(++ level);
-			Score.initialize(Map);
-			Pacman.initialize();
-			Pacman.hearts_icon.set_nums(2, 1);
-			Pacman.heart_initialize();
-			initialGhosts();
-			Ready_icon.SetTopLeft(Ready_icon.window_shift[0], Ready_icon.window_shift[1]);
-			exc_time_begin = time(NULL);
-			phase = 0;
-			Game_audio->Play(AUDIO_BEGIN);
+			level ++;
+			if (level < end_level) {
+				change_level(level);
+				Score.initialize(Map);
+				Pacman.initialize();
+				Pacman.hearts_icon.set_nums(2, 1);
+				Pacman.heart_initialize();
+				initialGhosts();
+				Ready_icon.SetTopLeft(Ready_icon.window_shift[0], Ready_icon.window_shift[1]);
+				exc_time_begin = time(NULL);
+				phase = 0;
+				Game_audio->Play(AUDIO_BEGIN);
+			}
+			else {
+				phase = 5;
+			}
 		}
+	}
+	else if (phase == 5) {
+		change_level(level = 0);
+		Score.initialize(Map);
+		Pacman.initialize();
+		Pacman.hearts_icon.set_nums(2, 1);
+		Pacman.heart_initialize();
+		initialGhosts();
+		Ready_icon.SetTopLeft(Ready_icon.window_shift[0], Ready_icon.window_shift[1]);
+		exc_time_begin = time(NULL);
+		phase = 0;
+		GotoGameState(GAME_STATE_INIT);
 	}
 }
 

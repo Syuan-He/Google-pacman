@@ -60,8 +60,11 @@ void GameMap::map_loader(string str) {
 
 		//若需要則載入傳送門
 		if (display == 1) {
-			add_portal_icon(16 * lineNumbers[0] + Background.window_shift[0] - 16, 16 * lineNumbers[1] + Background.window_shift[1] -7);
-			add_portal_icon(16 * lineNumbers[2] + Background.window_shift[0] - 16, 16 * lineNumbers[3] + Background.window_shift[1] -7);
+			int x, y;
+			iss >> x;
+			iss >> y;
+			add_portal_icon(16 * lineNumbers[0] + x, 16 * lineNumbers[1] + y);
+			add_portal_icon(16 * lineNumbers[2] + x, 16 * lineNumbers[3] + y);
 		}
 
 	}
