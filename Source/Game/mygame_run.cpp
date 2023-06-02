@@ -70,13 +70,12 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 		//*
 		ghostMoveControl();
 		if (Boss.get_is_using()) {
-			Boss.move(Pacman[0], Pacman[1], 1);
+			//Boss.move(Pacman[0], Pacman[1]);
 		}
 
 		for (GameGhost &obj : ghosts) {
 			ghostMove(&obj, modeCount >= 7 || isChaseTime());
 		}//*/
-
 
 		if (Score.get_coin_nums() == 0) {
 			phase = 4;
@@ -245,7 +244,6 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		ghosts[i].setChaseMode(0);
 		ghosts[i].ghostID = i;
 	}
-	Boss.setChaseMode(1);
 	//P1初始化
 	P1_icon.LoadBitmapA("Resources/words/P1.bmp");
 	P1_icon.SetTopLeft(P1_icon.window_shift[0], P1_icon.window_shift[1]);

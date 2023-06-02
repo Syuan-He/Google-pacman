@@ -104,7 +104,7 @@ bool GameScore::get_power(GamePacman obj) {
 	for (auto it = power_pellets.begin(); it != power_pellets.end(); it ++) {
 		if (obj.IsOverlap(obj, *it)) {
 			it = power_pellets.erase(it);
-			score += 50;
+			score += 10;
 			return true;
 		}
 	}
@@ -212,7 +212,7 @@ void GameScore::initialize(GameMap Map) {
 			else if (Map[i][j] == 3) {
 				unique_ptr<CMovingBitmap> t(new CMovingBitmap);
 				t->LoadBitmapA("Resources/words/dot.bmp");
-				t->SetTopLeft(16 * (j - 2) + window_shift[0], 16 * i + window_shift[1]);
+				t->SetTopLeft(16 * (j - 2) + 4 + window_shift[0], 16 * i + 4 + window_shift[1]);
 				add_power_pellets(*t);
 			}
 		}

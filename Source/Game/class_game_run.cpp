@@ -87,7 +87,6 @@ void CGameStateRun::show_obj_by_phase() {
 			//重新初始化
 			Pacman.initialize();
 			initialGhosts();
-			Boss.initialize();
 		}
 	}
 	//階段3(生命歸零)
@@ -99,6 +98,8 @@ void CGameStateRun::show_obj_by_phase() {
 	}
 	//階段4(吃完豆子)
 	else if (phase == 4) {
+		score_his.push_back(Score.get_score());
+
 		if (Score.get_coin_nums() == 0) {
 			//停止所有音效
 			Game_audio->Stop(AUDIO_MOVE);
@@ -111,7 +112,6 @@ void CGameStateRun::show_obj_by_phase() {
 
 		//遊戲結束
 		if (time(NULL) - exc_time_begin > 5) {
-			score_his.push_back(Score.get_score());
 			level ++;
 			if (level < end_level) {
 				change_level(level);
@@ -120,7 +120,6 @@ void CGameStateRun::show_obj_by_phase() {
 				Pacman.hearts_icon.set_nums(2, 1);
 				Pacman.heart_initialize();
 				initialGhosts();
-				Boss.initialize();
 				Ready_icon.SetTopLeft(Ready_icon.window_shift[0], Ready_icon.window_shift[1]);
 				exc_time_begin = time(NULL);
 				phase = 0;
@@ -158,7 +157,7 @@ void CGameStateRun::show_obj_by_phase() {
 		CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
 		CTextDraw::Print(pDC, 200, 180, strLine);
 		CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
-		CTextDraw::Print(pDC, 100, 220, strScore);
+		CTextDraw::Print(pDC, 200, 220, strScore);
 
 		if (time(NULL) - exc_time_begin > score_his.size() * 2) {
 			CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
@@ -166,7 +165,7 @@ void CGameStateRun::show_obj_by_phase() {
 		}
 		if (time(NULL) - exc_time_begin > score_his.size() * 2 + 1) {
 			CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
-			CTextDraw::Print(pDC, 112, 350, "Total: " + to_string(Total));
+			CTextDraw::Print(pDC, 200, 350, "Total: " + to_string(Total));
 		}
 
 
@@ -246,8 +245,11 @@ void CGameStateRun::change_level(int level) {
 	for (GameGhost &obj : ghosts) {
 		obj.set_game_map(Map);
 	}
+<<<<<<< HEAD
 	Boss.set_game_map(Map);
 	Score.set_game_map(Map);
+=======
+>>>>>>> parent of f27f236 (6/2)
 
 	ifstream infile(str + "/charater_pos.txt");  // 打開文件
 	map<string, pair<int, int>> map_t;  // 定義一個 map
@@ -269,9 +271,9 @@ void CGameStateRun::change_level(int level) {
 	Boss.set_is_using(false);
 	if (map_t.count("A_Boss") != 0) {
 		Boss.set_inital(map_t["A_Boss"].first, map_t["A_Boss"].second, map_t["W_Character"].first, map_t["W_Character"].second, 0);
-		Boss.window_shift.set_value(map_t["W_Boss"].first, map_t["W_Boss"].second);
 		Boss.set_is_using(true);
 	}
+
 	Pacman.hearts_icon.window_shift.set_value(map_t["W_Hearts"].first, map_t["W_Hearts"].second);
 	Map.Background.window_shift.set_value(map_t["W_Background"].first, map_t["W_Background"].second);
 	Ready_icon.window_shift.set_value(map_t["W_Ready"].first, map_t["W_Ready"].second);

@@ -71,13 +71,10 @@ private:
 	int selectDir(int dir, int x1, int y1);
 	int astar(int x0, int y0, int x1, int y1);
 	bool isVaildNode(int x, int y, int xx, int yy);
-
-	time_t enter_portal_t = time(NULL);
 public:
 	void initialize();
 	void setChaseMode(int mode);	// 0: 原本的追蹤; 1: Astar
 	void setEdgePoint(int x, int y);
-	void set_enter_portal_t();
 	
 	int ghostID = 0;
 	int edgePoint[2] = { 0, 0 };
@@ -91,11 +88,10 @@ public:
 	void inHomeAnim();
 	void outDoorAnim();
 	bool outDoorRule(time_t eatPointTime);
-	void move(int x1, int y1, int portal_mode = 0);
+	void move(int x1, int y1);
 	void turnBack();
 
 	int getInitPos(int n);
-	time_t get_enter_portal_t();
 };
 
 class GameBoss : public GameGhost {
