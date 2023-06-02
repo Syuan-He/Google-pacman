@@ -245,9 +245,7 @@ void CGameStateRun::change_level(int level) {
 	for (GameGhost &obj : ghosts) {
 		obj.set_game_map(Map);
 	}
-
 	Boss.set_game_map(Map);
-	Score.set_game_map(Map);
 
 	ifstream infile(str + "/charater_pos.txt");  // 打開文件
 	map<string, pair<int, int>> map_t;  // 定義一個 map
