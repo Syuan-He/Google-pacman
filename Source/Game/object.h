@@ -92,7 +92,7 @@ class GameAuto {
 private: 
 	double rate = 0.8;
 	double lr = 0.01;
-	int greedy = 80;
+	int greedy = 70;
 	string Qtable_dir;
 
 	//16: 2(ghost_dis)*4(ghost_dir)*(ghost_state), 4: 4(coin_dir), 4: 4(power_dir), 4: 2(IsWall?)^4(wall_dir), 4: 4(dir_waitfor), 4: 4(last diraction)

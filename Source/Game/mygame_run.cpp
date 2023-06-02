@@ -28,7 +28,7 @@ void CGameStateRun::OnBeginState()
 	//Game_audio -> Play(AUDIO_BEGIN);
 	
 	Auto.game_set();
-	//Auto.create_file("Resources/auto/", "Qtable.txt");
+	Auto.create_file("Resources/auto/", "Qtable.txt");
 	total_coin_nums = Score.get_coin_nums();
 }
 
@@ -42,7 +42,7 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 			flag = ghostCatchTime;
 		}
 
-		if (Pacman.get_total_step() == Pacman.get_velocity()) {
+		if (Pacman.get_total_step() == Pacman.get_velocity() || Pacman.get_stack()) {
 			Pacman.update_position(Pacman.getDirNow());
 
 			if (using_auto) {
@@ -75,6 +75,9 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 					int xx = Pacman.getDirNow();
 					if (dir == (Pacman.getDirNow() + 2) % 4) {
 						Reward += R_turn_back;
+					}
+					if (t.second && dir == t.first.second) {
+						Reward += R_pg_same_dir;
 					}
 
 					int* p_ = expect_next_step(dir);
@@ -192,6 +195,7 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/words/NULL.bmp",
 		}, RGB(0, 0, 0));
 	Pacman.initialize();
+	Pacman.set_dir(3);
 
 	//Blinky 初始化
 	ghosts[0].LoadBitmapByString({
@@ -399,7 +403,7 @@ void CGameStateRun::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		case 0x50:
 			Auto.store_matrix("Resources/auto/Qtable.txt");
 			break;
-		//按L 以輸出Q表
+		//按L 以載入Q表
 		case 0x4C:
 			Auto.load_matrix("Resources/auto/Qtable.txt");
 			break;

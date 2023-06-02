@@ -31,6 +31,7 @@ public:
 	bool CanMove(int dir);
 
 	void set_dir_waitfor(int dir);
+	void set_dir(int dir);
 	void setPos(int x, int y);
 	void setVelocity(int v);
 	void set_game_map(const GameMap& map_t);
@@ -46,6 +47,7 @@ public:
 class GamePacman : public Character {
 private:
 	int step_counter = 0;
+	bool stack = false;
 public:
 	//GamePacman() {};
 	//~GamePacman() {};
@@ -61,6 +63,7 @@ public:
 	void show_heart_icon(int size);
 	int getDirNow();
 	int get_total_step();
+	bool get_stack();
 };
 
 //鬼

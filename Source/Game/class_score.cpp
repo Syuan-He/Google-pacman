@@ -158,11 +158,9 @@ int GameScore::get_coin_dir(int x, int y, int xx, int yy) {
 	}
 
 	if (best_dir == -1) {
-		for (int i = 0; i < 4; i++) {
-			if (w[i]) {
-				best_dir = i;
-			}
-		}
+		do {
+			best_dir = rand() % 4;
+		} while (w[best_dir]);
 	}
 
 	delete[] w;

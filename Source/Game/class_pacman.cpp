@@ -55,6 +55,7 @@ void GamePacman::move() {
 
 	//移動
 	if (CanMove(dir_now)) {
+		stack = false;
 		switch (dir_now)
 		{
 		case 0:
@@ -76,6 +77,9 @@ void GamePacman::move() {
 	}
 	else if (CanMove(dir_waitfor)) {
 		dir_now = dir_waitfor;
+	}
+	else {
+		stack = true;
 	}
 }
 
@@ -111,4 +115,8 @@ int GamePacman::getDirNow() {
 
 int GamePacman::get_total_step() {
 	return total_step;
+}
+
+bool GamePacman::get_stack() {
+	return stack;
 }

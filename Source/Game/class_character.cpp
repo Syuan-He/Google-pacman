@@ -77,6 +77,10 @@ void Character::set_dir_waitfor(int dir) {
 	dir_waitfor = dir;
 }
 
+void Character::set_dir(int dir) {
+	dir_now = dir;
+}
+
 //設定角色在視窗中的位置
 void Character::setPos(int x, int y) {
 	position[0] = x;

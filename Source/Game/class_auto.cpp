@@ -19,6 +19,7 @@ bool GameAuto::game_set() {
 						if ((i_w & 2) == 2) Q_table[i_g][i_c][i_p][i_w][i_d][1] = -999;
 						if ((i_w & 4) == 4) Q_table[i_g][i_c][i_p][i_w][i_d][2] = -999;
 						if ((i_w & 8) == 8) Q_table[i_g][i_c][i_p][i_w][i_d][3] = -999;
+						//if (i_g > 7) Q_table[i_g][i_c][i_p][i_w][i_d][int((i_g - 8) / 2)] = 10;
 					}
 				}
 			}
@@ -53,7 +54,7 @@ int GameAuto::choose_dir(int g, int c, int p, int w, int d) {
 	else {
 		double maxx = -10000;
 		for (int i = 0; i < 4; i++) {
-			if (maxx < Q_table[g][c][p][w][d][i]) {
+			if (maxx <= Q_table[g][c][p][w][d][i]) {
 				maxx = Q_table[g][c][p][w][d][i];
 				op = i;
 			}
@@ -129,7 +130,7 @@ void GameAuto::store_matrix(string dir) {
 void GameAuto::load_matrix(string dir) {
 	ifstream inputFile(dir);
 	if (inputFile.is_open()) {
-		int number;
+		double number;
 		for (int i_0 = 0; i_0 < 16; i_0++) {
 			for (int i_1 = 0; i_1 < 4; i_1++) {
 				for (int i_2 = 0; i_2 < 4; i_2++) {
