@@ -67,7 +67,6 @@ class GameGhost : public Character {
 private:
 	bool setDirLock;				//防止turnBack()無法生效
 	int chaseMode = 0;
-	int edgePoint[2] = { 0, 0 };
 	
 	int selectDir(int dir, int x1, int y1);
 	int astar(int x0, int y0, int x1, int y1);
@@ -77,6 +76,8 @@ public:
 	void setChaseMode(int mode);	// 0: 原本的追蹤; 1: Astar
 	void setEdgePoint(int x, int y);
 	
+	int ghostID = 0;
+	int edgePoint[2] = { 0, 0 };
 	int isChoas = 0;				// isChoas 0: 狀態無; 1: 混亂; 2: 回家 3: 在家裡
 	bool choasFlash = false;		// 設定 Choas 快結束時的閃爍
 	bool inHome = true;
@@ -86,9 +87,9 @@ public:
 
 	void inHomeAnim();
 	void outDoorAnim();
+	bool outDoorRule(time_t eatPointTime);
 	void move(int x1, int y1);
 	void turnBack();
-	void gameMove(int x1, int y1, bool chaseRule);
 
 	int getInitPos(int n);
 };

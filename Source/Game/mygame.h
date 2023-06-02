@@ -130,17 +130,17 @@ namespace game_framework {
 
 		void ghostMoveControl();
 		time_t modePlayTime;
+		time_t eatPointTime;
 		int scatterTime = 7;
 		int chaseTime = 20;
-		int ghostCatchTime = 0;
-		int preGhostCatchTime = 0;
+		int ghostCatchCount = 0;
+		int preGhostCatchCount = 0;
 		int modeCount;
 		bool modeLock;
 		bool isScatterTime();
 		bool isChaseTime();
 		bool isChoasTime();
-		void ghostChase();
-		void ghostScatter();
+		void ghostMove(GameGhost *obj, bool rule);
 		void ghostTurnBack();
 		void initialGhosts();
 

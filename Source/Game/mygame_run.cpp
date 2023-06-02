@@ -33,9 +33,9 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 {
 	//階段2才能移動
 	if (phase == 1) {
-		if (preGhostCatchTime != ghostCatchTime) {
+		if (preGhostCatchCount != ghostCatchCount) {
 			Sleep(1250);
-			preGhostCatchTime = ghostCatchTime;
+			preGhostCatchCount = ghostCatchCount;
 		}
 		Pacman.move();
 
@@ -47,7 +47,7 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 		}
 
 		for (GameGhost &obj : ghosts) {
-			obj.gameMove(Pacman[0], Pacman[1], modeCount >= 7 || isChaseTime());
+			ghostMove(&obj, modeCount >= 7 || isChaseTime());
 		}//*/
 
 		if (Score.get_coin_nums() == 0) {
@@ -213,10 +213,8 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 	initialGhosts();
 	for (int i = 0; i < 4; i++) {
 		ghosts[i].setChaseMode(0);
+		ghosts[i].ghostID = i;
 	}
-	ghosts[1].waitPoints = 0;
-	ghosts[2].waitPoints = 10;
-	ghosts[3].waitPoints = 35;
 	//P1初始化
 	P1_icon.LoadBitmapA("Resources/words/P1.bmp");
 	P1_icon.SetTopLeft(P1_icon.window_shift[0], P1_icon.window_shift[1]);
@@ -353,10 +351,12 @@ void CGameStateRun::OnShow()
 		Game_audio -> Resume();
 		//重置計數器
 		Pacman.reset_step_counter();
+
+		eatPointTime = time(NULL);
 		if (ghosts[2].stayHome) {
 			ghosts[2].getPointNum++;
 		}
-		if (ghosts[3].stayHome) {
+		else if (ghosts[3].stayHome) {
 			ghosts[3].getPointNum++;
 		}
 	}
@@ -368,8 +368,8 @@ void CGameStateRun::OnShow()
 	//偵測是否吃到大力丸、鬼進入混亂模式
 	if (Score.get_power(Pacman)) {
 		Game_audio -> Play(AUDIO_POWERUP, true);
-		ghostCatchTime = 0;
-		preGhostCatchTime = 0;
+		ghostCatchCount = 0;
+		preGhostCatchCount = 0;
 		for (GameGhost &obj : ghosts) {
 			if (obj.isChoas != 2) {
 				obj.isChoas = true;
