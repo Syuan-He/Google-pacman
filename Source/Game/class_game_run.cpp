@@ -40,8 +40,8 @@ void CGameStateRun::show_obj_by_phase() {
 			modePlayTime = time(NULL);
 			modeCount = 0;
 			modeLock = false;
-			ghostCatchTime = 0;
-			preGhostCatchTime = 0;
+			ghostCatchCount = 0;
+			preGhostCatchCount = 0;
 		}
 	}
 	//階段1(遊戲中)
@@ -168,16 +168,16 @@ void CGameStateRun::pacman_get_catch(int mode) {
 		}
 		else if (get_catch && obj.isChoas == 1) {
 			Game_audio->Play(AUDIO_EAT_GHOST);
-			obj.SetFrameIndexOfBitmap(16 + ghostCatchTime);
+			obj.SetFrameIndexOfBitmap(16 + ghostCatchCount);
 
 			obj.isChoas = 2;
 			obj.choasFlash = false;
 			obj.setVelocity(2);
 			obj.update_moving_schedule();	
-			Score.get_ghost(Pacman, obj, ghostCatchTime);
-			ghostCatchTime++;
-			if (ghostCatchTime > 3) {
-				ghostCatchTime = 0;
+			Score.get_ghost(Pacman, obj, ghostCatchCount);
+			ghostCatchCount++;
+			if (ghostCatchCount > 3) {
+				ghostCatchCount = 0;
 			}
 		}
 	}

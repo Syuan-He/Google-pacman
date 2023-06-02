@@ -150,6 +150,9 @@ void GameGhost::outDoorAnim() {
 		}
 	}
 }
+bool GameGhost::outDoorRule(time_t eatPointTime) {
+	return getPointNum == waitPoints || eatPointTime + 4*(ghostID-1) == time(NULL);
+}
 
 //節點
 typedef struct NODE {
@@ -241,8 +244,29 @@ int GameGhost::astar(int x0, int y0, int x1, int y1) {
 
 	return -1;
 }
+int GameGhost::selectDir(int dir, int x1, int y1) {
+	float dist = 0, nextDist;
+	int dirNext;
+	dist = pythagorean(position[0] + nextPos[(dir + 3) % 4][0], position[1] + nextPos[(dir + 3) % 4][1], x1, y1);
+	dirNext = (dir + 3) % 4;
+	for (int i = 4; i < 6; i++) {
+		nextDist = pythagorean(position[0] + nextPos[(dir + i) % 4][0], position[1] + nextPos[(dir + i) % 4][1], x1, y1);
+		if (nextDist > dist) {
+			dirNext = (dir + i) % 4;
+			dist = nextDist;
+		}
+	}
+	for (int i = 3; i < 6; i++) {
+		nextDist = pythagorean(position[0] + nextPos[(dir + i) % 4][0], position[1] + nextPos[(dir + i) % 4][1], x1, y1);
+		if (CanMove((dir + i) % 4) && nextDist < dist) {
+			dirNext = (dir + i) % 4;
+			dist = nextDist;
+		}
+	}
+	return dirNext;
+}
 
-void GameGhost::move(int x1, int y1) {
+void GameGhost::move(int x1, int y1) {	
 	//if pacman had took a step(one step = 16px)
 	if (total_step == velocity) {
 		//updte pacman's position on the map
@@ -368,51 +392,9 @@ void GameGhost::move(int x1, int y1) {
 		inHome = true;
 	}
 }
-void GameGhost::gameMove(int x1, int y1, bool chaseRule) {
-	if (stayHome) {
-		inHomeAnim();
-		if (getPointNum >= waitPoints) {
-			stayHome = false;
-		}
-	}
-	else if (inHome) {
-		outDoorAnim();
-	}
-	else {
-		if (chaseRule) {
-			move(x1, y1);
-		}
-		else {
-			move(edgePoint[0], edgePoint[1]);
-		}
-	}
-}
-
 void GameGhost::turnBack() {
 	dir_waitfor = (dir_now + 2) % 4;
 	setDirLock = true;
-}
-
-int GameGhost::selectDir(int dir, int x1, int y1) {
-	float dist = 0, nextDist;
-	int dirNext;
-	dist = pythagorean(position[0] + nextPos[(dir + 3) % 4][0], position[1] + nextPos[(dir + 3) % 4][1], x1, y1);
-	dirNext = (dir + 3) % 4;
-	for (int i = 4; i < 6; i++) {
-		nextDist = pythagorean(position[0] + nextPos[(dir + i) % 4][0], position[1] + nextPos[(dir + i) % 4][1], x1, y1);
-		if (nextDist > dist) {
-			dirNext = (dir + i) % 4;
-			dist = nextDist;
-		}
-	}
-	for (int i = 3; i < 6; i++) {
-		nextDist = pythagorean(position[0] + nextPos[(dir + i) % 4][0], position[1] + nextPos[(dir + i) % 4][1], x1, y1);
-		if (CanMove((dir + i) % 4) && nextDist < dist) {
-			dirNext = (dir + i) % 4;
-			dist = nextDist;
-		}
-	}
-	return dirNext;
 }
 
 void GameGhost::setChaseMode(int mode){
@@ -449,8 +431,8 @@ void CGameStateRun::ghostMoveControl() {
 		modeLock = true;
 	}
 	else if ((time(NULL) - choasTime) == choasTimeLong) {
-		ghostCatchTime = 0;
-		preGhostCatchTime = 0;
+		ghostCatchCount = 0;
+		preGhostCatchCount = 0;
 		Game_audio->Stop(AUDIO_POWERUP);
 		for (GameGhost &obj : ghosts) {
 			if (obj.isChoas != 2) {
@@ -470,43 +452,42 @@ void CGameStateRun::ghostMoveControl() {
 		modePlayTime++;
 	}
 }
-//ghostChase已被取代，可刪除
-void CGameStateRun::ghostChase() {
-	ghosts[0].move(Pacman[0], Pacman[1]);
-	ghosts[1].move(Pacman[0] + 4 * nextPos[Pacman.getDirNow()][0], Pacman[1] + 4 * nextPos[Pacman.getDirNow()][1]);
-	if (time(NULL) - modePlayTime < 4) {
-		ghosts[2].inHomeAnim();
+void CGameStateRun::ghostMove(GameGhost *obj, bool chaseRule) {
+	if (obj->stayHome) {
+		obj->inHomeAnim();
+		if (obj->outDoorRule(eatPointTime)) {
+			obj->stayHome = false;
+			obj->getPointNum = 0;
+		}
+	}
+	else if (obj->inHome) {
+		obj->outDoorAnim();
 	}
 	else {
-		ghosts[2].move(2 * Pacman[0] + 4 * nextPos[Pacman.getDirNow()][0] - ghosts[0][0], 2 * ghosts[0][1] + 4 * nextPos[Pacman.getDirNow()][1] - ghosts[0][1]);
-	}
-	if (time(NULL) - modePlayTime < 7) {
-		ghosts[3].inHomeAnim();
-	}
-	else {
-		if (pythagorean(ghosts[3][0], ghosts[3][1], Pacman[0], Pacman[1]) > 8.0) {
-			ghosts[3].move(Pacman[0], Pacman[1]);
+		if (chaseRule) {
+			switch (obj->ghostID) {
+			case 1:
+				obj->move(Pacman[0] + 4 * nextPos[Pacman.getDirNow()][0], Pacman[1] + 4 * nextPos[Pacman.getDirNow()][1]);
+				break;
+			case 2:
+				obj->move(2 * Pacman[0] + 4 * nextPos[Pacman.getDirNow()][0] - ghosts[0][0], 2 * ghosts[0][1] + 4 * nextPos[Pacman.getDirNow()][1] - ghosts[0][1]);
+				break;
+			case 3:
+				if (pythagorean((*obj)[0], (*obj)[1], Pacman[0], Pacman[1]) > 8.0) {
+					obj->move(Pacman[0], Pacman[1]);
+				}
+				else {
+					obj->move(obj->edgePoint[0], obj->edgePoint[1]);
+				}
+				break;
+			default:
+				obj->move(Pacman[0], Pacman[1]);
+				break;
+			}
 		}
 		else {
-			ghosts[3].move(3, 16);
+			obj->move(obj->edgePoint[0], obj->edgePoint[1]);
 		}
-	}
-}
-//ghostScatter已被取代，可刪除
-void CGameStateRun::ghostScatter() {
-	ghosts[0].move(58, 0);
-	ghosts[1].move(3, 0);
-	if (time(NULL) - modePlayTime < 4) {
-		ghosts[2].inHomeAnim();
-	}
-	else {
-		ghosts[2].move(58, 16);
-	}
-	if (time(NULL) - modePlayTime < 7) {
-		ghosts[3].inHomeAnim();
-	}
-	else {
-		ghosts[3].move(3, 16);
 	}
 }
 void CGameStateRun::ghostTurnBack() {
@@ -530,6 +511,10 @@ void CGameStateRun::initialGhosts() {
 	ghosts[1].stayHome = false;
 	ghosts[2].stayHome = true;
 	ghosts[3].stayHome = true;
+
+	ghosts[1].waitPoints = 0;
+	ghosts[2].waitPoints = 7;
+	ghosts[3].waitPoints = 15;
 	
 	ghosts[1].SetTopLeft(16 * (ghosts[1].getInitPos(0)) + ghosts[1].window_shift[0] - 22, 16 * (ghosts[1].getInitPos(1) + 3) + ghosts[1].window_shift[1]);
 	ghosts[2].SetTopLeft(16 * (ghosts[2].getInitPos(0)) + ghosts[2].window_shift[0] - 55, 16 * (ghosts[2].getInitPos(1) + 3) + ghosts[2].window_shift[1]);
