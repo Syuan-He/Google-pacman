@@ -246,8 +246,11 @@ void CGameStateRun::change_level(int level) {
 		obj.set_game_map(Map);
 	}
 <<<<<<< HEAD
+<<<<<<< HEAD
 	Boss.set_game_map(Map);
 	Score.set_game_map(Map);
+=======
+>>>>>>> parent of f27f236 (6/2)
 =======
 >>>>>>> parent of f27f236 (6/2)
 
