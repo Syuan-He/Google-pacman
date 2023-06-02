@@ -81,6 +81,8 @@ namespace game_framework {
 		UIObject Setting_background;
 		GameMenu Menu_setting;
 		UIObject Loading_icon;
+		GameMenu Menu_how_to_play;
+		UIObject how_to_play_background;
 
 		time_t loading_time_begin;
 		int menu_now = 0;

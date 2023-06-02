@@ -266,7 +266,7 @@ int GameGhost::selectDir(int dir, int x1, int y1) {
 	return dirNext;
 }
 
-void GameGhost::move(int x1, int y1) {	
+void GameGhost::move(int x1, int y1, int portal_mode) {	
 	//if pacman had took a step(one step = 16px)
 	if (total_step == velocity) {
 		//updte pacman's position on the map
@@ -323,7 +323,8 @@ void GameGhost::move(int x1, int y1) {
 		total_step = 0;
 
 		pair<int, int> t = gameMap.portal_detect(position[0], position[1]);
-		if (t.first != -1) {
+		if (t.first != -1 && (portal_mode == 0? true: time(NULL) - enter_portal_t > 1)) {
+			enter_portal_t = time(NULL);
 			position[0] = t.first;
 			position[1] = t.second;
 			this->SetTopLeft(16 * (position[0] - 2) + window_shift[0], 16 * position[1] + window_shift[1]);
@@ -404,8 +405,17 @@ void GameGhost::setEdgePoint(int x, int y) {
 	edgePoint[0] = x;
 	edgePoint[1] = y;
 }
+
+void GameGhost::set_enter_portal_t() {
+	enter_portal_t = time(NULL);
+}
+
 int GameGhost::getInitPos(int n) {
 	return initial_pos[n];
+}
+
+time_t GameGhost::get_enter_portal_t() {
+	return enter_portal_t;
 }
 
 bool CGameStateRun::isScatterTime() {
