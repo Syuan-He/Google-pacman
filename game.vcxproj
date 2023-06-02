@@ -243,6 +243,7 @@
     <ClCompile Include="Source\Core\StdAfx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Source\Game\class_auto.cpp" />
     <ClCompile Include="Source\Game\class_character.cpp" />
     <ClCompile Include="Source\Game\class_game_initialize.cpp" />
     <ClCompile Include="Source\Game\class_game_map.cpp" />

@@ -247,6 +247,7 @@ void CGameStateRun::change_level(int level) {
 		obj.set_game_map(Map);
 	}
 	Boss.set_game_map(Map);
+	Score.set_game_map(Map);
 
 	ifstream infile(str + "/charater_pos.txt");  // 打開文件
 	map<string, pair<int, int>> map_t;  // 定義一個 map
@@ -284,7 +285,7 @@ void CGameStateRun::change_level(int level) {
 void CGameStateRun::debugText() {
 	CDC *pDC = CDDraw::GetBackCDC();
 
-	string strPacPos = "", strPacPoi = "", strCatchTime = "", strInkyChoas = "", strInvincible = "Invincible: ";
+	string strPacPos = "", strPacPoi = "", strCatchTime = "", strInkyChoas = "", strInvincible = "Invincible: ", strQtable = "Auto:";
 
 	//地圖陣列位置
 	strPacPos += to_string(Pacman[0]) + ", " + to_string(Pacman[1]);	//position in array
@@ -296,6 +297,8 @@ void CGameStateRun::debugText() {
 	strInkyChoas += to_string(Inky.isChoas);
 
 	strInvincible += invincible ? "True" : "False";
+
+	strQtable += to_string(using_auto);
 
 	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
 	CTextDraw::Print(pDC, 25, 430, strPacPos);
@@ -312,5 +315,51 @@ void CGameStateRun::debugText() {
 	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
 	CTextDraw::Print(pDC, 325, 430, strInvincible);
 
+	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
+	CTextDraw::Print(pDC, 325, 460, strQtable);
+
 	CDDraw::ReleaseBackCDC();
+}
+
+//auto
+pair<pair<int, int>, int> CGameStateRun::min_dis_pacman_ghost(int x_p, int y_p) {
+	int min_dis = INT_FAST16_MAX;
+	int is_choas = 0;
+	int dir;
+
+	for (GameGhost t : ghosts) {
+		int x_g = t[0];
+		int y_g = t[1];
+
+		double dis = pow((x_g - x_p), 2) + pow((y_g - y_p), 2);
+		if (min_dis > int(pow(dis, 0.5))) {
+			min_dis = int(pow(dis, 0.5));
+			is_choas = t.isChoas == 1 ? 1 : 0;
+			if (abs(x_p - x_g) > abs(y_p - y_g)) {
+				dir = x_p > x_g ? 2 : 0;
+			}
+			else {
+				dir = y_p > y_g ? 1 : 3;
+			}
+		}
+	}
+	return pair<pair<int, int>, int>(pair<int, int>(min_dis, dir), is_choas);
+}
+
+int CGameStateRun::near_coin_dir(int x, int y) {
+	return Score.get_coin_dir(16 * x + Pacman.window_shift[0] + 6, 16 * y + Pacman.window_shift[1] + 4, x, y);
+}
+
+int CGameStateRun::near_power_dir(int x, int y) {
+	return Score.get_power_dir(16 * x + Pacman.window_shift[0] + 6, 16 * y + Pacman.window_shift[1] + 4);
+}
+
+pair<pair<int, int>, pair<int, int>> CGameStateRun::near_wall(int x, int y) {
+	pair<pair<int, int>, pair<int, int>> t;
+	t.first.first = (Map[y][x + 1] == 1 ? 1:0);
+	t.second.first = (Map[y - 1][x] == 1 ? 1:0);
+	t.first.second = (Map[y][x - 1] == 1 ? 1 : 0);
+	t.second.second = (Map[y + 1][x] == 1 ? 1 : 0);
+
+	return t;
 }

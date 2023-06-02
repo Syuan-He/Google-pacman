@@ -37,6 +37,33 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 			Sleep(1250);
 			preGhostCatchCount = ghostCatchCount;
 		}
+
+		if (using_auto) {
+			pair<pair<int, int>, int> t = min_dis_pacman_ghost(Pacman[0], Pacman[1]);
+			int g = t.first.second * 2;
+			g += t.second * 8;
+			if (t.first.first < 4) g += 0;
+			else g += 1;
+			int c = near_coin_dir(Pacman[0], Pacman[1]);
+			int p = near_power_dir(Pacman[0], Pacman[1]);
+			pair<pair<int, int>, pair<int, int>> d = near_wall(Pacman[0], Pacman[1]);
+			int w = d.first.first * 1 + d.first.second * 4 + d.second.first * 2 + d.second.second * 8;
+			int dir;
+			int x_p;
+			int y_p;
+			do {
+				x_p = Pacman[0];
+				y_p = Pacman[1];
+				dir = Auto.choose_dir(g, c, p, w, Pacman.getDirNow());
+				if (dir == 0) x_p++;
+				if (dir == 1) y_p--;
+				if (dir == 2) x_p--;
+				if (dir == 3) y_p++;
+			} while (Map[y_p][x_p] == 1);
+
+			Pacman.set_dir_waitfor(dir);
+		}
+
 		Pacman.move();
 
 		//模式改變前的方向改變
@@ -64,6 +91,8 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 {
 	//更換關卡
 	change_level(level);
+
+	Auto.load_matrix("Resources/auto/Qtable.txt");
 	
 	//分數初始化
 	Score.initialize(Map);
@@ -310,7 +339,10 @@ void CGameStateRun::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			Pacman.hearts_icon.set_nums(0, 1);
 			phase = 3;
 			break;
-
+		//按U auto
+		case 0x55:
+			using_auto = !using_auto;
+			break;
 		default:
 			break;
 		}

@@ -161,6 +161,14 @@ namespace game_framework {
 		bool debug_mod = true;
 		bool invincible = false;
 		void debugText();
+
+		//auto
+		bool using_auto = false;
+		GameAuto Auto;
+		pair<pair<int, int>, int> min_dis_pacman_ghost(int x_p, int y_p);
+		int near_coin_dir(int x, int y);
+		int near_power_dir(int x, int y);
+		pair<pair<int, int>, pair<int, int>>  near_wall(int x, int y);
 	};
 
 	/////////////////////////////////////////////////////////////////////////////
