@@ -19,7 +19,8 @@ CGameStateOver::CGameStateOver(CGame *g): CGameState(g)
 
 void CGameStateOver::OnMove()
 {
-	GotoGameState(GAME_STATE_INIT);
+	//GotoGameState(GAME_STATE_INIT);
+	exit(0); //結束遊戲
 }
 
 void CGameStateOver::OnBeginState()

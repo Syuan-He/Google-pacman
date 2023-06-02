@@ -158,7 +158,7 @@ namespace game_framework {
 		void pacman_get_catch(int mode = 0);	//pacman是否被鬼抓到
 		void change_level(int level);			//切換關卡
 
-		bool debug_mod = true;
+		bool debug_mod = false;
 		bool invincible = false;
 		void debugText();
 	};

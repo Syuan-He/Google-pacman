@@ -70,6 +70,7 @@ public:
 	const vector<int>& operator[](int i) const;
 };
 
+//Menu
 class GameMenu {
 private:
 	int line_space = 60;
@@ -77,8 +78,8 @@ private:
 public:
 	GameMenu(int menu_wd_x = 0, int menu_wd_y = 0, int target_wd_x = 0, int target_wd_y = 0, int l_space = 0);
 	
-	MultUIObj menu{ 0 };
-	UIObject target;
+	MultUIObj menu{ 0 }; //按鍵
+	UIObject target; //指標
 
 	bool set_target_pos(int increase, int mode = 1);
 	void load_menu(vector<string> source);

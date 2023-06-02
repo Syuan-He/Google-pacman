@@ -92,6 +92,9 @@ void CGameStateRun::show_obj_by_phase() {
 	}
 	//階段3(生命歸零)
 	else if (phase == 3) {
+		Game_audio->Stop(AUDIO_MOVE);
+		Game_audio->Stop(AUDIO_POWERUP);
+
 		score_his.push_back(Score.get_score());
 		//change_level(end_level);
 		phase = 5;
