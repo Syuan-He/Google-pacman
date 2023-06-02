@@ -42,6 +42,10 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 		//模式改變前的方向改變
 		//*
 		ghostMoveControl();
+		if (Boss.get_is_using()) {
+			//Boss.move(Pacman[0], Pacman[1]);
+		}
+
 		for (GameGhost &obj : ghosts) {
 			obj.gameMove(Pacman[0], Pacman[1], modeCount >= 7 || isChaseTime());
 		}//*/
@@ -193,6 +197,18 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 	ghosts[3].initialize();
 	ghosts[3].setEdgePoint(0, Map.map_len[0]);
 
+	Boss.LoadBitmapByString({
+		"Resources/boss/boss6.bmp",
+		"Resources/boss/boss7.bmp",
+		"Resources/boss/boss0.bmp",
+		"Resources/boss/boss1.bmp",
+		"Resources/boss/boss4.bmp",
+		"Resources/boss/boss5.bmp",
+		"Resources/boss/boss2.bmp",
+		"Resources/boss/boss3.bmp",
+		}, RGB(0, 0, 0));
+	Boss.initialize();
+
 	//鬼初始化
 	initialGhosts();
 	for (int i = 0; i < 4; i++) {
@@ -289,6 +305,12 @@ void CGameStateRun::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		case 0x49:
 			invincible = !invincible;
 			break;
+		//按K 自殺
+		case 0x4B:
+			Pacman.hearts_icon.set_nums(0, 1);
+			phase = 3;
+			break;
+
 		default:
 			break;
 		}

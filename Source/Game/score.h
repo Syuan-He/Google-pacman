@@ -22,6 +22,7 @@ public:
 	void set_window_shift(int x, int y);
 
 	int get_coin_nums();
+	int get_score();
 
 	void show_coins();
 	void show_power_pellets();

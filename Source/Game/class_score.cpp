@@ -40,6 +40,10 @@ int GameScore::get_coin_nums() {
 	return total_coin_nums;
 }
 
+int GameScore::get_score() {
+	return score;
+}
+
 //顯示豆子
 void GameScore::show_coins() {
 	for (CMovingBitmap t : coins) {

@@ -92,3 +92,12 @@ public:
 
 	int getInitPos(int n);
 };
+
+class GameBoss : public GameGhost {
+private:
+	bool is_using = false;
+public:
+	void set_is_using(bool use);
+
+	bool get_is_using();
+};

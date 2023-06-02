@@ -538,3 +538,11 @@ void CGameStateRun::initialGhosts() {
 	ghosts[2].set_dir_waitfor(1);
 	ghosts[3].set_dir_waitfor(1);//*/
 }
+
+void GameBoss::set_is_using(bool use) {
+	is_using = use;
+}
+
+bool GameBoss::get_is_using() {
+	return is_using;
+}

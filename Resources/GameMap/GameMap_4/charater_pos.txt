@@ -1,5 +1,5 @@
 W_Background 30 90
-W_Ready 521 260
+W_Ready 370 268
 W_ScoreDot 63 90
 W_Character 57 85
 W_Hearts 25 388
@@ -8,3 +8,4 @@ A_Blinky 25 5
 A_Pinky 25 5
 A_Inky 25 5
 A_Clyde 25 5
+A_Boss 25 5

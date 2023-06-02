@@ -9,6 +9,7 @@
 #include <fstream>
 #include <time.h>
 #include <string>
+#include <stdlib.h>
 
 using namespace game_framework;
 
@@ -50,6 +51,9 @@ void CGameStateRun::show_obj_by_phase() {
 		for (GameGhost &obj : ghosts) {
 			obj.ShowBitmap(2);
 		}
+		if (Boss.get_is_using()) {
+			Boss.ShowBitmap();
+		}
 		//pacman顯示
 		Pacman.ShowBitmap(2);
 		//顯示分數
@@ -87,19 +91,15 @@ void CGameStateRun::show_obj_by_phase() {
 	}
 	//階段3(生命歸零)
 	else if (phase == 3) {
-		change_level(level = 0);
-		Score.initialize(Map);
-		Pacman.initialize();
-		Pacman.hearts_icon.set_nums(2, 1);
-		Pacman.heart_initialize();
-		initialGhosts();
-		Ready_icon.SetTopLeft(Ready_icon.window_shift[0], Ready_icon.window_shift[1]);
+		score_his.push_back(Score.get_score());
+		//change_level(end_level);
+		phase = 5;
 		exc_time_begin = time(NULL);
-		phase = 0;
-		GotoGameState(GAME_STATE_INIT);
 	}
 	//階段4(吃完豆子)
 	else if (phase == 4) {
+		score_his.push_back(Score.get_score());
+
 		if (Score.get_coin_nums() == 0) {
 			//停止所有音效
 			Game_audio->Stop(AUDIO_MOVE);
@@ -126,21 +126,64 @@ void CGameStateRun::show_obj_by_phase() {
 				Game_audio->Play(AUDIO_BEGIN);
 			}
 			else {
+				//change_level(end_level);
 				phase = 5;
+				exc_time_begin = time(NULL);
 			}
 		}
 	}
+	//結算
 	else if (phase == 5) {
-		change_level(level = 0);
-		Score.initialize(Map);
-		Pacman.initialize();
-		Pacman.hearts_icon.set_nums(2, 1);
-		Pacman.heart_initialize();
-		initialGhosts();
-		Ready_icon.SetTopLeft(Ready_icon.window_shift[0], Ready_icon.window_shift[1]);
-		exc_time_begin = time(NULL);
-		phase = 0;
-		GotoGameState(GAME_STATE_INIT);
+	int Total = 0;
+		CDC *pDC = CDDraw::GetBackCDC();
+		string strConclusion = "RESULT";
+		string strLine = "______________________________";
+		string strScore = "Score: ";
+		for (unsigned int i = 0; i < score_his.size(); i ++) {
+			if(i < unsigned int((time(NULL) - exc_time_begin) / 2)){
+				strScore += to_string(score_his[i]);
+			}
+			else {
+				strScore += to_string(rand() % 10000);
+			}
+
+			if (i < score_his.size() - 1) {
+				strScore += " + ";
+			}
+			Total += score_his[i];
+		}
+		CTextDraw::ChangeFontLog(pDC, 30, "微軟正黑體", RGB(255, 255, 255));
+		CTextDraw::Print(pDC, 400, 150, strConclusion);
+		CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
+		CTextDraw::Print(pDC, 200, 180, strLine);
+		CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
+		CTextDraw::Print(pDC, 200, 220, strScore);
+
+		if (time(NULL) - exc_time_begin > score_his.size() * 2) {
+			CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
+			CTextDraw::Print(pDC, 200, 300, strLine);
+		}
+		if (time(NULL) - exc_time_begin > score_his.size() * 2 + 1) {
+			CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
+			CTextDraw::Print(pDC, 200, 350, "Total: " + to_string(Total));
+		}
+
+
+		CDDraw::ReleaseBackCDC();
+		
+		if (time(NULL) - exc_time_begin > score_his.size() * 2 + 3) {
+			change_level(level = 0);
+			Score.initialize(Map);
+			Pacman.initialize();
+			Pacman.hearts_icon.set_nums(2, 1);
+			Pacman.heart_initialize();
+			initialGhosts();
+			Ready_icon.SetTopLeft(Ready_icon.window_shift[0], Ready_icon.window_shift[1]);
+			exc_time_begin = time(NULL);
+			phase = 0;
+			score_his.clear();
+			GotoGameState(GAME_STATE_INIT);
+		}
 	}
 }
 
@@ -181,6 +224,12 @@ void CGameStateRun::pacman_get_catch(int mode) {
 			}
 		}
 	}
+
+	if (Boss.get_is_using() && Pacman.IsOverlap(Pacman, Boss)&& !invincible) {
+		Pacman.hearts_icon.set_nums(-1);
+		phase = 2;
+		Pacman.SetFrameIndexOfBitmap(8);
+	}
 }
 
 //切換關卡
@@ -213,6 +262,12 @@ void CGameStateRun::change_level(int level) {
 	ghosts[1].set_inital(map_t["A_Pinky"].first, map_t["A_Pinky"].second, map_t["W_Character"].first, map_t["W_Character"].second, 0);
 	ghosts[2].set_inital(map_t["A_Inky"].first, map_t["A_Inky"].second, map_t["W_Character"].first, map_t["W_Character"].second, 0);
 	ghosts[3].set_inital(map_t["A_Clyde"].first, map_t["A_Clyde"].second, map_t["W_Character"].first, map_t["W_Character"].second, 0);
+
+	Boss.set_is_using(false);
+	if (map_t.count("A_Boss") != 0) {
+		Boss.set_inital(map_t["A_Boss"].first, map_t["A_Boss"].second, map_t["W_Character"].first, map_t["W_Character"].second, 0);
+		Boss.set_is_using(true);
+	}
 
 	Pacman.hearts_icon.window_shift.set_value(map_t["W_Hearts"].first, map_t["W_Hearts"].second);
 	Map.Background.window_shift.set_value(map_t["W_Background"].first, map_t["W_Background"].second);

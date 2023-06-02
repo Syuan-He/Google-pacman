@@ -118,7 +118,7 @@ namespace game_framework {
 		GameGhost Pinky;				// pink one
 		GameGhost Inky;					// blue one
 		GameGhost Clyde;				// orange onez
-		GameGhost Boss;
+		GameBoss Boss;
 		vector<GameGhost> ghosts = { Blinky, Pinky, Inky, Clyde };
 		GameScore Score;
 		UIObject P1_icon{25, 40};		//player1 圖標
@@ -149,8 +149,9 @@ namespace game_framework {
 		int choasTimeLong = 10;
 
 		int phase = 0;							//階段
-		int level = 4;							//遊戲關卡
-		int end_level = 5;
+		int level = 0;							//遊戲關卡
+		int end_level = 5;						//最終關
+		vector<int> score_his;					//紀錄分數
 		void show_obj_by_phase();				//顯示物件
 		void pacman_get_catch(int mode = 0);	//pacman是否被鬼抓到
 		void change_level(int level);			//切換關卡
