@@ -87,14 +87,3 @@ public:
 
 	void show_menu();
 };
-
-class GameAuto {
-private:
-	string Qtable_dir;
-
-	//16: 2(ghost_dis)*4(ghost_dir)*(ghost_state), 4: 4(coin_dir), 4: 4(power_dir), 4: 2(IsWall?)^4(wall_dir), 4: 4(dir_waitfor), 4: 4(last diraction)
-	double Q_table[16][4][4][16][4][4] = { 0 };
-public:
-	int choose_dir(int g, int c, int p, int w, int dir);
-	void load_matrix(string dir);
-};
