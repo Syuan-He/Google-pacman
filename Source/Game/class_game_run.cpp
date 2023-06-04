@@ -37,7 +37,6 @@ void CGameStateRun::show_obj_by_phase() {
 		if (time(NULL) - exc_time_begin > 4) {
 			//播放音效
 			Game_audio -> Play(AUDIO_MOVE, true);
-			
 			phase = 1;
 			modePlayTime = time(NULL);
 			modeCount = 0;
@@ -119,7 +118,6 @@ void CGameStateRun::show_obj_by_phase() {
 			level ++;
 			if (level < end_level) {
 				change_level(level);
-				
 				Score.initialize(Map);
 				Pacman.initialize();
 				Pacman.hearts_icon.set_nums(2, 1);
@@ -127,10 +125,8 @@ void CGameStateRun::show_obj_by_phase() {
 				initialGhosts();
 				Boss.initialize();
 				Ready_icon.SetTopLeft(Ready_icon.window_shift[0], Ready_icon.window_shift[1]);
-				
 				exc_time_begin = time(NULL);
 				phase = 0;
-				
 				Game_audio->Play(AUDIO_BEGIN);
 			}
 			else {
@@ -180,9 +176,6 @@ void CGameStateRun::show_obj_by_phase() {
 		CDDraw::ReleaseBackCDC();
 		
 		if (time(NULL) - exc_time_begin > score_his.size() * 2 + 3) {
-			Game_audio->Stop(AUDIO_MOVE);
-			Game_audio->Stop(AUDIO_POWERUP);
-			
 			change_level(level = 0);
 			Score.initialize(Map);
 			Pacman.initialize();
@@ -190,11 +183,9 @@ void CGameStateRun::show_obj_by_phase() {
 			Pacman.heart_initialize();
 			initialGhosts();
 			Ready_icon.SetTopLeft(Ready_icon.window_shift[0], Ready_icon.window_shift[1]);
-
 			exc_time_begin = time(NULL);
 			phase = 0;
 			score_his.clear();
-			
 			GotoGameState(GAME_STATE_INIT);
 		}
 	}

@@ -304,10 +304,6 @@ void CGameStateRun::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		Pacman.set_dir_waitfor(3);
 		break;
 	//按T 以啟用debug mod
-	case VK_ESCAPE:
-		phase = 5;
-		exc_time_begin = time(NULL);
-		break;
 	case 0x54:
 		debug_mod = !debug_mod;
 		break;
