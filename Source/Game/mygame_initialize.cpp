@@ -71,6 +71,17 @@ void CGameStateInit::OnInit()
 		}, RGB(255, 255, 27));
 	Loading_icon.SetTopLeft(900, 500);
 	Loading_icon.SetAnimation(200, true);
+
+	how_to_play_background.LoadBitmapA("Resources/initialize/setting_how_to_play.bmp");
+	Setting_background.SetTopLeft(0, 0);
+
+	Menu_how_to_play.target.LoadBitmapByString({
+	"Resources/initialize/main_target_0.bmp",
+	"Resources/words/NULL.bmp",
+		}, RGB(0, 0, 0));
+	Menu_how_to_play.target.SetTopLeft(40, 15);
+	Menu_how_to_play.target.SetAnimation(400, false);
+	Menu_setting.menu.set_nums(1);
 }
 
 void CGameStateInit::OnBeginState()
@@ -124,6 +135,9 @@ void CGameStateInit::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 				Loading_icon.ToggleAnimation();
 				button_kick = 2;
 				break;
+			case 3:
+				menu_now = 3;
+				break;
 			case 4:
 			case 5:
 				menu_now = 0;
@@ -133,6 +147,11 @@ void CGameStateInit::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 			}	
 		default:
 			break;
+		}
+	}
+	else if (menu_now == 3) {
+		if (nChar == VK_RETURN) {
+			menu_now = 2;
 		}
 	}
 	
@@ -168,6 +187,10 @@ void CGameStateInit::OnShow()
 		default:
 			break;
 		}
+	}
+	else if (menu_now == 3) {
+		how_to_play_background.ShowBitmap();
+		Menu_how_to_play.target.ShowBitmap();
 	}
 	//draw_text();
 }

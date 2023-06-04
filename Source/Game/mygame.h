@@ -40,6 +40,7 @@
 #include "object.h"
 #include "character.h"
 #include "score.h"
+#include "auto.h"
 #include "../Library/audio.h"
 #include <time.h>
 
@@ -81,6 +82,8 @@ namespace game_framework {
 		UIObject Setting_background;
 		GameMenu Menu_setting;
 		UIObject Loading_icon;
+		GameMenu Menu_how_to_play;
+		UIObject how_to_play_background;
 
 		time_t loading_time_begin;
 		int menu_now = 0;
@@ -117,39 +120,43 @@ namespace game_framework {
 		GameGhost Blinky;				// red one
 		GameGhost Pinky;				// pink one
 		GameGhost Inky;					// blue one
-		GameGhost Clyde;				// orange one
+		GameGhost Clyde;				// orange onez
+		GameBoss Boss;
 		vector<GameGhost> ghosts = { Blinky, Pinky, Inky, Clyde };
 		GameScore Score;
 		UIObject P1_icon{25, 40};		//player1 圖標
 		UIObject Ready_icon;			//Ready 圖標
 
-		//CAudio* Game_audio = CAudio::Instance();
+		CAudio* Game_audio = CAudio::Instance();
 
 		time_t exc_time_begin;			//遊戲起始時間
 
-		//void ghostMoveControl();
+		void ghostMoveControl();
 		time_t modePlayTime;
+		time_t eatPointTime;
 		int scatterTime = 7;
 		int chaseTime = 20;
-		int ghostCatchTime = 0;
-		int flag = 0;
+		int ghostCatchCount = 0;
+		int preGhostCatchCount = 0;
 		int modeCount;
 		bool modeLock;
 		bool isScatterTime();
 		bool isChaseTime();
 		bool isChoasTime();
-		void ghostChase();
-		void ghostScatter();
+		void ghostMove(GameGhost *obj, bool rule);
 		void ghostTurnBack();
 		void initialGhosts();
 
 		time_t choasTime;
+		time_t choasTimeChange;
 		int choasTimeLong = 10;
 
 		int phase = 0;							//階段
 		int level = 0;							//遊戲關卡
+		int end_level = 5;						//最終關
+		vector<int> score_his;					//紀錄分數
 		void show_obj_by_phase();				//顯示物件
-		int pacman_get_catch(int mode = 0);	//pacman是否被鬼抓到
+		void pacman_get_catch(int mode = 0);	//pacman是否被鬼抓到
 		void change_level(int level);			//切換關卡
 
 		bool debug_mod = true;
@@ -157,38 +164,21 @@ namespace game_framework {
 		void debugText();
 
 		//test
-		bool using_auto = true;
-		bool using_Qtable = false;
+		bool training = true;
 		double Reward = 0;
-		double total_score = 0;
-		int total_coin_nums;
-		int round_time = 0;
-		int updata_round_time = 0;
-		double accurcy = 0;
+		const int DIS_NEAR = 5;
 
-		const int TRAIN_V = 2;
-		const int DIS_NEAR = 4;
-		const int UPDATA_TIME = 3;
-
-		const int R_turn_back = -100;
-		const int R_get_point = 50;
-
+		const int R_get_point = 10;
 		const int R_get_power = 10;
-		const int R_ate_by_ghost = -999;
-
+		const int R_ate_by_ghost = -100;
 		const int R_eat_ghost = 100;
-		const int R_pg_same_dir = 50;
-
-		int** Q_state;
-		double* reward_expect;
-		double total_reward = 0;
-
+		const int R_hit_wall = -999;
 		GameAuto Auto;
 		pair<pair<int, int>, int> min_dis_pacman_ghost(int x_p, int y_p);
 		int near_coin_dir(int x, int y);
 		int near_power_dir(int x, int y);
-		pair<pair<int, int>, pair<int, int>>  near_wall(int x, int y);
-		int* expect_next_step(int dir);
+		int near_wall(int x, int y);
+		EnvFeedBack expect_next_step(int dir);
 	};
 
 	/////////////////////////////////////////////////////////////////////////////

@@ -7,6 +7,7 @@
 #include "../Library/gamecore.h"
 #include "mygame.h"
 #include <memory>
+#include <queue>
 
 using namespace game_framework;
 
@@ -42,6 +43,10 @@ void GameScore::set_game_map(const GameMap& map_t) {
 //取得豆子數量
 int GameScore::get_coin_nums() {
 	return total_coin_nums;
+}
+
+int GameScore::get_score() {
+	return score;
 }
 
 //顯示豆子
@@ -88,9 +93,13 @@ int GameScore::get_score() {
 
 //偵測是否吃到豆子
 bool GameScore::get_point(GamePacman obj) {
-	for (auto it = coins.begin(); it != coins.end(); it ++) {
-		if (obj.IsOverlap(obj, *it)) {
-			it = coins.erase(it);
+	for (unsigned int i = 0; i < coins.size(); i++) {
+		if (obj.IsOverlap(obj, coins[i])) {
+			pair<int, int> t = coin_position[i];
+
+			gameMap.erase_v(t.first, t.second);
+			coins.erase(coins.begin() + i);
+			coin_position.erase(coin_position.begin() + i);
 			total_coin_nums--;
 			score += 10;
 
@@ -104,7 +113,7 @@ bool GameScore::get_power(GamePacman obj) {
 	for (auto it = power_pellets.begin(); it != power_pellets.end(); it ++) {
 		if (obj.IsOverlap(obj, *it)) {
 			it = power_pellets.erase(it);
-			score += 10;
+			score += 50;
 			return true;
 		}
 	}
@@ -200,20 +209,88 @@ void GameScore::initialize(GameMap Map) {
 		for (int j = 0; j < Map.map_len[1]; j++) {
 			//為0的道路加入豆子
 			if (Map[i][j] == 0) {
-				unique_ptr<CMovingBitmap> t(new CMovingBitmap);
-				t->LoadBitmapA("Resources/words/coin.bmp");
-				t->SetTopLeft(16 * (j - 2) + 6 + window_shift[0], 16 * i + 6 + window_shift[1]);
-				add_coin(*t);
+				CMovingBitmap t;
+				t.LoadBitmapA("Resources/words/coin.bmp");
+				t.SetTopLeft(16 * (j - 2) + 6 + window_shift[0], 16 * i + 6 + window_shift[1]);
+				add_coin(t);
+				coin_position.push_back(pair<int, int>(i, j));
 				set_coin_nums(1);
 			}
 			//為3的道路加入大力丸
 			else if (Map[i][j] == 3) {
-				unique_ptr<CMovingBitmap> t(new CMovingBitmap);
-				t->LoadBitmapA("Resources/words/dot.bmp");
-				t->SetTopLeft(16 * (j - 2) + 4 + window_shift[0], 16 * i + 4 + window_shift[1]);
-				add_power_pellets(*t);
+				CMovingBitmap t;
+				t.LoadBitmapA("Resources/words/dot.bmp");
+				t.SetTopLeft(16 * (j - 2) + window_shift[0], 16 * i + window_shift[1]);
+				add_power_pellets(t);
 			}
 		}
 	}
+	coin_position;
 	score = 0;
+}
+
+int GameScore::get_coin_dir(int x, int y) {
+	int dir[4][2] = { {1, 0}, {0, -1}, {-1, 0}, {0, 1} };
+
+	for (int i = 0; i < 4; i++) {
+		if (gameMap[y + dir[i][1]][x + dir[i][0]] == 0) {
+			return i;
+		}
+	}
+
+	queue<pair<int, int>> q_pos;
+	
+	int y_len = gameMap.map_len[0], x_len = gameMap.map_len[1];
+	vector<vector<int>> pre =vector<vector<int>>(x_len, vector<int>(y_len, -1));
+	 
+	q_pos.push(pair<int, int>(x, y));
+	while (!q_pos.empty()) {
+		pair<int, int> pos = q_pos.front();
+		q_pos.pop();
+		int xx = pos.first;
+		int yy = pos.second;
+
+		if (gameMap[yy][xx] == 0) {
+			int fin_dir;
+			while (xx != x || yy != y) {
+				int xx_t = xx;
+				fin_dir = pre[xx][yy];
+				xx = xx - dir[pre[xx][yy]][0];
+				yy = yy - dir[pre[xx_t][yy]][1];
+			}
+			
+			return fin_dir;
+		}
+
+		for (int i = 0; i < 4; i++) {
+			if (pre[xx + dir[i][0]][yy + dir[i][1]] == -1 && gameMap[yy + dir[i][1]][xx + dir[i][0]] != 1) {
+				q_pos.push(pair<int, int>(xx + dir[i][0], yy + dir[i][1]));
+				pre[xx + dir[i][0]][yy + dir[i][1]] = i;
+			}
+		}
+	}
+
+	return -1;
+}
+
+int GameScore::get_power_dir(int x, int y) {
+	int min_dis = 2000;
+	int dir;
+	for (CMovingBitmap t : power_pellets) {
+		int x_c = t.GetLeft();
+		if (x_c > x + min_dis || x_c < x - min_dis) continue;
+		int y_c = t.GetTop();
+		if (y_c > y + min_dis || y_c < y - min_dis) continue;
+		int dis = int(pow(pow((x - x_c), 2) + pow((y - y_c), 2), 0.5));
+		if (min_dis > dis) {
+			min_dis = dis;
+			if (abs(x - x_c) > abs(y - y_c)) {
+				dir = x > x_c ? 2 : 0;
+			}
+			else {
+				dir = y > y_c ? 1 : 3;
+			}
+		}
+	}
+	return dir;
 }

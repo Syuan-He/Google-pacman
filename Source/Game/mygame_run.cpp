@@ -25,140 +25,61 @@ void CGameStateRun::OnBeginState()
 {
 	//遊戲開始時間
 	exc_time_begin = time(NULL);
-	//Game_audio -> Play(AUDIO_BEGIN);
-	
+	Game_audio -> Play(AUDIO_BEGIN);
 	Auto.game_set();
-	Auto.create_file("Resources/auto/", "Qtable.txt");
-	total_coin_nums = Score.get_coin_nums();
 }
 
-time_t choasTimeChange;
+
 void CGameStateRun::OnMove()							// 移動遊戲元素
 {
 	//階段2才能移動
 	if (phase == 1) {
-		if (flag != ghostCatchTime) {
+		if (preGhostCatchCount != ghostCatchCount) {
 			Sleep(1250);
-			flag = ghostCatchTime;
+			preGhostCatchCount = ghostCatchCount;
 		}
-
-		if (Pacman.get_total_step() == Pacman.get_velocity() || Pacman.get_stack()) {
+		if (Pacman.get_total_step() == Pacman.get_velocity()) {
 			Pacman.update_position(Pacman.getDirNow());
-
-			if (using_auto) {
+			if (training) {
+				EnvFeedBack r;
 				pair<pair<int, int>, int> t = min_dis_pacman_ghost(Pacman[0], Pacman[1]);
+				r.ghost_dis = t.first.first;
+				r.ghost_dir = t.first.second;
+				r.ghost_state = t.second;
+				r.coin_dir = near_coin_dir(Pacman[0], Pacman[1]);
+				r.power_dir = near_power_dir(Pacman[0], Pacman[1]);
+				r.wall_dir = near_wall(Pacman[0], Pacman[1]);
+				int dir = Auto.choose_dir(r);
 
-				int g = t.first.second * 2;
-				g += t.second * 8;
-				if (t.first.first < DIS_NEAR) g += 0;
-				else g += 1;
+				EnvFeedBack r_ = expect_next_step(dir);
+				double reward_e = Auto.get_expected_max_score(r_);
+				Auto.train(r, dir, Reward, reward_e);
 
-				int c = near_coin_dir(Pacman[0], Pacman[1]);
-				int p = near_power_dir(Pacman[0], Pacman[1]);
-
-				pair<pair<int, int>, pair<int, int>> d = near_wall(Pacman[0], Pacman[1]);
-				int w = d.first.first * 1 + d.first.second * 4 + d.second.first * 2 + d.second.second * 8;
-				int dir;
-				int x_p;
-				int y_p;
-				do {
-					x_p = Pacman[0];
-					y_p = Pacman[1];
-					dir = Auto.choose_dir(g, c, p, w, Pacman.getDirNow());
-					if (dir == 0) x_p++;
-					if (dir == 1) y_p--;
-					if (dir == 2) x_p--;
-					if (dir == 3) y_p++;
-				} while (Map[y_p][x_p] == 1);
-
-				if (!using_Qtable) {
-					int xx = Pacman.getDirNow();
-					if (dir == (Pacman.getDirNow() + 2) % 4) {
-						Reward += R_turn_back;
-					}
-					if (t.second && dir == t.first.second) {
-						Reward += R_pg_same_dir;
-					}
-
-					int* p_ = expect_next_step(dir);
-
-					double reward_e = Auto.get_expected_max_score(p_[0], p_[1], p_[2], p_[3], p_[4]);
-
-					//reward_expect[updata_round_time] = reward_e;
-					//total_reward += Auto.count_reward_r(p_, Pacman[0], Pacman[1], Reward, dir);
-					//Q_state[updata_round_time] = p_;
-					//if (updata_round_time == UPDATA_TIME - 1) {
-					//	Auto.mult_train(Q_state, total_reward, reward_expect, UPDATA_TIME);
-					//	for (int i = 0; i < UPDATA_TIME; i++) {
-					//		delete[] Q_state[i];
-					//	}
-					//}
-					//updata_round_time = (updata_round_time + 1) % UPDATA_TIME;
-
-					Auto.train(p_, Pacman[0], Pacman[1], Reward, reward_e, dir);
-					delete[] p_;
-					Reward = 0;
-				}
-				
+				Reward = 0;
 				Pacman.set_dir_waitfor(dir);
 			}
 		}
 
 		Pacman.move();
-		/*
-		//ghosts[1].inHomeAnim();
-		//ghosts[2].inHomeAnim();
-		
-		ghosts[0].outDoorAnim();
-		//*/
+
 		//模式改變前的方向改變
 		//*
-		if (modeLock && modeCount < 7 && (isScatterTime() || isChaseTime() || isChoasTime())) {
-			ghostTurnBack();
-			modeCount++;
-			modeLock = false;
-			if (modeCount == 4) {
-				scatterTime = 5;
-			}
-		}
-		else if (!modeLock && !(isScatterTime() || isChaseTime() || isChoasTime())) {
-			modeLock = true;
-		}
-		else if ((time(NULL) - choasTime) == choasTimeLong) {
-			ghostCatchTime = 0;
-			flag = 0;
-			//Game_audio->Stop(AUDIO_POWERUP);
-			for (GameGhost &obj : ghosts) {
-				if (obj.isChoas != 2) {
-					obj.isChoas = false;
-					obj.choasFlash = false;
-					obj.setVelocity(TRAIN_V);
-				}
-			}
-		}
-		else if ((time(NULL) - choasTime) > choasTimeLong - 3) {
-			for (GameGhost &obj : ghosts) {
-				obj.choasFlash = true;
-			}
-		}
-		else if (choasTimeChange != time(NULL)) {
-			choasTimeChange = time(NULL);
-			modePlayTime++;
+		ghostMoveControl();
+		if (Boss.get_is_using()) {
+			Boss.move(Pacman[0], Pacman[1], 1);
 		}
 
-		if (modeCount >= 7 || isChaseTime()) {
-			ghostChase();
-		}
-		else {
-			ghostScatter();
-		}
+		for (GameGhost &obj : ghosts) {
+			ghostMove(&obj, modeCount >= 7 || isChaseTime());
+		}//*/
+
 
 		if (Score.get_coin_nums() == 0) {
 			phase = 4;
 			Pacman.SetFrameIndexOfBitmap(0);
 			Map.Background.SetAnimation(300, false);
 			exc_time_begin = time(NULL);
-		}//*/
+		}
 	}
 }
 
@@ -195,7 +116,6 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/words/NULL.bmp",
 		}, RGB(0, 0, 0));
 	Pacman.initialize();
-	Pacman.set_dir(3);
 
 	//Blinky 初始化
 	ghosts[0].LoadBitmapByString({
@@ -221,6 +141,7 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/words/1600.bmp",
 		}, RGB(0, 0, 0));
 	ghosts[0].initialize();
+	ghosts[0].setEdgePoint(Map.map_len[1], 0);
 
 	//Pinky 初始化
 	ghosts[1].LoadBitmapByString({
@@ -246,6 +167,7 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/words/1600.bmp",
 		}, RGB(0, 0, 0));
 	ghosts[1].initialize();
+	ghosts[1].setEdgePoint(0, 0);
 
 	//Inky 初始化
 	ghosts[2].LoadBitmapByString({
@@ -271,6 +193,7 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/words/1600.bmp",
 		}, RGB(0, 0, 0));
 	ghosts[2].initialize();
+	ghosts[2].setEdgePoint(Map.map_len[1], Map.map_len[0]);
 
 	//Clyde 初始化
 	ghosts[3].LoadBitmapByString({
@@ -296,10 +219,27 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 		"Resources/words/1600.bmp",
 		}, RGB(0, 0, 0));
 	ghosts[3].initialize();
+	ghosts[3].setEdgePoint(0, Map.map_len[0]);
+
+	Boss.LoadBitmapByString({
+		"Resources/boss/boss6.bmp",
+		"Resources/boss/boss7.bmp",
+		"Resources/boss/boss0.bmp",
+		"Resources/boss/boss1.bmp",
+		"Resources/boss/boss4.bmp",
+		"Resources/boss/boss5.bmp",
+		"Resources/boss/boss2.bmp",
+		"Resources/boss/boss3.bmp",
+		}, RGB(0, 0, 0));
+	Boss.initialize();
 
 	//鬼初始化
 	initialGhosts();
-
+	for (int i = 0; i < 4; i++) {
+		ghosts[i].setChaseMode(0);
+		ghosts[i].ghostID = i;
+	}
+	Boss.setChaseMode(1);
 	//P1初始化
 	P1_icon.LoadBitmapA("Resources/words/P1.bmp");
 	P1_icon.SetTopLeft(P1_icon.window_shift[0], P1_icon.window_shift[1]);
@@ -335,20 +275,16 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 	//血條初始化
 	Pacman.heart_initialize();
 
-	////載入音效
-	//Game_audio->Load(AUDIO_BEGIN, "Resources/audio/pacman_beginning.wav");
-	//Game_audio->Load(AUDIO_MOVE, "Resources/audio/pacman_wakka.wav");
-	//Game_audio->Load(AUDIO_DIE, "Resources/audio/pacman_death.wav");
-	//Game_audio->Load(AUDIO_EAT_FRUIT, "Resources/audio/pacman_eatfruit.wav");
-	//Game_audio->Load(AUDIO_EAT_GHOST, "Resources/audio/pacman_eatghost.wav");
-	//Game_audio->Load(AUDIO_MUTIPLAYER, "Resources/audio/pacman_extrapac.wav");
-	//Game_audio->Load(AUDIO_INTERMISSION, "Resources/audio/pacman_intermission.wav");
-	//Game_audio->Load(AUDIO_SIREN, "Resources/audio/pacman_siren.wav");
-	//Game_audio->Load(AUDIO_POWERUP, "Resources/audio/pacman_power_up.wav");
-
-	//test
-	//Q_state = new int*[UPDATA_TIME];
-	//reward_expect = new double[UPDATA_TIME];
+	//載入音效
+	Game_audio->Load(AUDIO_BEGIN, "Resources/audio/pacman_beginning.wav");
+	Game_audio->Load(AUDIO_MOVE, "Resources/audio/pacman_wakka.wav");
+	Game_audio->Load(AUDIO_DIE, "Resources/audio/pacman_death.wav");
+	Game_audio->Load(AUDIO_EAT_FRUIT, "Resources/audio/pacman_eatfruit.wav");
+	Game_audio->Load(AUDIO_EAT_GHOST, "Resources/audio/pacman_eatghost.wav");
+	Game_audio->Load(AUDIO_MUTIPLAYER, "Resources/audio/pacman_extrapac.wav");
+	Game_audio->Load(AUDIO_INTERMISSION, "Resources/audio/pacman_intermission.wav");
+	Game_audio->Load(AUDIO_SIREN, "Resources/audio/pacman_siren.wav");
+	Game_audio->Load(AUDIO_POWERUP, "Resources/audio/pacman_power_up.wav");
 }
 
 void CGameStateRun::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
@@ -368,6 +304,10 @@ void CGameStateRun::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		Pacman.set_dir_waitfor(3);
 		break;
 	//按T 以啟用debug mod
+	case VK_ESCAPE:
+		phase = 5;
+		exc_time_begin = time(NULL);
+		break;
 	case 0x54:
 		debug_mod = !debug_mod;
 		break;
@@ -384,28 +324,18 @@ void CGameStateRun::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		//按W 進入下一關
 		case 0x57:
 			phase = 4;
-			//Game_audio->Stop(AUDIO_MOVE);
-			//Game_audio->Stop(AUDIO_POWERUP);
+			Game_audio->Stop(AUDIO_MOVE);
+			Game_audio->Stop(AUDIO_POWERUP);
 			break;
 		
 		//按I 以啟用無敵模式
 		case 0x49:
 			invincible = !invincible;
 			break;
-		//按Q 以啟用Q表
-		case 0x51:
-			using_Qtable = !using_Qtable;
-			break;
-		//按O,P 以輸出Q表
-		case 0x4F:
-			Auto.store_matrix(Auto.get_Qtable_dir());
-			break;
-		case 0x50:
-			Auto.store_matrix("Resources/auto/Qtable.txt");
-			break;
-		//按L 以載入Q表
-		case 0x4C:
-			Auto.load_matrix("Resources/auto/Qtable.txt");
+		//按K 自殺
+		case 0x4B:
+			Pacman.hearts_icon.set_nums(0, 1);
+			phase = 3;
 			break;
 
 		default:
@@ -446,33 +376,39 @@ void CGameStateRun::OnShow()
 {
 	//偵測是否吃到豆子
 	if (Score.get_point(Pacman)) {
-		//吃豆子加分
-		if (using_auto) Reward += R_get_point;
+		if (training) Reward += R_get_point;
 
 		//播放音效
-		//Game_audio -> Resume();
+		Game_audio -> Resume();
 		//重置計數器
 		Pacman.reset_step_counter();
+
+		eatPointTime = time(NULL);
+		if (ghosts[2].stayHome) {
+			ghosts[2].getPointNum++;
+		}
+		else if (ghosts[3].stayHome) {
+			ghosts[3].getPointNum++;
+		}
 	}
 	//再走為一步前不得取消音效
 	else if (Pacman.get_step_counter() >= Pacman.get_velocity()) {
-		//Game_audio->Pause_one(AUDIO_MOVE);
+		Game_audio->Pause_one(AUDIO_MOVE);
 		Pacman.reset_step_counter();
 	}	
 	//偵測是否吃到大力丸、鬼進入混亂模式
 	if (Score.get_power(Pacman)) {
-		//吃大力丸加分
-		if (using_auto) Reward += R_get_power;
+		if (training) Reward += R_get_power;
 
-		//Game_audio -> Play(AUDIO_POWERUP, true);
-		ghostCatchTime = 0;
-		flag = 0;
+		Game_audio -> Play(AUDIO_POWERUP, true);
+		ghostCatchCount = 0;
+		preGhostCatchCount = 0;
 		for (GameGhost &obj : ghosts) {
 			if (obj.isChoas != 2) {
 				obj.isChoas = true;
 				obj.choasFlash = false;
 				//減緩鬼的移動速度
-				obj.setVelocity(4);
+				obj.setVelocity(12);
 				obj.update_moving_schedule();
 			}
 		}
@@ -482,13 +418,7 @@ void CGameStateRun::OnShow()
 	}
 
 	//pacman是否被鬼抓到
-	int t = pacman_get_catch();
-	if (using_auto) {
-		//被鬼吃扣分
-		if (t == 1) Reward += R_ate_by_ghost;
-		//吃鬼加分
-		if (t == 2) Reward += R_eat_ghost;
-	}
+	pacman_get_catch();
 
 	//debug
 	if(debug_mod) debugText();

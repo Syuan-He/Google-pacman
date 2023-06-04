@@ -9,6 +9,7 @@
 #include <fstream>
 #include <time.h>
 #include <string>
+#include <stdlib.h>
 
 using namespace game_framework;
 
@@ -32,19 +33,27 @@ void CGameStateRun::show_obj_by_phase() {
 		Pacman.ShowBitmap(2);
 		//Ready圖標顯示
 		Ready_icon.ShowBitmap(2);
-
-		phase = 1;
-		modePlayTime = time(NULL);
-		modeCount = 0;
-		modeLock = false;
-		ghostCatchTime = 0;
-		flag = 0;
+		//5秒後進入階段2
+		if (time(NULL) - exc_time_begin > 4) {
+			//播放音效
+			Game_audio -> Play(AUDIO_MOVE, true);
+			
+			phase = 1;
+			modePlayTime = time(NULL);
+			modeCount = 0;
+			modeLock = false;
+			ghostCatchCount = 0;
+			preGhostCatchCount = 0;
+		}
 	}
 	//階段1(遊戲中)
 	else if (phase == 1) {
 		//顯示鬼
 		for (GameGhost &obj : ghosts) {
 			obj.ShowBitmap(2);
+		}
+		if (Boss.get_is_using()) {
+			Boss.ShowBitmap();
 		}
 		//pacman顯示
 		Pacman.ShowBitmap(2);
@@ -55,29 +64,19 @@ void CGameStateRun::show_obj_by_phase() {
 	else if (phase == 2) {
 		//死亡動畫
 		if (Pacman.GetFrameIndexOfBitmap() == 8) {
-			if (using_auto) {
-				round_time = (round_time + 1) % 10;
-				total_score += Score.get_score() / 10;	
-				if (round_time == 9) {
-					accurcy = total_score / round_time / total_coin_nums;
-					total_score = 0;
-				}
-			}
-			else {
-				////暫停音效
-				//Game_audio->Pause_one(AUDIO_MOVE);
-				//Game_audio->Stop(AUDIO_POWERUP);
-				//Sleep(300);
-				////播放音效
-				//Game_audio->Play(AUDIO_DIE);
-			}
+			//暫停音效
+			Game_audio->Pause_one(AUDIO_MOVE);
+			Game_audio->Stop(AUDIO_POWERUP);
+			Sleep(300);
+			//播放音效
+			Game_audio->Play(AUDIO_DIE);
 		}
 		Pacman.SetFrameIndexOfBitmap(Pacman.GetFrameIndexOfBitmap() + 1);
 		Pacman.ShowBitmap(2);
-		//Sleep(130);
+		Sleep(130);
 
 		if (Pacman.GetFrameIndexOfBitmap() == 20) {
-			//Sleep(500);
+			Sleep(500);
 			if (Pacman.hearts_icon.get_nums() < 0) {
 				phase = 3;
 			}
@@ -89,54 +88,122 @@ void CGameStateRun::show_obj_by_phase() {
 			//重新初始化
 			Pacman.initialize();
 			initialGhosts();
-			if (using_auto) Score.initialize(Map);
+			Boss.initialize();
 		}
 	}
 	//階段3(生命歸零)
 	else if (phase == 3) {
-		change_level(level = 0);
-		Score.initialize(Map);
-		Pacman.initialize();
-		Pacman.hearts_icon.set_nums(2, 1);
-		Pacman.heart_initialize();
-		initialGhosts();
-		Ready_icon.SetTopLeft(Ready_icon.window_shift[0], Ready_icon.window_shift[1]);
+		Game_audio->Stop(AUDIO_MOVE);
+		Game_audio->Stop(AUDIO_POWERUP);
+
+		score_his.push_back(Score.get_score());
+		//change_level(end_level);
+		phase = 5;
 		exc_time_begin = time(NULL);
-		phase = 0;
-		GotoGameState(GAME_STATE_INIT);
 	}
 	//階段4(吃完豆子)
 	else if (phase == 4) {
 		if (Score.get_coin_nums() == 0) {
-			////停止所有音效
-			//Game_audio->Stop(AUDIO_MOVE);
-			//Game_audio->Stop(AUDIO_POWERUP);
-			////播放勝利
-			//Game_audio->Play(AUDIO_INTERMISSION);
+			//停止所有音效
+			Game_audio->Stop(AUDIO_MOVE);
+			Game_audio->Stop(AUDIO_POWERUP);
+			//播放勝利
+			Game_audio->Play(AUDIO_INTERMISSION);
 			Score.set_coin_nums(1, 1);
 		}
 		Pacman.ShowBitmap(2);
 
 		//遊戲結束
 		if (time(NULL) - exc_time_begin > 5) {
-			change_level(++ level);
+			score_his.push_back(Score.get_score());
+			level ++;
+			if (level < end_level) {
+				change_level(level);
+				
+				Score.initialize(Map);
+				Pacman.initialize();
+				Pacman.hearts_icon.set_nums(2, 1);
+				Pacman.heart_initialize();
+				initialGhosts();
+				Boss.initialize();
+				Ready_icon.SetTopLeft(Ready_icon.window_shift[0], Ready_icon.window_shift[1]);
+				
+				exc_time_begin = time(NULL);
+				phase = 0;
+				
+				Game_audio->Play(AUDIO_BEGIN);
+			}
+			else {
+				//change_level(end_level);
+				phase = 5;
+				exc_time_begin = time(NULL);
+			}
+		}
+	}
+	//結算
+	else if (phase == 5) {
+	int Total = 0;
+		CDC *pDC = CDDraw::GetBackCDC();
+		string strConclusion = "RESULT";
+		string strLine = "______________________________";
+		string strScore = "Score: ";
+		for (unsigned int i = 0; i < score_his.size(); i ++) {
+			if(i < unsigned int((time(NULL) - exc_time_begin) / 2)){
+				strScore += to_string(score_his[i]);
+			}
+			else {
+				strScore += to_string(rand() % 10000);
+			}
+
+			if (i < score_his.size() - 1) {
+				strScore += " + ";
+			}
+			Total += score_his[i];
+		}
+		CTextDraw::ChangeFontLog(pDC, 30, "微軟正黑體", RGB(255, 255, 255));
+		CTextDraw::Print(pDC, 400, 150, strConclusion);
+		CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
+		CTextDraw::Print(pDC, 200, 180, strLine);
+		CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
+		CTextDraw::Print(pDC, 100, 220, strScore);
+
+		if (time(NULL) - exc_time_begin > score_his.size() * 2) {
+			CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
+			CTextDraw::Print(pDC, 200, 300, strLine);
+		}
+		if (time(NULL) - exc_time_begin > score_his.size() * 2 + 1) {
+			CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
+			CTextDraw::Print(pDC, 112, 350, "Total: " + to_string(Total));
+		}
+
+
+		CDDraw::ReleaseBackCDC();
+		
+		if (time(NULL) - exc_time_begin > score_his.size() * 2 + 3) {
+			Game_audio->Stop(AUDIO_MOVE);
+			Game_audio->Stop(AUDIO_POWERUP);
+			
+			change_level(level = 0);
 			Score.initialize(Map);
 			Pacman.initialize();
 			Pacman.hearts_icon.set_nums(2, 1);
 			Pacman.heart_initialize();
 			initialGhosts();
 			Ready_icon.SetTopLeft(Ready_icon.window_shift[0], Ready_icon.window_shift[1]);
+
 			exc_time_begin = time(NULL);
 			phase = 0;
-			//Game_audio->Play(AUDIO_BEGIN);
+			score_his.clear();
+			
+			GotoGameState(GAME_STATE_INIT);
 		}
 	}
 }
 
 //pacman是否被鬼抓到
-int CGameStateRun::pacman_get_catch(int mode) {
+void CGameStateRun::pacman_get_catch(int mode) {
 	if (phase != 1) {
-		return 0;
+		return;
 	}
 
 	bool get_catch = false;
@@ -150,29 +217,36 @@ int CGameStateRun::pacman_get_catch(int mode) {
 		}
 
 		if (get_catch && !obj.isChoas && !invincible) {
-			if(!using_auto) Pacman.hearts_icon.set_nums(-1);
+			Pacman.hearts_icon.set_nums(-1);
 			phase = 2;
 			Pacman.SetFrameIndexOfBitmap(8);
-			return 1;
+
+			Reward += R_ate_by_ghost;
 			break;
 		}
 		else if (get_catch && obj.isChoas == 1) {
-			//Game_audio->Play(AUDIO_EAT_GHOST);
-			obj.SetFrameIndexOfBitmap(16 + ghostCatchTime);
+			Game_audio->Play(AUDIO_EAT_GHOST);
+			obj.SetFrameIndexOfBitmap(16 + ghostCatchCount);
 
 			obj.isChoas = 2;
 			obj.choasFlash = false;
 			obj.setVelocity(2);
 			obj.update_moving_schedule();	
-			Score.get_ghost(Pacman, obj, ghostCatchTime);
-			ghostCatchTime++;
-			if (ghostCatchTime > 3) {
-				ghostCatchTime = 0;
+			Score.get_ghost(Pacman, obj, ghostCatchCount);
+			ghostCatchCount++;
+			if (ghostCatchCount > 3) {
+				ghostCatchCount = 0;
 			}
-			return 2;
+
+			Reward += R_eat_ghost;
 		}
 	}
-	return 0;
+
+	if (Boss.get_is_using() && Pacman.IsOverlap(Pacman, Boss)&& !invincible) {
+		Pacman.hearts_icon.set_nums(-1);
+		phase = 2;
+		Pacman.SetFrameIndexOfBitmap(8);
+	}
 }
 
 //切換關卡
@@ -184,11 +258,12 @@ void CGameStateRun::change_level(int level) {
 	Map = NewMap;
 
 	//加入參考地圖
-	Pacman.set_game_map(Map);
 	Score.set_game_map(Map);
+	Pacman.set_game_map(Map);
 	for (GameGhost &obj : ghosts) {
 		obj.set_game_map(Map);
 	}
+	Boss.set_game_map(Map);
 
 	ifstream infile(str + "/charater_pos.txt");  // 打開文件
 	map<string, pair<int, int>> map_t;  // 定義一個 map
@@ -207,6 +282,12 @@ void CGameStateRun::change_level(int level) {
 	ghosts[2].set_inital(map_t["A_Inky"].first, map_t["A_Inky"].second, map_t["W_Character"].first, map_t["W_Character"].second, 0);
 	ghosts[3].set_inital(map_t["A_Clyde"].first, map_t["A_Clyde"].second, map_t["W_Character"].first, map_t["W_Character"].second, 0);
 
+	Boss.set_is_using(false);
+	if (map_t.count("A_Boss") != 0) {
+		Boss.set_inital(map_t["A_Boss"].first, map_t["A_Boss"].second, map_t["W_Character"].first, map_t["W_Character"].second, 0);
+		Boss.window_shift.set_value(map_t["W_Boss"].first, map_t["W_Boss"].second);
+		Boss.set_is_using(true);
+	}
 	Pacman.hearts_icon.window_shift.set_value(map_t["W_Hearts"].first, map_t["W_Hearts"].second);
 	Map.Background.window_shift.set_value(map_t["W_Background"].first, map_t["W_Background"].second);
 	Ready_icon.window_shift.set_value(map_t["W_Ready"].first, map_t["W_Ready"].second);
@@ -221,8 +302,7 @@ void CGameStateRun::debugText() {
 	CDC *pDC = CDDraw::GetBackCDC();
 
 	string strPacPos = "", strPacPoi = "", strCatchTime = "", strInkyChoas = "", strInvincible = "Invincible: ", strNearGhost = "D(ghost):",
-		strNearGhostDir = "Dir(ghost):", strNearGhostState = "S(ghost):", strNearCoin = "Dir(coin):", strNearPower = "Dir(power):",
-		strAccurcy = "A:", strQtable = "Qtable:";
+		strNearGhostDir = "Dir(ghost):", strNearGhostState = "S(ghost):", strNearCoin = "Dir(coin):", strNearPower = "Dir(power):";
 
 	//地圖陣列位置
 	strPacPos += to_string(Pacman[0]) + ", " + to_string(Pacman[1]);	//position in array
@@ -237,13 +317,15 @@ void CGameStateRun::debugText() {
 
 	int xx = Pacman[0];
 	int yy = Pacman[1];
-	strNearGhost += to_string(min_dis_pacman_ghost(xx, yy).first.first);
-	strNearGhostDir += to_string(min_dis_pacman_ghost(xx, yy).first.second);
-	strNearGhostState += to_string(min_dis_pacman_ghost(xx, yy).second);
-	strNearCoin += to_string(near_coin_dir(xx, yy));
-	strNearPower += to_string(near_power_dir(xx, yy));
-	strAccurcy += to_string(accurcy);
-	strQtable += to_string(using_Qtable);
+
+	if (training) {
+		strNearGhost += to_string(min_dis_pacman_ghost(xx, yy).first.first);
+		strNearGhostDir += to_string(min_dis_pacman_ghost(xx, yy).first.second);
+		strNearGhostState += to_string(min_dis_pacman_ghost(xx, yy).second);
+		strNearCoin += to_string(near_coin_dir(xx, yy));
+		strNearPower += to_string(near_power_dir(xx, yy));
+	}
+	
 
 	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
 	CTextDraw::Print(pDC, 25, 430, strPacPos);
@@ -271,12 +353,10 @@ void CGameStateRun::debugText() {
 	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
 	CTextDraw::Print(pDC, 625, 460, strNearGhostDir);
 	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
-	CTextDraw::Print(pDC, 625, 490, strAccurcy);
-	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
-	CTextDraw::Print(pDC, 625, 520, strQtable);
 
 	CDDraw::ReleaseBackCDC();
 }
+
 
 //test
 pair<pair<int, int>, int> CGameStateRun::min_dis_pacman_ghost(int x_p, int y_p) {
@@ -292,61 +372,57 @@ pair<pair<int, int>, int> CGameStateRun::min_dis_pacman_ghost(int x_p, int y_p) 
 		if (min_dis > int(pow(dis, 0.5))) {
 			min_dis = int(pow(dis, 0.5));
 			is_choas = t.isChoas == 1 ? 1 : 0;
-			if (abs(x_p - x_g) > abs(y_p - y_g)) {
-				dir = x_p > x_g ? 2 : 0;
-			}
-			else {
-				dir = y_p > y_g ? 1 : 3;
-			}
+			dir = t.getAstar(x_p, y_p, x_g, y_g);
 		}
 	}
+	min_dis = min_dis > DIS_NEAR ? 1 : 0;
 	return pair<pair<int, int>, int>(pair<int, int>(min_dis, dir), is_choas);
 }
 
 int CGameStateRun::near_coin_dir(int x, int y) {
-	return Score.get_coin_dir(16 * x + Pacman.window_shift[0] + 6, 16 * y + Pacman.window_shift[1] + 4, x, y);
+	return Score.get_coin_dir(x, y);
 }
 
 int CGameStateRun::near_power_dir(int x, int y) {
 	return Score.get_power_dir(16 * x + Pacman.window_shift[0] + 6, 16 * y + Pacman.window_shift[1] + 4);
 }
 
-pair<pair<int, int>, pair<int, int>> CGameStateRun::near_wall(int x, int y) {
-	pair<pair<int, int>, pair<int, int>> t;
-	t.first.first = Map[y][x + 1] == 1;
-	t.second.first = Map[y - 1][x] == 1;
-	t.first.second = Map[y][x - 1] == 1;
-	t.second.second = Map[y + 1][x] == 1;
+int CGameStateRun::near_wall(int x, int y) {
+	int res = 0;
+	res += Map[y][x + 1] == 1? 1:0;
+	res += Map[y - 1][x] == 1? 2:0;
+	res += Map[y][x - 1] == 1? 4:0;
+	res += Map[y + 1][x] == 1? 8:0;
 
-	return t;
+	return res;
 }
 
-int* CGameStateRun::expect_next_step(int dir) {
-	int* t = new int[6];
+EnvFeedBack CGameStateRun::expect_next_step(int dir) {
 	int dis;
 	int x = Pacman[0];
 	int y = Pacman[1];
 
-	if (dir == 0) x ++;
-	else if (dir == 1) y --;
-	else if (dir == 2) x --;
-	else y ++;
+	if (dir == 0) x++;
+	else if (dir == 1) y--;
+	else if (dir == 2) x--;
+	else y++;
 
 	pair<pair<int, int>, int> a = min_dis_pacman_ghost(x, y);
 	int b = near_coin_dir(x, y);
 	int c = near_power_dir(x, y);
-	pair<pair<int, int>, pair<int, int>> d = near_wall(x, y);
+	int d = near_wall(x, y);
 
 	if (a.first.first < DIS_NEAR) dis = 0;
 	else dis = 1;
 
-	t[0] = dis + 2 * a.first.second + 8 * a.second;
-	t[1] = b;
-	t[2] = c;
-	t[3] = d.first.first * 1 + d.first.second * 4 + d.second.first * 2 + d.second.second * 8;
-	t[4] = Pacman.getDirNow();
-	t[5] = dir;
+	EnvFeedBack t;
+
+	t.ghost_dis = dis;
+	t.ghost_dir = a.first.second;
+	t.ghost_state = a.second;
+	t.power_dir = c;
+	t.coin_dir = b;
+	t.wall_dir = d;
 
 	return t;
 }
-

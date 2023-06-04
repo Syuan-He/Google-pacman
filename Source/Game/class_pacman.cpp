@@ -91,6 +91,11 @@ int GamePacman::get_step_counter() {
 	return step_counter;
 }
 
+int GamePacman::get_total_step() {
+	return total_step;
+}
+
+
 void GamePacman::heart_initialize() {
 	hearts_icon.clear_objs();
 	for (int i = 0; i < hearts_icon.get_nums(); i++) {
