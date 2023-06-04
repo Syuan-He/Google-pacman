@@ -29,22 +29,12 @@ void CGameStateRun::show_obj_by_phase() {
 	P1_icon.ShowBitmap(2);
 	//階段0
 	if (phase == 0) {
-		//pacman顯示
-		Pacman.ShowBitmap(2);
-		//Ready圖標顯示
-		Ready_icon.ShowBitmap(2);
-		//5秒後進入階段2
-		if (time(NULL) - exc_time_begin > 4) {
-			//播放音效
-			Game_audio -> Play(AUDIO_MOVE, true);
-			
-			phase = 1;
-			modePlayTime = time(NULL);
-			modeCount = 0;
-			modeLock = false;
-			ghostCatchCount = 0;
-			preGhostCatchCount = 0;
-		}
+		phase = 1;
+		modePlayTime = time(NULL);
+		modeCount = 0;
+		modeLock = false;
+		ghostCatchCount = 0;
+		preGhostCatchCount = 0;
 	}
 	//階段1(遊戲中)
 	else if (phase == 1) {
@@ -62,39 +52,16 @@ void CGameStateRun::show_obj_by_phase() {
 	}
 	//階段2(碰到鬼)
 	else if (phase == 2) {
-		//死亡動畫
-		if (Pacman.GetFrameIndexOfBitmap() == 8) {
-			//暫停音效
-			Game_audio->Pause_one(AUDIO_MOVE);
-			Game_audio->Stop(AUDIO_POWERUP);
-			Sleep(300);
-			//播放音效
-			Game_audio->Play(AUDIO_DIE);
-		}
-		Pacman.SetFrameIndexOfBitmap(Pacman.GetFrameIndexOfBitmap() + 1);
-		Pacman.ShowBitmap(2);
-		Sleep(130);
-
-		if (Pacman.GetFrameIndexOfBitmap() == 20) {
-			Sleep(500);
-			if (Pacman.hearts_icon.get_nums() < 0) {
-				phase = 3;
-			}
-			else {
-				exc_time_begin = time(NULL);
-				phase = 0;
-			}
-
-			//重新初始化
-			Pacman.initialize();
-			initialGhosts();
-			Boss.initialize();
-		}
+		//重新初始化
+		exc_time_begin = time(NULL);
+		phase = 0;
+		Pacman.initialize();
+		initialGhosts();
+		Boss.initialize();
+		Score.initialize(Map);
 	}
 	//階段3(生命歸零)
 	else if (phase == 3) {
-		Game_audio->Stop(AUDIO_MOVE);
-		Game_audio->Stop(AUDIO_POWERUP);
 
 		score_his.push_back(Score.get_score());
 		//change_level(end_level);
@@ -105,10 +72,7 @@ void CGameStateRun::show_obj_by_phase() {
 	else if (phase == 4) {
 		if (Score.get_coin_nums() == 0) {
 			//停止所有音效
-			Game_audio->Stop(AUDIO_MOVE);
-			Game_audio->Stop(AUDIO_POWERUP);
 			//播放勝利
-			Game_audio->Play(AUDIO_INTERMISSION);
 			Score.set_coin_nums(1, 1);
 		}
 		Pacman.ShowBitmap(2);
@@ -130,8 +94,6 @@ void CGameStateRun::show_obj_by_phase() {
 				
 				exc_time_begin = time(NULL);
 				phase = 0;
-				
-				Game_audio->Play(AUDIO_BEGIN);
 			}
 			else {
 				//change_level(end_level);
@@ -180,9 +142,6 @@ void CGameStateRun::show_obj_by_phase() {
 		CDDraw::ReleaseBackCDC();
 		
 		if (time(NULL) - exc_time_begin > score_his.size() * 2 + 3) {
-			Game_audio->Stop(AUDIO_MOVE);
-			Game_audio->Stop(AUDIO_POWERUP);
-			
 			change_level(level = 0);
 			Score.initialize(Map);
 			Pacman.initialize();
@@ -217,7 +176,6 @@ void CGameStateRun::pacman_get_catch(int mode) {
 		}
 
 		if (get_catch && !obj.isChoas && !invincible) {
-			Pacman.hearts_icon.set_nums(-1);
 			phase = 2;
 			Pacman.SetFrameIndexOfBitmap(8);
 
@@ -225,7 +183,6 @@ void CGameStateRun::pacman_get_catch(int mode) {
 			break;
 		}
 		else if (get_catch && obj.isChoas == 1) {
-			Game_audio->Play(AUDIO_EAT_GHOST);
 			obj.SetFrameIndexOfBitmap(16 + ghostCatchCount);
 
 			obj.isChoas = 2;

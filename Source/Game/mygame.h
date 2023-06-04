@@ -125,9 +125,7 @@ namespace game_framework {
 		vector<GameGhost> ghosts = { Blinky, Pinky, Inky, Clyde };
 		GameScore Score;
 		UIObject P1_icon{25, 40};		//player1 圖標
-		UIObject Ready_icon;			//Ready 圖標
-
-		CAudio* Game_audio = CAudio::Instance();
+		UIObject Ready_icon;			//Ready 圖標		
 
 		time_t exc_time_begin;			//遊戲起始時間
 
@@ -166,6 +164,7 @@ namespace game_framework {
 		//test
 		bool training = true;
 		double Reward = 0;
+		time_t auto_save;
 		const int DIS_NEAR = 5;
 
 		const int R_get_point = 10;

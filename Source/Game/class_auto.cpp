@@ -6,6 +6,7 @@
 #include "../Library/gameutil.h"
 #include "../Library/gamecore.h"
 #include "mygame.h"
+#include <fstream>
 
 using namespace game_framework;
 
@@ -43,7 +44,7 @@ double GameAuto::game_go(EnvFeedBack state, double reward) {
 }
 
 int GameAuto::choose_dir(EnvFeedBack state) {
-	int op = rand() % 4;;
+	int op = rand() % 4;
 	if (rand() % 101 > greedy) {
 		while (Q_table[state.ghost_dis][state.ghost_dir][state.ghost_state][state.power_dir][state.coin_dir][state.wall_dir][op] < -100) {
 			op = rand() % 4;
@@ -62,11 +63,72 @@ int GameAuto::choose_dir(EnvFeedBack state) {
 	return op;
 }
 
+int GameAuto::choose_dir_By_Qtable(EnvFeedBack state) {
+	int op;
+	double maxx = -10000;
+	for (int i = 0; i < 4; i++) {
+		if (maxx <= Q_table[state.ghost_dis][state.ghost_dir][state.ghost_state][state.power_dir][state.coin_dir][state.wall_dir][i]) {
+			maxx = Q_table[state.ghost_dis][state.ghost_dir][state.ghost_state][state.power_dir][state.coin_dir][state.wall_dir][i];
+			op = i;
+		}
+	}
+
+	return op;
+}
+
 void GameAuto::train(EnvFeedBack state, int dir, double reward, double reward_e) {
 	double reward_ = game_go(state, reward);
 	Q_table[state.ghost_dis][state.ghost_dir][state.ghost_state][state.power_dir][state.coin_dir][state.wall_dir][dir] += lr * (reward_ - reward_e);
 }
 
-//double GameAuto::count_reward_r(int* p, int x, int y, double reward, int dir) {
-//	return game_go(p, x, y, reward, dir);
-//}
+void GameAuto::store_matrix(string dir) {
+	ofstream outputFile(dir, ios::trunc);
+	if (outputFile.is_open()) {
+		for (int i_g0 = 0; i_g0 < 2; i_g0++) {
+			for (int i_g1 = 0; i_g1 < 4; i_g1++) {
+				for (int i_g2 = 0; i_g2 < 2; i_g2++) {
+					for (int i_c = 0; i_c < 4; i_c++) {
+						for (int i_p = 0; i_p < 4; i_p++) {
+							for (int i_w = 0; i_w < 16; i_w++) {
+								for (int dir_c = 0; dir_c < 4; dir_c ++) {
+									outputFile << Q_table[i_g0][i_g1][i_g2][i_c][i_p][i_w][dir_c] << " ";
+								}
+								outputFile << "\n";
+							}
+							outputFile << "\n";
+						}
+						outputFile << "\n";
+					}
+					outputFile << "\n";
+				}
+				outputFile << "\n";
+			}
+			outputFile << "\n";
+		}
+		outputFile.close();
+	}
+}
+
+void GameAuto::load_matrix(string dir) {
+	ifstream inputFile(dir);
+	if (inputFile.is_open()) {
+		double number;
+		for (int i_g0 = 0; i_g0 < 2; i_g0++) {
+			for (int i_g1 = 0; i_g1 < 4; i_g1++) {
+				for (int i_g2 = 0; i_g2 < 2; i_g2++) {
+					for (int i_c = 0; i_c < 4; i_c++) {
+						for (int i_p = 0; i_p < 4; i_p++) {
+							for (int i_w = 0; i_w < 16; i_w++) {
+								for (int dir_c = 0; dir_c < 4; dir_c ++) {
+									inputFile >> number;
+									Q_table[i_g0][i_g1][i_g2][i_c][i_p][i_w][dir_c] = number;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		inputFile.close();
+	}
+}

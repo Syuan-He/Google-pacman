@@ -77,10 +77,6 @@ void Character::set_dir_waitfor(int dir) {
 	dir_waitfor = dir;
 }
 
-void Character::set_dir(int dir) {
-	dir_now = dir;
-}
-
 //設定角色在視窗中的位置
 void Character::setPos(int x, int y) {
 	position[0] = x;
@@ -111,8 +107,8 @@ void Character::initialize() {
 	this->setPos(initial_pos[0], initial_pos[1]);
 	this->SetFrameIndexOfBitmap(initial_frame_index);
 	total_step = 0;
-	dir_now = 0;				//目前移動方向
-	dir_waitfor = 0;
+	dir_now = 2;				//目前移動方向
+	dir_waitfor = 2;
 	velocity = 2;
 	waitVelocity = 2;
 	update_moving_schedule();

@@ -12,8 +12,8 @@ protected:
 	int dir_waitfor = 2;			//期望移動方向
 	int position[2];				//位置
 	int total_step = 0;				//已移動步數
-	int velocity = 6;				//移動速動(1 ~ 16 數字越小越快)
-	int waitVelocity = 6;			//期望移動速動
+	int velocity = 2;				//移動速動(1 ~ 16 數字越小越快)
+	int waitVelocity = 2;			//期望移動速動
 	int moving_schedule[16] = { 0 };	//移動距離表
 	int initial_pos[2];				//起始位置
 	int initial_frame_index;		//起始圖片
@@ -31,7 +31,6 @@ public:
 	bool CanMove(int dir);
 
 	void set_dir_waitfor(int dir);
-	void set_dir(int dir);
 	void setPos(int x, int y);
 	void setVelocity(int v);
 	void set_game_map(const GameMap& map_t);
@@ -47,7 +46,6 @@ public:
 class GamePacman : public Character {
 private:
 	int step_counter = 0;
-	bool stack = false;
 public:
 	//GamePacman() {};
 	//~GamePacman() {};
@@ -63,8 +61,6 @@ public:
 	void heart_initialize();
 	void show_heart_icon(int size);
 	int getDirNow();
-	int get_total_step();
-	bool get_stack();
 };
 
 //鬼

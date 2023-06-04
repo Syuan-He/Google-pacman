@@ -96,9 +96,9 @@ void GameGhost::outDoorAnim() {
 			total_step = 0;
 			dir_now = 2;				//目前移動方向
 			dir_waitfor = 2;
-			//if (isChoas != 1) {
-			//	waitVelocity = 2;
-			//}
+			if (isChoas != 1) {
+				waitVelocity = 2;
+			}
 			update_moving_schedule();
 			setDirLock = false;
 
@@ -447,12 +447,11 @@ void CGameStateRun::ghostMoveControl() {
 	else if ((time(NULL) - choasTime) == choasTimeLong) {
 		ghostCatchCount = 0;
 		preGhostCatchCount = 0;
-		Game_audio->Stop(AUDIO_POWERUP);
 		for (GameGhost &obj : ghosts) {
 			if (obj.isChoas != 2) {
 				obj.isChoas = false;
 				obj.choasFlash = false;
-				obj.setVelocity(6);
+				obj.setVelocity(2);
 			}
 		}
 	}

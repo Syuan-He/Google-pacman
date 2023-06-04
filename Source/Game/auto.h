@@ -31,6 +31,8 @@ public:
 	double get_expected_max_score(EnvFeedBack state);
 	double game_go(EnvFeedBack state, double reward);
 	int choose_dir(EnvFeedBack state);
+	int choose_dir_By_Qtable(EnvFeedBack state);
 	void train(EnvFeedBack state, int dir, double reward, double reward_e);
-	//double count_reward_r(int* p, int x, int y, double reward, int dir);
+	void store_matrix(string dir);
+	void load_matrix(string dir);
 };

@@ -25,8 +25,8 @@ void CGameStateRun::OnBeginState()
 {
 	//遊戲開始時間
 	exc_time_begin = time(NULL);
-	Game_audio -> Play(AUDIO_BEGIN);
 	Auto.game_set();
+	auto_save = time(NULL);
 }
 
 
@@ -50,10 +50,11 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 				r.power_dir = near_power_dir(Pacman[0], Pacman[1]);
 				r.wall_dir = near_wall(Pacman[0], Pacman[1]);
 				int dir = Auto.choose_dir(r);
-
 				EnvFeedBack r_ = expect_next_step(dir);
 				double reward_e = Auto.get_expected_max_score(r_);
 				Auto.train(r, dir, Reward, reward_e);
+
+				//int dir = Auto.choose_dir_By_Qtable(r);
 
 				Reward = 0;
 				Pacman.set_dir_waitfor(dir);
@@ -81,6 +82,12 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 			exc_time_begin = time(NULL);
 		}
 	}
+
+	if (time(NULL) - auto_save > 300) {
+		Auto.store_matrix("Resources/auto/Qtable.txt");
+		auto_save = time(NULL);
+	}
+
 }
 
 void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
@@ -274,17 +281,6 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 
 	//血條初始化
 	Pacman.heart_initialize();
-
-	//載入音效
-	Game_audio->Load(AUDIO_BEGIN, "Resources/audio/pacman_beginning.wav");
-	Game_audio->Load(AUDIO_MOVE, "Resources/audio/pacman_wakka.wav");
-	Game_audio->Load(AUDIO_DIE, "Resources/audio/pacman_death.wav");
-	Game_audio->Load(AUDIO_EAT_FRUIT, "Resources/audio/pacman_eatfruit.wav");
-	Game_audio->Load(AUDIO_EAT_GHOST, "Resources/audio/pacman_eatghost.wav");
-	Game_audio->Load(AUDIO_MUTIPLAYER, "Resources/audio/pacman_extrapac.wav");
-	Game_audio->Load(AUDIO_INTERMISSION, "Resources/audio/pacman_intermission.wav");
-	Game_audio->Load(AUDIO_SIREN, "Resources/audio/pacman_siren.wav");
-	Game_audio->Load(AUDIO_POWERUP, "Resources/audio/pacman_power_up.wav");
 }
 
 void CGameStateRun::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
@@ -324,8 +320,6 @@ void CGameStateRun::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		//按W 進入下一關
 		case 0x57:
 			phase = 4;
-			Game_audio->Stop(AUDIO_MOVE);
-			Game_audio->Stop(AUDIO_POWERUP);
 			break;
 		
 		//按I 以啟用無敵模式
@@ -336,6 +330,14 @@ void CGameStateRun::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		case 0x4B:
 			Pacman.hearts_icon.set_nums(0, 1);
 			phase = 3;
+			break;
+		//按L 以輸出O表
+		case 0x4F:
+			Auto.store_matrix("Resources/auto/Qtable.txt");
+			break;
+		//按L 以載入Q表
+		case 0x4C:
+			Auto.load_matrix("Resources/auto/Qtable.txt");
 			break;
 
 		default:
@@ -379,7 +381,6 @@ void CGameStateRun::OnShow()
 		if (training) Reward += R_get_point;
 
 		//播放音效
-		Game_audio -> Resume();
 		//重置計數器
 		Pacman.reset_step_counter();
 
@@ -393,14 +394,12 @@ void CGameStateRun::OnShow()
 	}
 	//再走為一步前不得取消音效
 	else if (Pacman.get_step_counter() >= Pacman.get_velocity()) {
-		Game_audio->Pause_one(AUDIO_MOVE);
 		Pacman.reset_step_counter();
 	}	
 	//偵測是否吃到大力丸、鬼進入混亂模式
 	if (Score.get_power(Pacman)) {
 		if (training) Reward += R_get_power;
 
-		Game_audio -> Play(AUDIO_POWERUP, true);
 		ghostCatchCount = 0;
 		preGhostCatchCount = 0;
 		for (GameGhost &obj : ghosts) {

@@ -89,27 +89,3 @@ public:
 
 	void show_menu();
 };
-
-class GameAuto {
-private: 
-	double rate = 0.8;
-	double lr = 0.01;
-	int greedy = 70;
-	string Qtable_dir;
-
-	//16: 2(ghost_dis)*4(ghost_dir)*(ghost_state), 4: 4(coin_dir), 4: 4(power_dir), 4: 2(IsWall?)^4(wall_dir), 4: 4(dir_waitfor), 4: 4(last diraction)
-	double Q_table[16][4][4][16][4][4] = {0};
-public:
-	bool game_set();
-	double get_expected_max_score(int g, int c, int p, int w, int d);
-	double game_go(int* p, int x, int y, double reward, int dir);
-	int choose_dir(int g, int c, int p, int w, int dir);
-	void train(int* p, int x, int y, double reward, double reward_e, int dir);
-	double count_reward_r(int* p, int x, int y, double reward, int dir);
-	void mult_train(int** p, double reward, double* reward_e, int time);
-
-	string get_Qtable_dir();
-	void create_file(string dir, string file_name);
-	void store_matrix(string dir);
-	void load_matrix(string dir);
-};

@@ -32,7 +32,7 @@ void GamePacman::move() {
 		}
 		//重置步數
 		total_step = 0;
-
+		
 		//檢查是否通過傳送門
 		pair<int, int> t = gameMap.portal_detect(position[0], position[1]);
 		if (t.first != -1) {
@@ -55,7 +55,6 @@ void GamePacman::move() {
 
 	//移動
 	if (CanMove(dir_now)) {
-		stack = false;
 		switch (dir_now)
 		{
 		case 0:
@@ -77,9 +76,6 @@ void GamePacman::move() {
 	}
 	else if (CanMove(dir_waitfor)) {
 		dir_now = dir_waitfor;
-	}
-	else {
-		stack = true;
 	}
 }
 
@@ -116,12 +112,4 @@ void GamePacman::show_heart_icon(int size) {
 //取得當前方向
 int GamePacman::getDirNow() {
 	return dir_now;
-}
-
-int GamePacman::get_total_step() {
-	return total_step;
-}
-
-bool GamePacman::get_stack() {
-	return stack;
 }
