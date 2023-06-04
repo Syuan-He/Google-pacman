@@ -94,6 +94,7 @@ public:
 	void move(int x1, int y1, int portal_mode = 0);
 	void turnBack();
 
+	int getAstar(int x0, int y0, int x1, int y1);
 	int getInitPos(int n);
 	time_t get_enter_portal_t();
 };

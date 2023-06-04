@@ -40,6 +40,7 @@
 #include "object.h"
 #include "character.h"
 #include "score.h"
+#include "auto.h"
 #include "../Library/audio.h"
 #include <time.h>
 
@@ -161,6 +162,20 @@ namespace game_framework {
 		bool debug_mod = false;
 		bool invincible = false;
 		void debugText();
+
+		//test
+		const int DIS_NEAR = 5;
+
+		const int R_get_point = 10;
+		const int R_get_power = 10;
+		const int R_ate_by_ghost = -100;
+		const int R_eat_ghost = 100;
+		GameAuto Auto;
+		pair<pair<int, int>, int> min_dis_pacman_ghost(int x_p, int y_p);
+		int near_coin_dir(int x, int y);
+		int near_power_dir(int x, int y);
+		int near_wall(int x, int y);
+		EnvFeedBack expect_next_step(int dir);
 	};
 
 	/////////////////////////////////////////////////////////////////////////////

@@ -326,3 +326,72 @@ void CGameStateRun::debugText() {
 
 	CDDraw::ReleaseBackCDC();
 }
+
+
+//test
+pair<pair<int, int>, int> CGameStateRun::min_dis_pacman_ghost(int x_p, int y_p) {
+	int min_dis = INT_FAST16_MAX;
+	int is_choas = 0;
+	int dir;
+
+	for (GameGhost t : ghosts) {
+		int x_g = t[0];
+		int y_g = t[1];
+
+		double dis = pow((x_g - x_p), 2) + pow((y_g - y_p), 2);
+		if (min_dis > int(pow(dis, 0.5))) {
+			min_dis = int(pow(dis, 0.5));
+			is_choas = t.isChoas == 1 ? 1 : 0;
+			dir = t.getAstar(x_p, y_p, x_g, y_g);
+		}
+	}
+	return pair<pair<int, int>, int>(pair<int, int>(min_dis, dir), is_choas);
+}
+
+int CGameStateRun::near_coin_dir(int x, int y) {
+	return Score.get_coin_dir(x, y);
+}
+
+int CGameStateRun::near_power_dir(int x, int y) {
+	return Score.get_power_dir(16 * x + Pacman.window_shift[0] + 6, 16 * y + Pacman.window_shift[1] + 4);
+}
+
+int CGameStateRun::near_wall(int x, int y) {
+	int res = 0;
+	res += Map[y][x + 1] == 1? 1:0;
+	res = Map[y - 1][x] == 1? 2:0;
+	res = Map[y][x - 1] == 1? 4:0;
+	res = Map[y + 1][x] == 1? 8:0;
+
+	return res;
+}
+
+EnvFeedBack CGameStateRun::expect_next_step(int dir) {
+	int dis;
+	int x = Pacman[0];
+	int y = Pacman[1];
+
+	if (dir == 0) x++;
+	else if (dir == 1) y--;
+	else if (dir == 2) x--;
+	else y++;
+
+	pair<pair<int, int>, int> a = min_dis_pacman_ghost(x, y);
+	int b = near_coin_dir(x, y);
+	int c = near_power_dir(x, y);
+	int d = near_wall(x, y);
+
+	if (a.first.first < DIS_NEAR) dis = 0;
+	else dis = 1;
+
+	EnvFeedBack t;
+
+	t.ghost_dis = dis;
+	t.ghost_dir = a.first.second;
+	t.ghost_state = a.second;
+	t.power_dir = c;
+	t.coin_dir = b;
+	t.wall_dir = d;
+
+	return t;
+}

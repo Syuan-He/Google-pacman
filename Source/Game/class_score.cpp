@@ -7,6 +7,7 @@
 #include "../Library/gamecore.h"
 #include "mygame.h"
 #include <memory>
+#include <queue>
 
 using namespace game_framework;
 
@@ -86,10 +87,13 @@ void GameScore::show_score(int size) {
 bool GameScore::get_point(GamePacman obj) {
 	for (auto it = coins.begin(); it != coins.end(); it ++) {
 		if (obj.IsOverlap(obj, *it)) {
+			pair<int, int> t = coin_position[*it];
+			gameMap.erase_v(t.first, t.second);
+
 			it = coins.erase(it);
 			total_coin_nums--;
 			score += 10;
-
+		
 			return true;
 		}
 	}
@@ -133,6 +137,7 @@ void GameScore::initialize(GameMap Map) {
 				t->LoadBitmapA("Resources/words/coin.bmp");
 				t->SetTopLeft(16 * (j - 2) + 6 + window_shift[0], 16 * i + 6 + window_shift[1]);
 				add_coin(*t);
+				coin_position[*t] = pair<int, int>(i, j);
 				set_coin_nums(1);
 			}
 			//為3的道路加入大力丸
@@ -145,4 +150,33 @@ void GameScore::initialize(GameMap Map) {
 		}
 	}
 	score = 0;
+}
+
+int GameScore::get_coin_dir(int x, int y) {
+	queue<pair<int, int>> q_pos;
+	int dir[4][2] = { {1, 0}, {0, -1}, {-1, 0}, {0, 1} };
+
+	int y_len = gameMap.map_len[0], x_len = gameMap.map_len[1];
+	vector<vector<vector<int>>> pre = vector<vector<vector<int>>>(x_len, vector< vector<int>>(y_len, vector<int>(3)));
+	 
+	q_pos.push(pair<int, int>(x, y));
+	while (!q_pos.empty()) {
+		pair<int, int> pos = q_pos.front();
+		q_pos.pop();
+		int xx = pos.first;
+		int yy = pos.second;
+
+		if (gameMap[xx][yy] == 0) {
+			break;
+		}
+
+		if (gameMap[xx + 1][yy] != 1) {
+			q_pos.push(pair<int, int>(xx + 1, yy));
+		}
+		if (gameMap[xx][yy - 1] != 1) q_pos.push(pair<int, int>(xx, yy - 1));
+		if (gameMap[xx - 1][yy] != 1) q_pos.push(pair<int, int>(xx - 1, yy));
+		if (gameMap[xx][yy + 1] != 1) q_pos.push(pair<int, int>(xx, yy + 1));
+	}
+
+	return ;
 }
