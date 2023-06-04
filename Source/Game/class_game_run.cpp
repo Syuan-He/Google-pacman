@@ -220,6 +220,8 @@ void CGameStateRun::pacman_get_catch(int mode) {
 			Pacman.hearts_icon.set_nums(-1);
 			phase = 2;
 			Pacman.SetFrameIndexOfBitmap(8);
+
+			Reward += R_ate_by_ghost;
 			break;
 		}
 		else if (get_catch && obj.isChoas == 1) {
@@ -235,6 +237,8 @@ void CGameStateRun::pacman_get_catch(int mode) {
 			if (ghostCatchCount > 3) {
 				ghostCatchCount = 0;
 			}
+
+			Reward += R_eat_ghost;
 		}
 	}
 
@@ -254,6 +258,7 @@ void CGameStateRun::change_level(int level) {
 	Map = NewMap;
 
 	//加入參考地圖
+	Score.set_game_map(Map);
 	Pacman.set_game_map(Map);
 	for (GameGhost &obj : ghosts) {
 		obj.set_game_map(Map);
@@ -296,7 +301,8 @@ void CGameStateRun::change_level(int level) {
 void CGameStateRun::debugText() {
 	CDC *pDC = CDDraw::GetBackCDC();
 
-	string strPacPos = "", strPacPoi = "", strCatchTime = "", strInkyChoas = "", strInvincible = "Invincible: ";
+	string strPacPos = "", strPacPoi = "", strCatchTime = "", strInkyChoas = "", strInvincible = "Invincible: ", strNearGhost = "D(ghost):",
+		strNearGhostDir = "Dir(ghost):", strNearGhostState = "S(ghost):", strNearCoin = "Dir(coin):", strNearPower = "Dir(power):";
 
 	//地圖陣列位置
 	strPacPos += to_string(Pacman[0]) + ", " + to_string(Pacman[1]);	//position in array
@@ -308,6 +314,18 @@ void CGameStateRun::debugText() {
 	strInkyChoas += to_string(Inky.isChoas);
 
 	strInvincible += invincible ? "True" : "False";
+
+	int xx = Pacman[0];
+	int yy = Pacman[1];
+
+	if (training) {
+		strNearGhost += to_string(min_dis_pacman_ghost(xx, yy).first.first);
+		strNearGhostDir += to_string(min_dis_pacman_ghost(xx, yy).first.second);
+		strNearGhostState += to_string(min_dis_pacman_ghost(xx, yy).second);
+		strNearCoin += to_string(near_coin_dir(xx, yy));
+		strNearPower += to_string(near_power_dir(xx, yy));
+	}
+	
 
 	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
 	CTextDraw::Print(pDC, 25, 430, strPacPos);
@@ -323,6 +341,18 @@ void CGameStateRun::debugText() {
 
 	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
 	CTextDraw::Print(pDC, 325, 430, strInvincible);
+
+	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
+	CTextDraw::Print(pDC, 325, 460, strNearGhost);
+	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
+	CTextDraw::Print(pDC, 325, 490, strNearGhostState);
+	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
+	CTextDraw::Print(pDC, 325, 520, strNearCoin);
+	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
+	CTextDraw::Print(pDC, 625, 430, strNearPower);
+	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
+	CTextDraw::Print(pDC, 625, 460, strNearGhostDir);
+	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
 
 	CDDraw::ReleaseBackCDC();
 }
@@ -345,6 +375,7 @@ pair<pair<int, int>, int> CGameStateRun::min_dis_pacman_ghost(int x_p, int y_p) 
 			dir = t.getAstar(x_p, y_p, x_g, y_g);
 		}
 	}
+	min_dis = min_dis > DIS_NEAR ? 1 : 0;
 	return pair<pair<int, int>, int>(pair<int, int>(min_dis, dir), is_choas);
 }
 
@@ -359,9 +390,9 @@ int CGameStateRun::near_power_dir(int x, int y) {
 int CGameStateRun::near_wall(int x, int y) {
 	int res = 0;
 	res += Map[y][x + 1] == 1? 1:0;
-	res = Map[y - 1][x] == 1? 2:0;
-	res = Map[y][x - 1] == 1? 4:0;
-	res = Map[y + 1][x] == 1? 8:0;
+	res += Map[y - 1][x] == 1? 2:0;
+	res += Map[y][x - 1] == 1? 4:0;
+	res += Map[y + 1][x] == 1? 8:0;
 
 	return res;
 }

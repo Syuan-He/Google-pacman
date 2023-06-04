@@ -26,6 +26,7 @@ void CGameStateRun::OnBeginState()
 	//遊戲開始時間
 	exc_time_begin = time(NULL);
 	Game_audio -> Play(AUDIO_BEGIN);
+	Auto.game_set();
 }
 
 
@@ -37,6 +38,28 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 			Sleep(1250);
 			preGhostCatchCount = ghostCatchCount;
 		}
+		if (Pacman.get_total_step() == Pacman.get_velocity()) {
+			Pacman.update_position(Pacman.getDirNow());
+			if (training) {
+				EnvFeedBack r;
+				pair<pair<int, int>, int> t = min_dis_pacman_ghost(Pacman[0], Pacman[1]);
+				r.ghost_dis = t.first.first;
+				r.ghost_dir = t.first.second;
+				r.ghost_state = t.second;
+				r.coin_dir = near_coin_dir(Pacman[0], Pacman[1]);
+				r.power_dir = near_power_dir(Pacman[0], Pacman[1]);
+				r.wall_dir = near_wall(Pacman[0], Pacman[1]);
+				int dir = Auto.choose_dir(r);
+
+				EnvFeedBack r_ = expect_next_step(dir);
+				double reward_e = Auto.get_expected_max_score(r_);
+				Auto.train(r, dir, Reward, reward_e);
+
+				Reward = 0;
+				Pacman.set_dir_waitfor(dir);
+			}
+		}
+
 		Pacman.move();
 
 		//模式改變前的方向改變
@@ -353,6 +376,8 @@ void CGameStateRun::OnShow()
 {
 	//偵測是否吃到豆子
 	if (Score.get_point(Pacman)) {
+		if (training) Reward += R_get_point;
+
 		//播放音效
 		Game_audio -> Resume();
 		//重置計數器
@@ -373,6 +398,8 @@ void CGameStateRun::OnShow()
 	}	
 	//偵測是否吃到大力丸、鬼進入混亂模式
 	if (Score.get_power(Pacman)) {
+		if (training) Reward += R_get_power;
+
 		Game_audio -> Play(AUDIO_POWERUP, true);
 		ghostCatchCount = 0;
 		preGhostCatchCount = 0;

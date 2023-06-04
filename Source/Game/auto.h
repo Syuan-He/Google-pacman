@@ -21,7 +21,7 @@ private:
 	//coin_dir
 	//wall_dir
 	//choose_dir
-	double Q_table[2][4][2][4][4][16][4];
+	double Q_table[2][4][2][4][4][16][4] = {};
 
 	double rate = 0.8;
 	double lr = 0.01;

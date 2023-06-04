@@ -159,17 +159,20 @@ namespace game_framework {
 		void pacman_get_catch(int mode = 0);	//pacman是否被鬼抓到
 		void change_level(int level);			//切換關卡
 
-		bool debug_mod = false;
+		bool debug_mod = true;
 		bool invincible = false;
 		void debugText();
 
 		//test
+		bool training = true;
+		double Reward = 0;
 		const int DIS_NEAR = 5;
 
 		const int R_get_point = 10;
 		const int R_get_power = 10;
 		const int R_ate_by_ghost = -100;
 		const int R_eat_ghost = 100;
+		const int R_hit_wall = -999;
 		GameAuto Auto;
 		pair<pair<int, int>, int> min_dis_pacman_ghost(int x_p, int y_p);
 		int near_coin_dir(int x, int y);

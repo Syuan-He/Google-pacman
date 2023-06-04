@@ -10,21 +10,22 @@
 using namespace game_framework;
 
 bool GameAuto::game_set() {
-	//for (int i_g = 0; i_g < 16; i_g++) {
-	//	for (int i_c = 0; i_c < 4; i_c++) {
-	//		for (int i_p = 0; i_p < 4; i_p++) {
-	//			for (int i_w = 1; i_w < 16; i_w += 2) {
-	//				for (int i_d = 0; i_d < 4; i_d++) {
-	//					if ((i_w & 1) == 1) Q_table[i_g][i_c][i_p][i_w][i_d][0] = -999;
-	//					if ((i_w & 2) == 2) Q_table[i_g][i_c][i_p][i_w][i_d][1] = -999;
-	//					if ((i_w & 4) == 4) Q_table[i_g][i_c][i_p][i_w][i_d][2] = -999;
-	//					if ((i_w & 8) == 8) Q_table[i_g][i_c][i_p][i_w][i_d][3] = -999;
-	//					//if (i_g > 7) Q_table[i_g][i_c][i_p][i_w][i_d][int((i_g - 8) / 2)] = 10;
-	//				}
-	//			}
-	//		}
-	//	}
-	//}
+	for (int i_g0 = 0; i_g0 < 2; i_g0 ++) {
+		for (int i_g1 = 0; i_g1 < 4; i_g1++) {
+			for (int i_g2 = 0; i_g2 < 2; i_g2++) {
+				for (int i_c = 0; i_c < 4; i_c++) {
+					for (int i_p = 0; i_p < 4; i_p++) {
+						for (int i_w = 0; i_w < 16; i_w ++) {
+							if ((i_w & 1) != 0) Q_table[i_g0][i_g1][i_g2][i_c][i_p][i_w][0] = -999;
+							if ((i_w & 2) != 0) Q_table[i_g0][i_g1][i_g2][i_c][i_p][i_w][1] = -999;
+							if ((i_w & 4) != 0) Q_table[i_g0][i_g1][i_g2][i_c][i_p][i_w][2] = -999;
+							if ((i_w & 8) != 0) Q_table[i_g0][i_g1][i_g2][i_c][i_p][i_w][3] = -999;
+						}
+					}
+				}
+			}
+		}
+	}
 	srand((unsigned)time(NULL));
 	return true;
 }
@@ -42,9 +43,11 @@ double GameAuto::game_go(EnvFeedBack state, double reward) {
 }
 
 int GameAuto::choose_dir(EnvFeedBack state) {
-	int op;
+	int op = rand() % 4;;
 	if (rand() % 101 > greedy) {
-		op = rand() % 4;
+		while (Q_table[state.ghost_dis][state.ghost_dir][state.ghost_state][state.power_dir][state.coin_dir][state.wall_dir][op] < -100) {
+			op = rand() % 4;
+		}
 	}
 	else {
 		double maxx = -10000;
