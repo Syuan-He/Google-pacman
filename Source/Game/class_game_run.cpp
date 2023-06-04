@@ -37,6 +37,7 @@ void CGameStateRun::show_obj_by_phase() {
 		if (time(NULL) - exc_time_begin > 4) {
 			//播放音效
 			Game_audio -> Play(AUDIO_MOVE, true);
+			
 			phase = 1;
 			modePlayTime = time(NULL);
 			modeCount = 0;
@@ -118,6 +119,7 @@ void CGameStateRun::show_obj_by_phase() {
 			level ++;
 			if (level < end_level) {
 				change_level(level);
+				
 				Score.initialize(Map);
 				Pacman.initialize();
 				Pacman.hearts_icon.set_nums(2, 1);
@@ -125,8 +127,10 @@ void CGameStateRun::show_obj_by_phase() {
 				initialGhosts();
 				Boss.initialize();
 				Ready_icon.SetTopLeft(Ready_icon.window_shift[0], Ready_icon.window_shift[1]);
+				
 				exc_time_begin = time(NULL);
 				phase = 0;
+				
 				Game_audio->Play(AUDIO_BEGIN);
 			}
 			else {
@@ -176,6 +180,9 @@ void CGameStateRun::show_obj_by_phase() {
 		CDDraw::ReleaseBackCDC();
 		
 		if (time(NULL) - exc_time_begin > score_his.size() * 2 + 3) {
+			Game_audio->Stop(AUDIO_MOVE);
+			Game_audio->Stop(AUDIO_POWERUP);
+			
 			change_level(level = 0);
 			Score.initialize(Map);
 			Pacman.initialize();
@@ -183,9 +190,11 @@ void CGameStateRun::show_obj_by_phase() {
 			Pacman.heart_initialize();
 			initialGhosts();
 			Ready_icon.SetTopLeft(Ready_icon.window_shift[0], Ready_icon.window_shift[1]);
+
 			exc_time_begin = time(NULL);
 			phase = 0;
 			score_his.clear();
+			
 			GotoGameState(GAME_STATE_INIT);
 		}
 	}
@@ -211,8 +220,6 @@ void CGameStateRun::pacman_get_catch(int mode) {
 			Pacman.hearts_icon.set_nums(-1);
 			phase = 2;
 			Pacman.SetFrameIndexOfBitmap(8);
-
-			Reward += R_ate_by_ghost;
 			break;
 		}
 		else if (get_catch && obj.isChoas == 1) {
@@ -228,8 +235,6 @@ void CGameStateRun::pacman_get_catch(int mode) {
 			if (ghostCatchCount > 3) {
 				ghostCatchCount = 0;
 			}
-
-			Reward += R_eat_ghost;
 		}
 	}
 
@@ -249,7 +254,6 @@ void CGameStateRun::change_level(int level) {
 	Map = NewMap;
 
 	//加入參考地圖
-	Score.set_game_map(Map);
 	Pacman.set_game_map(Map);
 	for (GameGhost &obj : ghosts) {
 		obj.set_game_map(Map);
@@ -292,8 +296,7 @@ void CGameStateRun::change_level(int level) {
 void CGameStateRun::debugText() {
 	CDC *pDC = CDDraw::GetBackCDC();
 
-	string strPacPos = "", strPacPoi = "", strCatchTime = "", strInkyChoas = "", strInvincible = "Invincible: ", strNearGhost = "D(ghost):",
-		strNearGhostDir = "Dir(ghost):", strNearGhostState = "S(ghost):", strNearCoin = "Dir(coin):", strNearPower = "Dir(power):";
+	string strPacPos = "", strPacPoi = "", strCatchTime = "", strInkyChoas = "", strInvincible = "Invincible: ";
 
 	//地圖陣列位置
 	strPacPos += to_string(Pacman[0]) + ", " + to_string(Pacman[1]);	//position in array
@@ -305,18 +308,6 @@ void CGameStateRun::debugText() {
 	strInkyChoas += to_string(Inky.isChoas);
 
 	strInvincible += invincible ? "True" : "False";
-
-	int xx = Pacman[0];
-	int yy = Pacman[1];
-
-	if (training) {
-		strNearGhost += to_string(min_dis_pacman_ghost(xx, yy).first.first);
-		strNearGhostDir += to_string(min_dis_pacman_ghost(xx, yy).first.second);
-		strNearGhostState += to_string(min_dis_pacman_ghost(xx, yy).second);
-		strNearCoin += to_string(near_coin_dir(xx, yy));
-		strNearPower += to_string(near_power_dir(xx, yy));
-	}
-	
 
 	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
 	CTextDraw::Print(pDC, 25, 430, strPacPos);
@@ -333,87 +324,5 @@ void CGameStateRun::debugText() {
 	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
 	CTextDraw::Print(pDC, 325, 430, strInvincible);
 
-	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
-	CTextDraw::Print(pDC, 325, 460, strNearGhost);
-	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
-	CTextDraw::Print(pDC, 325, 490, strNearGhostState);
-	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
-	CTextDraw::Print(pDC, 325, 520, strNearCoin);
-	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
-	CTextDraw::Print(pDC, 625, 430, strNearPower);
-	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
-	CTextDraw::Print(pDC, 625, 460, strNearGhostDir);
-	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
-
 	CDDraw::ReleaseBackCDC();
-}
-
-
-//test
-pair<pair<int, int>, int> CGameStateRun::min_dis_pacman_ghost(int x_p, int y_p) {
-	int min_dis = INT_FAST16_MAX;
-	int is_choas = 0;
-	int dir;
-
-	for (GameGhost t : ghosts) {
-		int x_g = t[0];
-		int y_g = t[1];
-
-		double dis = pow((x_g - x_p), 2) + pow((y_g - y_p), 2);
-		if (min_dis > int(pow(dis, 0.5))) {
-			min_dis = int(pow(dis, 0.5));
-			is_choas = t.isChoas == 1 ? 1 : 0;
-			dir = t.getAstar(x_p, y_p, x_g, y_g);
-		}
-	}
-	min_dis = min_dis > DIS_NEAR ? 1 : 0;
-	return pair<pair<int, int>, int>(pair<int, int>(min_dis, dir), is_choas);
-}
-
-int CGameStateRun::near_coin_dir(int x, int y) {
-	return Score.get_coin_dir(x, y);
-}
-
-int CGameStateRun::near_power_dir(int x, int y) {
-	return Score.get_power_dir(16 * x + Pacman.window_shift[0] + 6, 16 * y + Pacman.window_shift[1] + 4);
-}
-
-int CGameStateRun::near_wall(int x, int y) {
-	int res = 0;
-	res += Map[y][x + 1] == 1? 1:0;
-	res += Map[y - 1][x] == 1? 2:0;
-	res += Map[y][x - 1] == 1? 4:0;
-	res += Map[y + 1][x] == 1? 8:0;
-
-	return res;
-}
-
-EnvFeedBack CGameStateRun::expect_next_step(int dir) {
-	int dis;
-	int x = Pacman[0];
-	int y = Pacman[1];
-
-	if (dir == 0) x++;
-	else if (dir == 1) y--;
-	else if (dir == 2) x--;
-	else y++;
-
-	pair<pair<int, int>, int> a = min_dis_pacman_ghost(x, y);
-	int b = near_coin_dir(x, y);
-	int c = near_power_dir(x, y);
-	int d = near_wall(x, y);
-
-	if (a.first.first < DIS_NEAR) dis = 0;
-	else dis = 1;
-
-	EnvFeedBack t;
-
-	t.ghost_dis = dis;
-	t.ghost_dir = a.first.second;
-	t.ghost_state = a.second;
-	t.power_dir = c;
-	t.coin_dir = b;
-	t.wall_dir = d;
-
-	return t;
 }

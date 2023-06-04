@@ -19,7 +19,7 @@ void GamePacman::move() {
 	//如果走為一步
 	if (total_step == velocity) {
 		//更新位置
-		//update_position(dir_now);
+		update_position(dir_now);
 
 		//更新速度
 		if (waitVelocity != velocity) {
@@ -86,11 +86,6 @@ void  GamePacman::reset_step_counter() {
 int GamePacman::get_step_counter() {
 	return step_counter;
 }
-
-int GamePacman::get_total_step() {
-	return total_step;
-}
-
 
 void GamePacman::heart_initialize() {
 	hearts_icon.clear_objs();

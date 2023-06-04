@@ -410,10 +410,6 @@ void GameGhost::set_enter_portal_t() {
 	enter_portal_t = time(NULL);
 }
 
-int GameGhost::getAstar(int x0, int y0, int x1, int y1) {
-	return astar(x0, y0, x1, y1);
-}
-
 int GameGhost::getInitPos(int n) {
 	return initial_pos[n];
 }
@@ -545,4 +541,3 @@ void GameBoss::set_is_using(bool use) {
 bool GameBoss::get_is_using() {
 	return is_using;
 }
-

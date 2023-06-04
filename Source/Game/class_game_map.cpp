@@ -103,10 +103,6 @@ void GameMap::add_portal_icon(int x, int y) {
 	portal_icon.push_back(*t);
 }
 
-void GameMap::erase_v(int x, int y) {
-	gameMap[x][y] = 2;
-}
-
 //顯示傳送門
 void GameMap::show_portal() {
 	if (!portal_icon.empty()) {

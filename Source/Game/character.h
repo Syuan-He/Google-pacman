@@ -57,7 +57,6 @@ public:
 	void reset_step_counter();
 	
 	int get_step_counter();
-	int get_total_step();
 	void heart_initialize();
 	void show_heart_icon(int size);
 	int getDirNow();
@@ -95,7 +94,6 @@ public:
 	void move(int x1, int y1, int portal_mode = 0);
 	void turnBack();
 
-	int getAstar(int x0, int y0, int x1, int y1);
 	int getInitPos(int n);
 	time_t get_enter_portal_t();
 };
