@@ -167,7 +167,7 @@ namespace game_framework {
 		time_t auto_save;
 		time_t round_time;
 		
-		int dead_time = 100;
+		int dead_time = 30;
 		int total_coin_num;
 		int eaten_coin_num = 0;
 		double last_accuracy = 0;

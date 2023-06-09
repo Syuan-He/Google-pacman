@@ -420,8 +420,8 @@ EnvFeedBack CGameStateRun::expect_next_step(int dir) {
 void CGameStateRun::accuracy() {
 	dead_time --;
 	if (dead_time == 0) {
-		last_accuracy = eaten_coin_num / double(100 * total_coin_num);
-		dead_time = 100;
+		last_accuracy = eaten_coin_num / double(30 * total_coin_num);
+		dead_time = 30;
 		eaten_coin_num = 0;
 	}
 }

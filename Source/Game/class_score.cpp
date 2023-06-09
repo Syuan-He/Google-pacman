@@ -130,6 +130,7 @@ void GameScore::get_ghost(GamePacman obj, GameGhost ghost, int catchTime) {
 
 void GameScore::initialize(GameMap Map) {
 	coins.clear();
+	coin_position.clear();
 	power_pellets.clear();
 	set_coin_nums(0, 1);
 
@@ -154,7 +155,6 @@ void GameScore::initialize(GameMap Map) {
 			}
 		}
 	}
-	coin_position;
 	score = 0;
 }
 
