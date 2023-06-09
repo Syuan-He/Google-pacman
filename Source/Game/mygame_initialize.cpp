@@ -26,9 +26,7 @@ void CGameStateInit::OnInit()
 	//
 	// 開始載入資料
 	//
-	Sleep(200);				// 放慢，以便看清楚進度，實際遊戲請刪除此Sleep
 	ShowInitProgress(66, "Initialize...");
-	Sleep(200);
 	//
 	// 此OnInit動作會接到CGameStaterRun::OnInit()，所以進度還沒到100%
 	//
