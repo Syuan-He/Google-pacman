@@ -60,8 +60,6 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 				double reward_e = Auto.get_expected_max_score(r_);
 				Auto.train(r, dir, Reward, reward_e);
 
-				//int dir = Auto.choose_dir_By_Qtable(r);
-
 				Reward = 0;
 				Pacman.set_dir_waitfor(dir);
 			}

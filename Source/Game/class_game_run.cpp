@@ -56,6 +56,33 @@ void CGameStateRun::show_obj_by_phase() {
 		exc_time_begin = time(NULL);
 		phase = 0;
 		Pacman.initialize();
+
+		int x, y, dir;
+		do {
+			x = rand() % 62;
+			y = rand() % 17;
+		} while (Map[y][x] != 0);
+		Pacman.setPos(x, y);
+		do {
+			dir = rand() % 4;
+			if (dir == 0 && Map[y][x + 1] == 0) {
+				Pacman.set_dir_waitfor(0);
+				break;
+			}
+			else if (dir == 1 && Map[y - 1][x] == 0) {
+				Pacman.set_dir_waitfor(1);
+				break;
+			}
+			else if (dir == 2 && Map[y][x - 1] == 0) {
+				Pacman.set_dir_waitfor(2);
+				break;
+			}
+			else if (dir == 3 && Map[y + 1][x] == 0) {
+				Pacman.set_dir_waitfor(3);
+				break;
+			}
+		} while (true);
+		
 		initialGhosts();
 		Boss.initialize();
 		Score.initialize(Map);
