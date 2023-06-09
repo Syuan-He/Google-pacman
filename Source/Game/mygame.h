@@ -179,7 +179,8 @@ namespace game_framework {
 		const int R_get_power = 10;
 		const int R_ate_by_ghost = -100;
 		const int R_eat_ghost = 100;
-		const int R_hit_wall = -999;
+		const int R_same_dir = 5;
+
 		GameAuto Auto;
 		pair<pair<int, int>, int> min_dis_pacman_ghost(int x_p, int y_p);
 		int near_coin_dir(int x, int y);

@@ -12,6 +12,7 @@ public:
 	int power_dir;
 	int coin_dir;
 	int wall_dir;
+	int last_dir;
 };
 
 class GameAuto {
@@ -20,12 +21,18 @@ private:
 	//power_dir
 	//coin_dir
 	//wall_dir
+	//last_dir
 	//choose_dir
-	double Q_table[2][4][2][4][4][16][4] = {};
+	double Q_table[2][4][2][4][4][16][4][4] = {};
 
-	double rate = 0.8;
-	double lr = 0.01;
+	double rate = 0.7;
 	int greedy = 70;
+
+	//learing rate
+	double lr = 0.01;
+	int step = 0;
+	int decay_step = 100;
+	double decay_rate = 0.5;
 public:
 	bool game_set();
 	double get_expected_max_score(EnvFeedBack state);

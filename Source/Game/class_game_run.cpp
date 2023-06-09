@@ -413,6 +413,7 @@ EnvFeedBack CGameStateRun::expect_next_step(int dir) {
 	t.power_dir = c;
 	t.coin_dir = b;
 	t.wall_dir = d;
+	t.last_dir = Pacman.getDirNow();
 
 	return t;
 }

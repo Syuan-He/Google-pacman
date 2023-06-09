@@ -7,6 +7,7 @@
 #include "../Library/gamecore.h"
 #include "mygame.h"
 #include <fstream>
+#include <math.h>
 
 using namespace game_framework;
 
@@ -18,11 +19,13 @@ bool GameAuto::game_set() {
 			for (int i_g2 = 0; i_g2 < 2; i_g2++) {
 				for (int i_c = 0; i_c < 4; i_c++) {
 					for (int i_p = 0; i_p < 4; i_p++) {
-						for (int i_w = 0; i_w < 16; i_w ++) {
-							if ((i_w & 1) != 0) Q_table[i_g0][i_g1][i_g2][i_c][i_p][i_w][0] = -99999;
-							if ((i_w & 2) != 0) Q_table[i_g0][i_g1][i_g2][i_c][i_p][i_w][1] = -99999;
-							if ((i_w & 4) != 0) Q_table[i_g0][i_g1][i_g2][i_c][i_p][i_w][2] = -99999;
-							if ((i_w & 8) != 0) Q_table[i_g0][i_g1][i_g2][i_c][i_p][i_w][3] = -99999;
+						for (int i_d = 0; i_d < 4; i_d++) {
+							for (int i_w = 0; i_w < 16; i_w++) {
+								if ((i_w & 1) != 0) Q_table[i_g0][i_g1][i_g2][i_c][i_p][i_w][i_d][0] = -999;
+								if ((i_w & 2) != 0) Q_table[i_g0][i_g1][i_g2][i_c][i_p][i_w][i_d][1] = -999;
+								if ((i_w & 4) != 0) Q_table[i_g0][i_g1][i_g2][i_c][i_p][i_w][i_d][2] = -999;
+								if ((i_w & 8) != 0) Q_table[i_g0][i_g1][i_g2][i_c][i_p][i_w][i_d][3] = -999;
+							}
 						}
 					}
 				}
@@ -35,7 +38,7 @@ bool GameAuto::game_set() {
 double GameAuto::get_expected_max_score(EnvFeedBack state) {
 	double s = -10000;
 	for (int dir = 0; dir < 4; dir++) {
-		s = max(s, Q_table[state.ghost_dis][state.ghost_dir][state.ghost_state][state.power_dir][state.coin_dir][state.wall_dir][dir]);
+		s = max(s, Q_table[state.ghost_dis][state.ghost_dir][state.ghost_state][state.power_dir][state.coin_dir][state.wall_dir][state.last_dir][dir]);
 	}
 	return s;
 }
@@ -54,8 +57,8 @@ int GameAuto::choose_dir(EnvFeedBack state) {
 	else {
 		double maxx = -10000;
 		for (int i = 0; i < 4; i++) {
-			if (maxx <= Q_table[state.ghost_dis][state.ghost_dir][state.ghost_state][state.power_dir][state.coin_dir][state.wall_dir][i]) {
-				maxx = Q_table[state.ghost_dis][state.ghost_dir][state.ghost_state][state.power_dir][state.coin_dir][state.wall_dir][i];
+			if (maxx <= Q_table[state.ghost_dis][state.ghost_dir][state.ghost_state][state.power_dir][state.coin_dir][state.wall_dir][state.last_dir][i]) {
+				maxx = Q_table[state.ghost_dis][state.ghost_dir][state.ghost_state][state.power_dir][state.coin_dir][state.wall_dir][state.last_dir][i];
 				op = i;
 			}
 		}
@@ -68,8 +71,8 @@ int GameAuto::choose_dir_By_Qtable(EnvFeedBack state) {
 	int op;
 	double maxx = -999;
 	for (int i = 0; i < 4; i++) {
-		if (maxx < Q_table[state.ghost_dis][state.ghost_dir][state.ghost_state][state.power_dir][state.coin_dir][state.wall_dir][i]) {
-			maxx = Q_table[state.ghost_dis][state.ghost_dir][state.ghost_state][state.power_dir][state.coin_dir][state.wall_dir][i];
+		if (maxx < Q_table[state.ghost_dis][state.ghost_dir][state.ghost_state][state.power_dir][state.coin_dir][state.wall_dir][state.last_dir][i]) {
+			maxx = Q_table[state.ghost_dis][state.ghost_dir][state.ghost_state][state.power_dir][state.coin_dir][state.wall_dir][state.last_dir][i];
 			op = i;
 		}
 	}
@@ -79,7 +82,7 @@ int GameAuto::choose_dir_By_Qtable(EnvFeedBack state) {
 
 void GameAuto::train(EnvFeedBack state, int dir, double reward, double reward_e) {
 	double reward_ = game_go(state, reward);
-	Q_table[state.ghost_dis][state.ghost_dir][state.ghost_state][state.power_dir][state.coin_dir][state.wall_dir][dir] += lr * (reward_ - reward_e);
+	Q_table[state.ghost_dis][state.ghost_dir][state.ghost_state][state.power_dir][state.coin_dir][state.wall_dir][state.last_dir][dir] += lr * pow(decay_rate, double(step / decay_step)) * (reward_ - reward_e);
 }
 
 void GameAuto::store_matrix(string dir) {
@@ -91,8 +94,11 @@ void GameAuto::store_matrix(string dir) {
 					for (int i_c = 0; i_c < 4; i_c++) {
 						for (int i_p = 0; i_p < 4; i_p++) {
 							for (int i_w = 0; i_w < 16; i_w++) {
-								for (int dir_c = 0; dir_c < 4; dir_c ++) {
-									outputFile << Q_table[i_g0][i_g1][i_g2][i_c][i_p][i_w][dir_c] << " ";
+								for (int i_d = 0; i_d < 4; i_d++) {
+									for (int dir_c = 0; dir_c < 4; dir_c ++) {
+										outputFile << Q_table[i_g0][i_g1][i_g2][i_c][i_p][i_w][i_d][dir_c] << " ";
+									}
+									outputFile << "\n";
 								}
 								outputFile << "\n";
 							}
@@ -120,9 +126,11 @@ void GameAuto::load_matrix(string dir) {
 					for (int i_c = 0; i_c < 4; i_c++) {
 						for (int i_p = 0; i_p < 4; i_p++) {
 							for (int i_w = 0; i_w < 16; i_w++) {
-								for (int dir_c = 0; dir_c < 4; dir_c ++) {
-									inputFile >> number;
-									Q_table[i_g0][i_g1][i_g2][i_c][i_p][i_w][dir_c] = number;
+								for (int i_d = 0; i_d < 4; i_d++) {
+									for (int dir_c = 0; dir_c < 4; dir_c++) {
+										inputFile >> number;
+										Q_table[i_g0][i_g1][i_g2][i_c][i_p][i_w][i_d][dir_c] = number;
+									}
 								}
 							}
 						}

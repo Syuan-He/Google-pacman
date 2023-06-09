@@ -49,12 +49,17 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 				r.coin_dir = near_coin_dir(Pacman[0], Pacman[1]);
 				r.power_dir = near_power_dir(Pacman[0], Pacman[1]);
 				r.wall_dir = near_wall(Pacman[0], Pacman[1]);
+				r.last_dir = Pacman.getDirNow();
 
 				int dir;
 				do {
 					dir = Auto.choose_dir(r);
 				} while (((1 << dir) & r.wall_dir) != 0);
 				
+				if (r.last_dir == dir) {
+					Reward += R_same_dir;
+				}
+
 				EnvFeedBack r_ = expect_next_step(dir);
 				double reward_e = Auto.get_expected_max_score(r_);
 				Auto.train(r, dir, Reward, reward_e);
