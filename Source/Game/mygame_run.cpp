@@ -36,7 +36,6 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 	//階段2才能移動
 	if (phase == 1) {
 		if (preGhostCatchCount != ghostCatchCount) {
-			Sleep(1250);
 			preGhostCatchCount = ghostCatchCount;
 		}
 		if (Pacman.get_total_step() == Pacman.get_velocity()) {
@@ -91,12 +90,6 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 		Auto.store_matrix("Resources/auto/Qtable.txt");
 		auto_save = time(NULL);
 	}
-	/*if (time(NULL) - round_time > ROUND_TIME_MAX) {
-		phase = 2;
-		Reward = 0;
-		round_time = time(NULL);
-	}*/
-
 }
 
 void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定

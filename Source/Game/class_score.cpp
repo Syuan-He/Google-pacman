@@ -160,13 +160,6 @@ void GameScore::initialize(GameMap Map) {
 
 int GameScore::get_coin_dir(int x, int y) {
 	int dir[4][2] = { {1, 0}, {0, -1}, {-1, 0}, {0, 1} };
-
-	for (int i = 0; i < 4; i++) {
-		if (gameMap[y + dir[i][1]][x + dir[i][0]] == 0) {
-			return i;
-		}
-	}
-
 	queue<pair<int, int>> q_pos;
 	
 	int y_len = gameMap.map_len[0], x_len = gameMap.map_len[1];
