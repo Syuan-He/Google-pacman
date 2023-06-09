@@ -59,6 +59,8 @@ void CGameStateRun::show_obj_by_phase() {
 		initialGhosts();
 		Boss.initialize();
 		Score.initialize(Map);
+
+		accuracy();
 	}
 	//階段3(生命歸零)
 	else if (phase == 3) {
@@ -259,7 +261,7 @@ void CGameStateRun::debugText() {
 	CDC *pDC = CDDraw::GetBackCDC();
 
 	string strPacPos = "", strPacPoi = "", strCatchTime = "", strInkyChoas = "", strInvincible = "Invincible: ", strNearGhost = "D(ghost):",
-		strNearGhostDir = "Dir(ghost):", strNearGhostState = "S(ghost):", strNearCoin = "Dir(coin):", strNearPower = "Dir(power):";
+		strNearGhostDir = "Dir(ghost):", strNearGhostState = "S(ghost):", strNearCoin = "Dir(coin):", strNearPower = "Dir(power):", strAccuracy = "A:";
 
 	//地圖陣列位置
 	strPacPos += to_string(Pacman[0]) + ", " + to_string(Pacman[1]);	//position in array
@@ -281,6 +283,7 @@ void CGameStateRun::debugText() {
 		strNearGhostState += to_string(min_dis_pacman_ghost(xx, yy).second);
 		strNearCoin += to_string(near_coin_dir(xx, yy));
 		strNearPower += to_string(near_power_dir(xx, yy));
+		strAccuracy += to_string(last_accuracy);
 	}
 	
 
@@ -309,6 +312,8 @@ void CGameStateRun::debugText() {
 	CTextDraw::Print(pDC, 625, 430, strNearPower);
 	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
 	CTextDraw::Print(pDC, 625, 460, strNearGhostDir);
+	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
+	CTextDraw::Print(pDC, 625, 490, strAccuracy);
 	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
 
 	CDDraw::ReleaseBackCDC();
@@ -382,4 +387,13 @@ EnvFeedBack CGameStateRun::expect_next_step(int dir) {
 	t.wall_dir = d;
 
 	return t;
+}
+
+void CGameStateRun::accuracy() {
+	dead_time --;
+	if (dead_time == 0) {
+		last_accuracy = eaten_coin_num / (100 * total_coin_num);
+		dead_time = 100;
+	}
+	eaten_coin_num = 0;
 }

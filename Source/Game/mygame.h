@@ -166,8 +166,14 @@ namespace game_framework {
 		double Reward = 0;
 		time_t auto_save;
 		time_t round_time;
+		
+		int dead_time = 100;
+		int total_coin_num;
+		int eaten_coin_num = 0;
+		double last_accuracy = 0;
+
 		const int ROUND_TIME_MAX = 60;
-		const int DIS_NEAR = 5;
+		const int DIS_NEAR = 4;
 
 		const int R_get_point = 10;
 		const int R_get_power = 10;
@@ -180,6 +186,8 @@ namespace game_framework {
 		int near_power_dir(int x, int y);
 		int near_wall(int x, int y);
 		EnvFeedBack expect_next_step(int dir);
+
+		void accuracy();
 	};
 
 	/////////////////////////////////////////////////////////////////////////////

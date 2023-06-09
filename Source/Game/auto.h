@@ -33,6 +33,8 @@ public:
 	int choose_dir(EnvFeedBack state);
 	int choose_dir_By_Qtable(EnvFeedBack state);
 	void train(EnvFeedBack state, int dir, double reward, double reward_e);
+	
 	void store_matrix(string dir);
 	void load_matrix(string dir);
+	bool create_Qtable(string dir);
 };

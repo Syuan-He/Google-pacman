@@ -11,6 +11,8 @@
 using namespace game_framework;
 
 bool GameAuto::game_set() {
+	if (create_Qtable("Resources/auto/")) return true;
+
 	for (int i_g0 = 0; i_g0 < 2; i_g0 ++) {
 		for (int i_g1 = 0; i_g1 < 4; i_g1++) {
 			for (int i_g2 = 0; i_g2 < 2; i_g2++) {
@@ -46,9 +48,7 @@ double GameAuto::game_go(EnvFeedBack state, double reward) {
 int GameAuto::choose_dir(EnvFeedBack state) {
 	int op = rand() % 4;
 	if (rand() % 101 > greedy) {
-		while (Q_table[state.ghost_dis][state.ghost_dir][state.ghost_state][state.power_dir][state.coin_dir][state.wall_dir][op] < -900) {
-			op = rand() % 4;
-		}
+		op = rand() % 4;
 	}
 	else {
 		double maxx = -10000;
@@ -131,4 +131,19 @@ void GameAuto::load_matrix(string dir) {
 		}
 		inputFile.close();
 	}
+}
+bool GameAuto::create_Qtable(string dir) {
+	ifstream file(dir + "Qtable.txt");
+	if (!file) {
+		ofstream newFile(dir + "Qtable.txt");
+		if (newFile) {
+			newFile.close();
+		}
+		return false;
+	}
+	else {
+		file.close();
+		load_matrix(dir + "Qtable.txt");
+	}
+	return true;
 }

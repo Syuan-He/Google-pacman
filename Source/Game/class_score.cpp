@@ -170,25 +170,18 @@ int GameScore::get_coin_dir(int x, int y) {
 	queue<pair<int, int>> q_pos;
 	
 	int y_len = gameMap.map_len[0], x_len = gameMap.map_len[1];
+	int xx, yy;
 	vector<vector<int>> pre =vector<vector<int>>(x_len, vector<int>(y_len, -1));
-	 
+
 	q_pos.push(pair<int, int>(x, y));
 	while (!q_pos.empty()) {
 		pair<int, int> pos = q_pos.front();
 		q_pos.pop();
-		int xx = pos.first;
-		int yy = pos.second;
+		xx = pos.first;
+		yy = pos.second;
 
 		if (gameMap[yy][xx] == 0) {
-			int fin_dir;
-			while (xx != x || yy != y) {
-				int xx_t = xx;
-				fin_dir = pre[xx][yy];
-				xx = xx - dir[pre[xx][yy]][0];
-				yy = yy - dir[pre[xx_t][yy]][1];
-			}
-			
-			return fin_dir;
+			break;
 		}
 
 		for (int i = 0; i < 4; i++) {
@@ -198,8 +191,15 @@ int GameScore::get_coin_dir(int x, int y) {
 			}
 		}
 	}
+	int fin_dir = -1;
+	while (xx != x || yy != y) {
+		int xx_t = xx;
+		fin_dir = pre[xx][yy];
+		xx = xx - dir[fin_dir][0];
+		yy = yy - dir[fin_dir][1];
+	}
 
-	return -1;
+	return fin_dir;
 }
 
 int GameScore::get_power_dir(int x, int y) {

@@ -50,7 +50,12 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 				r.coin_dir = near_coin_dir(Pacman[0], Pacman[1]);
 				r.power_dir = near_power_dir(Pacman[0], Pacman[1]);
 				r.wall_dir = near_wall(Pacman[0], Pacman[1]);
-				int dir = Auto.choose_dir(r);
+
+				int dir;
+				do {
+					dir = Auto.choose_dir(r);
+				} while (((1 << dir) & r.wall_dir) != 0);
+				
 				EnvFeedBack r_ = expect_next_step(dir);
 				double reward_e = Auto.get_expected_max_score(r_);
 				Auto.train(r, dir, Reward, reward_e);
@@ -84,15 +89,15 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 		}
 	}
 
-	if (time(NULL) - auto_save > 300) {
+	if (time(NULL) - auto_save > 100) {
 		Auto.store_matrix("Resources/auto/Qtable.txt");
 		auto_save = time(NULL);
 	}
-	if (time(NULL) - round_time > ROUND_TIME_MAX) {
+	/*if (time(NULL) - round_time > ROUND_TIME_MAX) {
 		phase = 2;
 		Reward = 0;
 		round_time = time(NULL);
-	}
+	}*/
 
 }
 
@@ -103,6 +108,7 @@ void CGameStateRun::OnInit()  								// 遊戲的初值及圖形設定
 	
 	//分數初始化
 	Score.initialize(Map);
+	total_coin_num = Score.get_coin_nums();
 
 	//pacman初始化
 	Pacman.LoadBitmapByString({
@@ -385,6 +391,7 @@ void CGameStateRun::OnShow()
 	//偵測是否吃到豆子
 	if (Score.get_point(Pacman)) {
 		if (training) Reward += R_get_point;
+		eaten_coin_num++;
 
 		//播放音效
 		//重置計數器
