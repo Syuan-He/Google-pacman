@@ -26,7 +26,8 @@ void CGameStateRun::OnBeginState()
 	//遊戲開始時間
 	exc_time_begin = time(NULL);
 	Auto.game_set();
-	auto_save = time(NULL);
+	auto_save = time(NULL); 
+	round_time = time(NULL);
 }
 
 
@@ -86,6 +87,11 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 	if (time(NULL) - auto_save > 300) {
 		Auto.store_matrix("Resources/auto/Qtable.txt");
 		auto_save = time(NULL);
+	}
+	if (time(NULL) - round_time > ROUND_TIME_MAX) {
+		phase = 2;
+		Reward = 0;
+		round_time = time(NULL);
 	}
 
 }

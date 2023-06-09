@@ -165,6 +165,8 @@ namespace game_framework {
 		bool training = true;
 		double Reward = 0;
 		time_t auto_save;
+		time_t round_time;
+		const int ROUND_TIME_MAX = 60;
 		const int DIS_NEAR = 5;
 
 		const int R_get_point = 10;

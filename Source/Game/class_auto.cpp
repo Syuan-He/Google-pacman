@@ -46,7 +46,7 @@ double GameAuto::game_go(EnvFeedBack state, double reward) {
 int GameAuto::choose_dir(EnvFeedBack state) {
 	int op = rand() % 4;
 	if (rand() % 101 > greedy) {
-		while (Q_table[state.ghost_dis][state.ghost_dir][state.ghost_state][state.power_dir][state.coin_dir][state.wall_dir][op] < -100) {
+		while (Q_table[state.ghost_dis][state.ghost_dir][state.ghost_state][state.power_dir][state.coin_dir][state.wall_dir][op] < -900) {
 			op = rand() % 4;
 		}
 	}

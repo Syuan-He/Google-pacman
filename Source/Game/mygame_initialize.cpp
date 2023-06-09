@@ -86,6 +86,7 @@ void CGameStateInit::OnInit()
 
 void CGameStateInit::OnBeginState()
 {
+	
 }
 
 void CGameStateInit::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
@@ -164,6 +165,8 @@ void CGameStateInit::OnLButtonDown(UINT nFlags, CPoint point)
 
 void CGameStateInit::OnShow()
 {
+	GotoGameState(GAME_STATE_RUN);
+
 	if (menu_now == 0) {
 		Background.ShowBitmap();
 		Menu_main.show_menu();
