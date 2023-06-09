@@ -92,7 +92,7 @@ bool GameScore::get_point(GamePacman obj) {
 	for (unsigned int i = 0; i < coins.size(); i++) {
 		if (obj.IsOverlap(obj, coins[i])) {
 			pair<int, int> t = coin_position[i];
-
+			 
 			gameMap.erase_v(t.first, t.second);
 			coins.erase(coins.begin() + i);
 			coin_position.erase(coin_position.begin() + i);
@@ -160,6 +160,7 @@ void GameScore::initialize(GameMap Map) {
 
 int GameScore::get_coin_dir(int x, int y) {
 	int dir[4][2] = { {1, 0}, {0, -1}, {-1, 0}, {0, 1} };
+
 	queue<pair<int, int>> q_pos;
 	
 	int y_len = gameMap.map_len[0], x_len = gameMap.map_len[1];
@@ -186,7 +187,6 @@ int GameScore::get_coin_dir(int x, int y) {
 	}
 	int fin_dir = -1;
 	while (xx != x || yy != y) {
-		int xx_t = xx;
 		fin_dir = pre[xx][yy];
 		xx = xx - dir[fin_dir][0];
 		yy = yy - dir[fin_dir][1];
