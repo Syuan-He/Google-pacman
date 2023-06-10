@@ -26,6 +26,7 @@ void CGameStateRun::OnBeginState()
 	//遊戲開始時間
 	exc_time_begin = time(NULL);
 	Game_audio -> Play(AUDIO_BEGIN);
+	Auto.game_set();
 }
 
 
@@ -37,6 +38,26 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 			Sleep(1250);
 			preGhostCatchCount = ghostCatchCount;
 		}
+
+		if (Pacman.get_total_step() == Pacman.get_velocity()) {
+			Pacman.update_position(Pacman.getDirNow());
+			if (using_auto) {
+				EnvFeedBack r;
+				pair<pair<int, int>, int> t = min_dis_pacman_ghost(Pacman[0], Pacman[1]);
+				r.ghost_dis = t.first.first;
+				r.ghost_dir = t.first.second;
+				r.ghost_state = t.second;
+				r.coin_dir = near_coin_dir(Pacman[0], Pacman[1]);
+				r.power_dir = near_power_dir(Pacman[0], Pacman[1]);
+				r.wall_dir = near_wall(Pacman[0], Pacman[1]);
+				r.last_dir = Pacman.getDirNow();
+
+				int dir = Auto.choose_dir_By_Qtable(r);
+
+				Pacman.set_dir_waitfor(dir);
+			}
+		}
+
 		Pacman.move();
 
 		//模式改變前的方向改變

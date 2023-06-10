@@ -64,6 +64,7 @@ public:
 	void map_loader(string str);
 	pair<int, int> portal_detect(int x, int y);
 	void add_portal_icon(int x, int y);
+	void erase_v(int x, int y);
 
 	void show_portal();
 	//回傳地圖陣列值
