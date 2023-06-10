@@ -335,13 +335,16 @@ void CGameStateRun::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			Pacman.hearts_icon.set_nums(0, 1);
 			phase = 3;
 			break;
-
+		case 0x4F:
+			using_auto = !using_auto;
+			break;
 		default:
 			break;
 		}
 	}
 	else {
 		invincible = false;
+		using_auto = false;
 	}
 }
 

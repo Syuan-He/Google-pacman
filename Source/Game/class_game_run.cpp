@@ -297,7 +297,7 @@ void CGameStateRun::change_level(int level) {
 void CGameStateRun::debugText() {
 	CDC *pDC = CDDraw::GetBackCDC();
 
-	string strPacPos = "", strPacPoi = "", strCatchTime = "", strInkyChoas = "", strInvincible = "Invincible: ";
+	string strPacPos = "", strPacPoi = "", strCatchTime = "", strInkyChoas = "", strInvincible = "Invincible: ", strAuto = "Auto: ";
 
 	//地圖陣列位置
 	strPacPos += to_string(Pacman[0]) + ", " + to_string(Pacman[1]);	//position in array
@@ -308,7 +308,9 @@ void CGameStateRun::debugText() {
 
 	strInkyChoas += to_string(Inky.isChoas);
 
-	strInvincible += invincible ? "True" : "False";
+	strInvincible += invincible? "True":"False";
+
+	strAuto += using_auto? "True" : "False";;
 
 	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
 	CTextDraw::Print(pDC, 25, 430, strPacPos);
@@ -324,6 +326,9 @@ void CGameStateRun::debugText() {
 
 	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
 	CTextDraw::Print(pDC, 325, 430, strInvincible);
+
+	CTextDraw::ChangeFontLog(pDC, 24, "微軟正黑體", RGB(255, 255, 255));
+	CTextDraw::Print(pDC, 325, 460, strAuto);
 
 	CDDraw::ReleaseBackCDC();
 }

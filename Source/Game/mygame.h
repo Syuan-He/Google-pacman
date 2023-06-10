@@ -161,7 +161,7 @@ namespace game_framework {
 
 		bool debug_mod = false;
 		bool invincible = false;
-		bool using_auto = true;
+		bool using_auto = false;
 		void debugText();
 
 		//auto_training
