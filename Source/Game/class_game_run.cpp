@@ -352,9 +352,10 @@ void CGameStateRun::debugText() {
 pair<pair<int, int>, int> CGameStateRun::min_dis_pacman_ghost(int x_p, int y_p) {
 	int min_dis = INT_FAST16_MAX;
 	int is_choas = 0;
-	int dir;
+	int dir = -1;
 
 	for (GameGhost t : ghosts) {
+		if (t.inHome) continue;
 		int x_g = t[0];
 		int y_g = t[1];
 

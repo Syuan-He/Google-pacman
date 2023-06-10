@@ -62,7 +62,9 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 
 				EnvFeedBack r_ = expect_next_step(dir);
 				double reward_e = Auto.get_expected_max_score(r_);
-				Auto.train(r, dir, Reward, reward_e);
+				//Auto.train(r, dir, Reward, reward_e);
+				
+				dir = Auto.choose_dir_By_Qtable(r);
 
 				Reward = 0;
 				Pacman.set_dir_waitfor(dir);

@@ -39,6 +39,8 @@ void GamePacman::move() {
 			position[0] = t.first;
 			position[1] = t.second;
 			this->SetTopLeft(16 * (position[0] - 2) + window_shift[0], 16 * position[1] + window_shift[1]);
+
+			set_dir_waitfor(position[0] > 10? 2 : 0);
 		}
 	}
 
