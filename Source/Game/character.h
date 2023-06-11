@@ -38,7 +38,7 @@ public:
 	void initialize();
 
 	int get_velocity();
-	//回傳pacman位置
+	//回傳character位置
 	int& operator[](int index);
 };
 
@@ -57,6 +57,7 @@ public:
 	void reset_step_counter();
 	
 	int get_step_counter();
+	int get_total_step();
 	void heart_initialize();
 	void show_heart_icon(int size);
 	int getDirNow();
@@ -78,6 +79,7 @@ public:
 	void setChaseMode(int mode);	// 0: 原本的追蹤; 1: Astar
 	void setEdgePoint(int x, int y);
 	void set_enter_portal_t();
+	int getAstar(int x0, int y0, int x1, int y1);
 	
 	int ghostID = 0;
 	int edgePoint[2] = { 0, 0 };
