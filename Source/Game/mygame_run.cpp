@@ -59,12 +59,15 @@ void CGameStateRun::OnMove()							// 移動遊戲元素
 				if (r.last_dir == dir) {
 					Reward += R_same_dir;
 				}
+				else if (r.last_dir == ((dir + 2) % 4)) {
+					Reward += R_reverse_dir;
+				}
 
 				EnvFeedBack r_ = expect_next_step(dir);
 				double reward_e = Auto.get_expected_max_score(r_);
-				//Auto.train(r, dir, Reward, reward_e);
+				Auto.train(r, dir, Reward, reward_e);
 				
-				dir = Auto.choose_dir_By_Qtable(r);
+				Auto.choose_dir_By_Qtable(r);
 
 				Reward = 0;
 				Pacman.set_dir_waitfor(dir);

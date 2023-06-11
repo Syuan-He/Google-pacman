@@ -176,10 +176,11 @@ namespace game_framework {
 		const int DIS_NEAR = 4;
 
 		const int R_get_point = 10;
-		const int R_get_power = 20;
-		const int R_ate_by_ghost = -200;
-		const int R_eat_ghost = 100;
-		const int R_same_dir = 7;
+		const int R_get_power = 50;
+		const int R_ate_by_ghost = -300;
+		const int R_eat_ghost = 300;
+		const int R_same_dir = 5;
+		const int R_reverse_dir = -5;
 
 		GameAuto Auto;
 		pair<pair<int, int>, int> min_dis_pacman_ghost(int x_p, int y_p);
