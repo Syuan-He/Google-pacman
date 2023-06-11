@@ -38,7 +38,7 @@ public:
 	void initialize();
 
 	int get_velocity();
-	//回傳pacman位置
+	//回傳character位置
 	int& operator[](int index);
 };
 
