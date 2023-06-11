@@ -31,8 +31,8 @@ private:
 	//learing rate
 	double lr = 0.01;
 	int step = 0;
-	int decay_step = 100;
-	double decay_rate = 0.5;
+	int decay_step = 300;
+	double decay_rate = 0.8;
 public:
 	bool game_set();
 	double get_expected_max_score(EnvFeedBack state);

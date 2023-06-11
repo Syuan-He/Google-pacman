@@ -59,8 +59,8 @@ void CGameStateRun::show_obj_by_phase() {
 
 		int x, y, dir;
 		do {
-			x = rand() % 62;
-			y = rand() % 17;
+			x = rand() % Map.map_len[1];
+			y = rand() % Map.map_len[0];
 		} while (Map[y][x] != 0);
 		Pacman.setPos(x, y);
 		do {
