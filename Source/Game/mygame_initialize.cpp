@@ -102,7 +102,7 @@ void CGameStateInit::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 				menu_now = 1;
 				break;
 			case 1:
-				GotoGameState(GAME_STATE_OVER);
+				//GotoGameState(GAME_STATE_OVER);
 				break;
 			case 2:
 				menu_now = 2;
